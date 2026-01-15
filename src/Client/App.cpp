@@ -8,7 +8,7 @@ App::App()
 	CPU_CALLBACK_EXIT(OnExit);
 	CPU_CALLBACK_RENDER(OnRender);
 
-	m_pTank = nullptr;
+	m_pPlayer = nullptr;
 }
 
 App::~App()
@@ -29,8 +29,10 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 
 	// Ship
-	m_pTank = new Tank;
-	m_pTank->Create(XMFLOAT3(0, 3, 0), XMINT3(255, 128, 0));
+	m_pPlayer = new Player();
+	m_pPlayer->Create(XMFLOAT3(0, 3, 0), XMINT3(255, 128, 0));
+	m_pPlCrt = new PlayerController();
+	m_pPlCrt->Init(*m_pPlayer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +42,8 @@ void App::OnStart()
 void App::OnUpdate()
 {
 	// Update
-	m_pTank->Update();
+	m_pPlCrt->HandleInput();
+	m_pPlayer->Update();
 	
 	// Quit
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
@@ -53,7 +56,8 @@ void App::OnUpdate()
 
 void App::OnExit()
 {
-	CPU_DELPTR(m_pTank);
+	CPU_DELPTR(m_pPlayer);
+	delete m_pPlCrt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,21 +111,6 @@ void App::OnRender(int pass)
 			break;
 		}
 	}
-}
-
-void App::MissileShader(cpu_ps_io& io)
-{
-	// garder seulement le rouge du pixel �clair�
-	io.color.x = io.p.color.x;
-}
-
-void App::RockShader(cpu_ps_io& io)
-{
-	float time = cpuTime.total;
-	float scale = ((sinf(time*3.0f)*0.5f)+0.5f) * 0.5f + 0.5f; 
-	io.color.x = io.p.color.x * scale;
-	io.color.y = io.p.color.y * scale;
-	io.color.z = io.p.color.z;
 }
 
 // =======STATE-MACHINE======= //

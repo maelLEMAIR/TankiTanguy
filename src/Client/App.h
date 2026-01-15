@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Gameplay/Tank.hpp"
+#include "../Gameplay/Player.hpp"
+#include "Gameplay/PlayerController.hpp"
 
 class App
 {
@@ -26,7 +27,8 @@ private:
 	cpu_rt* m_rts[1];
 
 	// 3D
-	Tank* m_pTank;
+	Player* m_pPlayer;
+	PlayerController* m_pPlCrt;
 };
 
 // =======STATE-MACHINE======= //
