@@ -21,6 +21,7 @@ ServerSocket::ServerSocket()
 
 ServerSocket::~ServerSocket()
 {
+	closesocket(m_socket);
 }
 
 void ServerSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
