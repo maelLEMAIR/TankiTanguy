@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Gameplay/Player.hpp"
+#include "Gameplay/Player.hpp"
 #include "Gameplay/PlayerController.hpp"
 
 class App

@@ -29,6 +29,8 @@ private:
 
     std::vector<Missile*> m_pMissiles;
     float m_speed = 2.5f;
+
+    float m_angle = XM_PI;
 };
 
 
@@ -69,37 +71,53 @@ inline void Player::Destroy()
 inline void Player::Update()
 {
     float dt = cpuTime.delta;
+
     // Move missiles
     for ( auto it=m_pMissiles.begin() ; it!=m_pMissiles.end() ; ++it )
     {
         Missile* pMissile = *it;
         pMissile->Update();
     }
-        
-    // Follow tank
-    // m_pCanon->transform.pos.x = m_pBody->transform.pos.x;
-    // m_pCanon->transform.pos.y = m_pBody->transform.pos.y + 0.5f;
-    // m_pCanon->transform.pos.z = m_pBody->transform.pos.z + 1.f;
-    //
-    // m_pHead->transform.pos.x = m_pBody->transform.pos.x;
-    // m_pHead->transform.pos.y = m_pBody->transform.pos.y;
-    // m_pHead->transform.pos.z = m_pBody->transform.pos.z;
+    m_pBody->transform.SetYPR(m_angle, 0.f, 0.f);
+    
+    XMFLOAT3 posBody = m_pBody->transform.pos;
+    
+    m_pHead->transform.SetYPR(m_angle, 0.f, 0.f);
+    m_pHead->transform.pos = posBody;
+    m_pHead->transform.pos.y += 0.5f;
+    
+    XMFLOAT3 forward;
+    forward.x = sin(m_angle);
+    forward.z = cos(m_angle);
 
-    //cpuEngine.GetCamera()->transform.rot = m_pBody->transform.rot;
-    if (cpuInput.IsKeyDown(VK_LBUTTON))
-    {
-        cpuEngine.GetCamera()->transform.pos.x = m_pHead->transform.pos.x;
-        cpuEngine.GetCamera()->transform.pos.y = m_pHead->transform.pos.x + 5.f;
-        cpuEngine.GetCamera()->transform.pos.z = m_pHead->transform.pos.x;
-        cpuEngine.GetCamera()->transform.SetYPR(0.0f, 90.f, 0.0f);
-    }
-    if (cpuInput.IsKeyDown(VK_RBUTTON))
-    {
-        cpuEngine.GetCamera()->transform.pos.x = m_pHead->transform.pos.x;
-        cpuEngine.GetCamera()->transform.pos.y = m_pHead->transform.pos.y + 0.5f;
-        cpuEngine.GetCamera()->transform.pos.z = m_pHead->transform.pos.z - 5.0f;
-        cpuEngine.GetCamera()->transform.SetYPR(0.0f, 0.0f, 0.0f);
-    }
+    m_pCanon->transform.pos = posBody;
+    m_pCanon->transform.pos.x += forward.x * 1.5f;
+    m_pCanon->transform.pos.z += forward.z * 1.5f;
+    m_pCanon->transform.pos.y += 0.5f;
+
+    m_pCanon->transform.LookAt(
+        m_pCanon->transform.pos.x + forward.x,
+        m_pCanon->transform.pos.y,
+        m_pCanon->transform.pos.z + forward.z
+    );
+
+    float camDist = 1.5f;
+    float camHeight = 1.25f;
+
+    cpuEngine.GetCamera()->transform.pos.x = posBody.x - forward.x * camDist;
+    cpuEngine.GetCamera()->transform.pos.z = posBody.z - forward.z * camDist;
+    cpuEngine.GetCamera()->transform.pos.y = posBody.y + camHeight;
+    
+    XMFLOAT3 lookAtPos;
+    lookAtPos.x = posBody.x + forward.x * 5.f;
+    lookAtPos.y = posBody.y;
+    lookAtPos.z = posBody.z + forward.z * 5.f;
+
+    cpuEngine.GetCamera()->transform.LookAt(
+        lookAtPos.x,
+        lookAtPos.y,
+        lookAtPos.z
+    );
 }
 
 inline void Player::Move(float _dir)
@@ -111,14 +129,14 @@ inline void Player::Move(float _dir)
 inline void Player::Turn(float _dir)
 {
     float dt = cpuTime.delta;
+    m_angle += _dir * dt;
     m_pBody->transform.AddYPR(dt * _dir);
-    m_pHead->transform.OrbitAroundAxis(m_pBody->transform.pos, CPU_UP, 0.f, dt * _dir);
-    m_pCanon->transform.OrbitAroundAxis(m_pBody->transform.pos, CPU_UP, 1.f, dt * _dir);
+    std::cout << m_angle << std::endl;
 }
 
 inline void Player::Shoot()
 {
     Missile* missile = new Missile();
-    missile->Create(m_pCanon->transform);
+    missile->Create(m_pCanon->transform, m_angle);
     m_pMissiles.push_back(missile);
 }
