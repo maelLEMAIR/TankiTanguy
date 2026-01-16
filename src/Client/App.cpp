@@ -28,11 +28,14 @@ void App::OnStart()
 	m_font.Create(12);
 	m_rts[0] = cpuEngine.CreateRT();
 
-	// Ship
+	// Player
 	m_pPlayer = new Player();
 	m_pPlayer->Create(XMFLOAT3(0, 3, 0), XMINT3(255, 128, 0));
 	m_pPlCrt = new PlayerController();
 	m_pPlCrt->Init(*m_pPlayer);
+
+	m_pPlayer2 = new Player();
+	m_pPlayer2->Create(XMFLOAT3(0, 3, 50), XMINT3(0, 0, 255));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,26 +90,7 @@ void App::OnRender(int pass)
 		}
 		case CPU_PASS_UI_END:
 		{
-			// Debug
-			cpu_stats& stats = *cpuEngine.GetStats();
-			std::string info = CPU_STR(cpuTime.fps) + " fps, ";
-			info += CPU_STR(stats.drawnTriangleCount) + " triangles, ";
-			info += CPU_STR(stats.clipEntityCount) + " clipped entities\n";
-			info += CPU_STR(cpuEngine.GetParticleData()->alive) + " particles, ";
-			info += CPU_STR(stats.threadCount) + " threads, ";
-			info += CPU_STR(stats.tileCount) + " tiles";
-
-			// Ray cast
-			cpu_ray ray;
-			cpuEngine.GetCursorRay(ray);
-			cpu_hit hit;
-			cpu_entity* pEntity = cpuEngine.HitEntity(hit, ray);
-			if ( pEntity )
-			{
-				info += "\nHIT: ";
-				info += CPU_STR(pEntity->index).c_str();
-			}
-
+			std::string info = "TANKITANGUY";
 			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
 			break;
 		}

@@ -29,6 +29,7 @@ private:
 	// 3D
 	Player* m_pPlayer;
 	PlayerController* m_pPlCrt;
+	Player* m_pPlayer2;
 };
 
 // =======STATE-MACHINE======= //

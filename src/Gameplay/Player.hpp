@@ -1,20 +1,20 @@
 ﻿#pragma once
 #include <iostream>
 
-#include "Missile.hpp"
+#include "GameCamera.hpp"
 #include "pch.h"
+#include "Weapon.hpp"
 
 class Player
 {
 public:
     Player();
-    ~Player() = default;
+    ~Player();
     void Create(XMFLOAT3 _pos, XMINT3 _color);
-    void Destroy();
     void Update();
     void Move(float _dir);
     void Turn(float _dir);
-    void Shoot();
+    void Shoot() { m_pWeapon->Shoot(); };
 
 protected:
     
@@ -27,14 +27,14 @@ private:
     cpu_mesh m_meshTank;
     cpu_material m_materialTank;
 
-    std::vector<Missile*> m_pMissiles;
+    GameCamera* m_pCamera;
+    Weapon* m_pWeapon;
     float m_speed = 2.5f;
 
-    float m_angle = XM_PI;
+    float m_pAngle = XM_PI;
 };
 
-
-inline Player::Player() : m_pBody(nullptr), m_pHead(nullptr), m_pCanon(nullptr) { }
+inline Player::Player() : m_pBody(nullptr), m_pHead(nullptr), m_pCanon(nullptr), m_pWeapon(nullptr), m_pCamera(nullptr) { }
 
 inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
 {
@@ -58,37 +58,34 @@ inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
     m_pCanon->pMaterial = &m_materialTank;
     m_pCanon->transform.pos = _pos;
     m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
+
+    m_pCamera = new GameCamera(m_pAngle, m_pBody->transform);
+    m_pWeapon = new Weapon(m_pAngle, m_pCanon->transform);
 }
 
-inline void Player::Destroy()
+inline Player::~Player()
 {
     m_pBody = cpuEngine.Release(m_pBody);
     m_pHead = cpuEngine.Release(m_pHead);
     m_pCanon = cpuEngine.Release(m_pCanon);
-    m_pMissiles.clear();
+    CPU_DELPTR( m_pWeapon );
+    CPU_DELPTR( m_pCamera );
 }
 
 inline void Player::Update()
 {
     float dt = cpuTime.delta;
-
-    // Move missiles
-    for ( auto it=m_pMissiles.begin() ; it!=m_pMissiles.end() ; ++it )
-    {
-        Missile* pMissile = *it;
-        pMissile->Update();
-    }
-    m_pBody->transform.SetYPR(m_angle, 0.f, 0.f);
+    m_pBody->transform.SetYPR(m_pAngle, 0.f, 0.f);
     
     XMFLOAT3 posBody = m_pBody->transform.pos;
     
-    m_pHead->transform.SetYPR(m_angle, 0.f, 0.f);
+    m_pHead->transform.SetYPR(m_pAngle, 0.f, 0.f);
     m_pHead->transform.pos = posBody;
     m_pHead->transform.pos.y += 0.5f;
     
     XMFLOAT3 forward;
-    forward.x = sin(m_angle);
-    forward.z = cos(m_angle);
+    forward.x = sin(m_pAngle);
+    forward.z = cos(m_pAngle);
 
     m_pCanon->transform.pos = posBody;
     m_pCanon->transform.pos.x += forward.x * 1.5f;
@@ -100,24 +97,9 @@ inline void Player::Update()
         m_pCanon->transform.pos.y,
         m_pCanon->transform.pos.z + forward.z
     );
-
-    float camDist = 1.5f;
-    float camHeight = 1.25f;
-
-    cpuEngine.GetCamera()->transform.pos.x = posBody.x - forward.x * camDist;
-    cpuEngine.GetCamera()->transform.pos.z = posBody.z - forward.z * camDist;
-    cpuEngine.GetCamera()->transform.pos.y = posBody.y + camHeight;
     
-    XMFLOAT3 lookAtPos;
-    lookAtPos.x = posBody.x + forward.x * 5.f;
-    lookAtPos.y = posBody.y;
-    lookAtPos.z = posBody.z + forward.z * 5.f;
-
-    cpuEngine.GetCamera()->transform.LookAt(
-        lookAtPos.x,
-        lookAtPos.y,
-        lookAtPos.z
-    );
+    m_pCamera->Update();
+    m_pWeapon->Update();
 }
 
 inline void Player::Move(float _dir)
@@ -129,14 +111,6 @@ inline void Player::Move(float _dir)
 inline void Player::Turn(float _dir)
 {
     float dt = cpuTime.delta;
-    m_angle += _dir * dt;
+    m_pAngle += _dir * dt;
     m_pBody->transform.AddYPR(dt * _dir);
-    std::cout << m_angle << std::endl;
-}
-
-inline void Player::Shoot()
-{
-    Missile* missile = new Missile();
-    missile->Create(m_pCanon->transform, m_angle);
-    m_pMissiles.push_back(missile);
 }
