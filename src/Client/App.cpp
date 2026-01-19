@@ -30,13 +30,17 @@ void App::OnStart()
 
 	// Player
 	m_pPlayer = new Player();
-	m_pPlayer->Create(XMFLOAT3(0, 0, 0), XMINT3(255, 128, 0));
+	m_pPlayer->Create(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0));
 	m_pPlCrt = new PlayerController();
 	m_pPlCrt->Init(*m_pPlayer);
 
 	m_pPlayer2 = new Player();
-	m_pPlayer2->Create(XMFLOAT3(0, 0, 25), XMINT3(0, 0, 255));
-	
+	m_pPlayer2->Create(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255));
+
+	m_pPlayer3 = new Player();
+	m_pPlayer3->Create(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0));
+
+	// UI
 	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 10);
 	m_loginAdrr = new InputText(m_font, pos, CPU_TEXT_CENTER);
 	m_loginAdrr->SetActive(true);

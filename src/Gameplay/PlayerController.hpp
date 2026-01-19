@@ -24,6 +24,6 @@ inline void PlayerController::HandleInput()
     if (cpuInput.IsKey(VK_LEFT))
         m_pPlayer->Turn(-1);
 
-    if (cpuInput.IsKeyDown(VK_SPACE))
+    if (cpuInput.IsKey(VK_SPACE))
         m_pPlayer->Shoot();
 }

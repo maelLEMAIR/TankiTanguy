@@ -50,6 +50,8 @@ inline void Missile::Create(cpu_transform& _transform)
 inline void Missile::Update()
 {
     float dt = cpuTime.delta;
-    float dist = 
+    XMFLOAT3 pos = m_pMissile->transform.pos;
+    float dist = sqrt(pow(pos.x - m_firstPos.x, 2) + pow(pos.z - m_firstPos.z, 2));
+    if (dist > 25.f) m_pMissile->dead = true;
     m_pMissile->transform.Move(m_speed * dt);
 }

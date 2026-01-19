@@ -10,14 +10,13 @@ class Player
 public:
     Player();
     ~Player();
-    void Create(XMFLOAT3 _pos, XMINT3 _color);
+    void Create(XMFLOAT3 _pos, float _angle, XMINT3 _color);
     void Update();
     void Move(float _dir);
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
 
 protected:
-    
 
 private:
     cpu_entity* m_pBody;
@@ -36,8 +35,9 @@ private:
 
 inline Player::Player() : m_pBody(nullptr), m_pHead(nullptr), m_pCanon(nullptr), m_pWeapon(nullptr), m_pCamera(nullptr) { }
 
-inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
+inline void Player::Create(XMFLOAT3 _pos, float _angle, XMINT3 _color)
 {
+    m_pAngle = _angle;
     m_materialTank.color = cpu::ToColor(_color.x, _color.y, _color.z);
     m_meshTank.CreateCube();
     
@@ -45,6 +45,7 @@ inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
     m_pBody->pMesh = &m_meshTank;
     m_pBody->pMaterial = &m_materialTank;
     m_pBody->transform.pos = _pos;
+    m_pBody->transform.SetYPR(m_pAngle, 0.f, 0.f);
     m_pBody->transform.sca = XMFLOAT3(1.0f, 1.0f, 2.0f);
 
     m_pHead = cpuEngine.CreateEntity();
@@ -54,16 +55,26 @@ inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
     m_pHead->transform.pos.y += 0.5f;
     m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
 
+    XMFLOAT3 forward = m_pBody->transform.dir;
+    
     m_pCanon = cpuEngine.CreateEntity();
     m_pCanon->pMesh = &m_meshTank;
     m_pCanon->pMaterial = &m_materialTank;
     m_pCanon->transform.pos = _pos;
+    m_pCanon->transform.pos.x += forward.x * 1.5f;
+    m_pCanon->transform.pos.z += forward.z * 1.5f;
     m_pCanon->transform.pos.y += 0.5f;
-    m_pCanon->transform.pos.z -= 1.5f;
     m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
 
-    m_pCamera = new GameCamera(m_pAngle, m_pBody->transform);
-    m_pWeapon = new Weapon(m_pAngle, m_pCanon->transform);
+    
+    m_pCanon->transform.LookAt(
+        m_pCanon->transform.pos.x + forward.x,
+        m_pCanon->transform.pos.y,
+        m_pCanon->transform.pos.z + forward.z
+    );
+    
+    m_pCamera = new GameCamera(m_pBody->transform);
+    m_pWeapon = new Weapon(m_pCanon->transform);
 }
 
 inline Player::~Player()

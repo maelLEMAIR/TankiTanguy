@@ -3,7 +3,7 @@
 class GameCamera
 {
 public:
-    GameCamera(float& _angle, cpu_transform& _bodyTransform);
+    GameCamera(cpu_transform& _bodyTransform);
     ~GameCamera() = default;
     void Update();
     
@@ -13,14 +13,12 @@ private:
     
     cpu_camera* m_pCamera;
     cpu_transform* m_pBodyTransform;
-    float* m_pAngle;
 };
 
 
-inline GameCamera::GameCamera(float& _angle, cpu_transform& _bodyTransform)
+inline GameCamera::GameCamera(cpu_transform& _bodyTransform)
 {
     m_pCamera = cpuEngine.GetCamera();
-    m_pAngle = &_angle;
     m_pBodyTransform = &_bodyTransform;
 }
 
@@ -29,9 +27,7 @@ inline void GameCamera::Update()
     float camDist = 1.5f;
     float camHeight = 1.25f;
 
-    XMFLOAT3 forward;
-    forward.x = sin(*m_pAngle);
-    forward.z = cos(*m_pAngle);
+    XMFLOAT3 forward = m_pBodyTransform->dir;
     
     m_pCamera->transform.pos.x = m_pBodyTransform->pos.x - forward.x * camDist;
     m_pCamera->transform.pos.z = m_pBodyTransform->pos.z - forward.z * camDist;

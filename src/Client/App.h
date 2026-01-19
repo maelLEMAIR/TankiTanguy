@@ -28,6 +28,7 @@ private:
 	Player* m_pPlayer;
 	PlayerController* m_pPlCrt;
 	Player* m_pPlayer2;
+	Player* m_pPlayer3;
 
 	// UI
 	InputText* m_pseudo;
