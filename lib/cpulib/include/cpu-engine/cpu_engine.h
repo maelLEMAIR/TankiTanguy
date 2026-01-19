@@ -26,7 +26,9 @@ public:
 	int NextTile() { return m_nextTile.Add(1); }
 	void GetParticleRange(int& min, int& max, int iTile);
 	cpu_stats* GetStats() { return &m_stats; }
+	void EnableRender(bool enabled = true) { m_renderEnabled = enabled; }
 
+	void ClearManagers();
 	template <typename T>
 	cpu_fsm<T>* CreateFSM(T* pInstance);
 	cpu_entity* CreateEntity();
@@ -41,6 +43,7 @@ public:
 	cpu_rt* Release(cpu_rt* pRT);
 
 	void SetCursor(cpu_texture* pTexture);
+	void SetCursor(XMFLOAT2& pt);
 	void GetCursor(XMFLOAT2& pt);
 	void GetCameraRay(cpu_ray& out, XMFLOAT2& pt);
 	void GetCursorRay(cpu_ray& out);
@@ -78,6 +81,9 @@ private:
 
 private:
 	inline static cpu_engine* s_pEngine;
+
+	// Options
+	bool m_renderEnabled;
 
 	// Window
 	cpu_window m_window;
