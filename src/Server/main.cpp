@@ -9,6 +9,8 @@ ServerSocket* server = nullptr;
 
 DWORD WINAPI ReceiveMessage(LPVOID lpParam)
 {
+	Sleep(1000); //Attendre lancement jeu
+
 	std::vector<uint8_t> buffer(MAX_UDP_PACKET_SIZE);
 
 	while (App::GetInstance().IsRunning())
@@ -21,6 +23,13 @@ DWORD WINAPI ReceiveMessage(LPVOID lpParam)
 	return 0;
 }
 
+DWORD WINAPI Game(LPVOID lpParam)
+{
+	CPU_RUN(512, 256);
+
+	return 0;
+}
+
 int main()
 {
 	WSADATA data;
@@ -28,8 +37,8 @@ int main()
 
 	server = new ServerSocket();
 
+	HANDLE game = CreateThread(NULL, 0, Game, NULL, 0, NULL);
 	HANDLE UdpRecv = CreateThread(NULL, 0, ReceiveMessage, NULL, 0, NULL);
-	CPU_RUN(512, 256);
 
 	WaitForSingleObject(UdpRecv, INFINITE);
 	
