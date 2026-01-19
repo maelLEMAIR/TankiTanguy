@@ -137,10 +137,37 @@ void App::OnRender(int pass)
 			else if(m_pseudo->IsActive())
 				m_pseudo->Render();
 
+			XMFLOAT2 screenPos;
+			if (WorldToScreen(m_pPlayer2->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+			{
+				cpuDevice.DrawText(&m_font, m_pPlayer2->GetPseudo()->c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+			}
+			
 			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
 			break;
 		}
 	}
+}
+
+bool App::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight)
+{
+	float clip[4];
+
+	clip[0] = world.x * viewProj.m[0][0] + world.y * viewProj.m[1][0] + world.z * viewProj.m[2][0] + viewProj.m[3][0];
+	clip[1] = world.x * viewProj.m[0][1] + world.y * viewProj.m[1][1] + world.z * viewProj.m[2][1] + viewProj.m[3][1];
+	clip[2] = world.x * viewProj.m[0][2] + world.y * viewProj.m[1][2] + world.z * viewProj.m[2][2] + viewProj.m[3][2];
+	clip[3] = world.x * viewProj.m[0][3] + world.y * viewProj.m[1][3] + world.z * viewProj.m[2][3] + viewProj.m[3][3];
+
+	if (clip[3] <= 0.0f)
+		return false;
+
+	float ndcX = clip[0] / clip[3];
+	float ndcY = clip[1] / clip[3];
+
+	screen.x = (ndcX * 0.5f + 0.5f) * static_cast<float>(screenWidth);
+	screen.y = (1.0f - (ndcY * 0.5f + 0.5f)) * static_cast<float>(screenHeight);
+
+	return true;
 }
 
 // =======STATE-MACHINE======= //

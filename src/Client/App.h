@@ -16,6 +16,8 @@ public:
 	void OnUpdate();
 	void OnExit();
 	void OnRender(int pass);
+	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth,
+	                   int screenHeight);
 
 private:
 	inline static App* s_pApp = nullptr;

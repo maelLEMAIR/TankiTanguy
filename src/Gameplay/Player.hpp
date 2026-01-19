@@ -15,7 +15,8 @@ public:
     void Move(float _dir);
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
-
+    XMFLOAT3 GetPos() const { return m_pBody->transform.pos; }
+    std::string* GetPseudo() { return &m_pseudo; }
 protected:
 
 private:
@@ -26,6 +27,8 @@ private:
     cpu_mesh m_meshTank;
     cpu_material m_materialTank;
 
+    std::string m_pseudo = "CACA";
+    
     GameCamera* m_pCamera;
     Weapon* m_pWeapon;
     float m_speed = 2.5f;
