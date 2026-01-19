@@ -17,6 +17,13 @@ ServerSocket::ServerSocket()
 	{
 		std::cerr << "Bind failed with error: " << WSAGetLastError() << std::endl;
 	}
+
+	PlayerInfo* player1 = new PlayerInfo();
+	PlayerInfo* player2 = new PlayerInfo();
+	player1->playerId = 1;
+	player2->playerId = 2;
+	m_vClientsInfo.push_back(player1);
+	m_vClientsInfo.push_back(player2);
 }
 
 ServerSocket::~ServerSocket()
@@ -26,9 +33,8 @@ ServerSocket::~ServerSocket()
 
 void ServerSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
 {
-	sockaddr_in clientSocket;
 	socklen_t clientSocketLen = sizeof(sockaddr_in);
-	int ret = recvfrom(m_socket, (char*)buffer.data(), length, 0, (sockaddr*)&clientSocket, &clientSocketLen);
+	int ret = recvfrom(m_socket, (char*)buffer.data(), length, 0, (sockaddr*)&m_lastClientAddr, &clientSocketLen);
 
 	if (ret > 0)
 	{
@@ -45,7 +51,7 @@ void ServerSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
 	}
 }
 
-void ServerSocket::SendPacket(const char* data, int length)
+void ServerSocket::SendPacket(uint8_t clientID, const char* data, int length)
 {
 }
 
@@ -88,8 +94,42 @@ void ServerSocket::HandleClientHello(BufferReader& reader)
 {
 	MsgClientHello decoded;
 	bool msgOk = DeserializeClientHello(reader, decoded);
-	std::cout << "Nonce: " << std::hex << decoded.clientNonce << std::dec << "\n";
-	std::cout << "Name : " << decoded.playerName << "\n";
+	std::cout << "persistentID: " << (int)decoded.persistentId << "\n";
+
+	int playerID = 0;
+	if (m_vClientsInfo[0]->persistentId == 0)
+	{
+		InitClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
+		std::cout << "Player 1 connected: " << decoded.playerName << "\n";
+	}
+	else if (m_vClientsInfo[0]->persistentId == decoded.persistentId)
+	{
+		InitClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
+		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
+	}
+	else if (m_vClientsInfo[1]->persistentId == 0)
+	{
+		InitClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
+		std::cout << "Player 2 connected: " << decoded.playerName << "\n";
+	}
+	else
+	{
+		InitClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
+		std::cout << "Player 2 reconnected: " << decoded.playerName << "\n";
+	}
+
+	PacketHeader header;
+	header.packetType = PacketType::ServerWelcome;
+
+	MsgServerWelcome welcomeMsg;
+	welcomeMsg.playerId = playerID;
+	welcomeMsg.serverTickRate = 60;
+	welcomeMsg.serverTimeMs = 0;
+
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	SerializeServerWelcome(writer, welcomeMsg);
+	SendPacket(welcomeMsg.playerId, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
 void ServerSocket::HandleClientInput(BufferReader& reader)
@@ -106,4 +146,12 @@ void ServerSocket::HandlePong(BufferReader& reader)
 
 void ServerSocket::HandleDisconnect(BufferReader& reader)
 {
+}
+
+void ServerSocket::InitClientInfo(PlayerInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)
+{
+	pInfo->persistentId = msg.persistentId;
+	pInfo->playerName = msg.playerName;
+	pInfo->address = addr;
+	pInfo->isConnected = true;
 }

@@ -23,7 +23,7 @@ void ClientSocket::ConnectToServer(const char* ipAddress, int port)
 	header.packetType = PacketType::ClientHello;
 
 	MsgClientHello hello;
-	hello.clientNonce = 0x1122334455667788ULL;
+	hello.persistentId = 151;
 	hello.playerName = "Alice";
 
 	BufferWriter writer;
@@ -38,6 +38,7 @@ void ClientSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
 	sockaddr_in serverSocket;
 	socklen_t serverSocketLen = sizeof(sockaddr_in);
 	int ret = recvfrom(m_socket, (char*)buffer.data(), length, 0, (sockaddr*)&serverSocket, &serverSocketLen);
+
 	if (ret > 0)
 	{
 		// Init d'un BufferReader pour lire les données reçues
@@ -94,6 +95,7 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 
 void ClientSocket::HandleServerWelcome(BufferReader& reader)
 {
+
 	std::cout << "Message ServerWelcome reçu\n";
 }
 

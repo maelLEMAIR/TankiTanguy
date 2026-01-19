@@ -100,7 +100,6 @@ struct PacketHeader
 	uint8_t  packetType;							// PacketType (uint8_t)
 
 	// --- Session routing ---
-	uint32_t sessionId = 0;							// 0 tant que pas assigné (network order)
 	uint8_t  playerId = 0;							// 0=unknown, 1=player1, 2=player2
 
 	// --- Delivery / ordering ---
@@ -210,14 +209,13 @@ struct BufferReader
 	}
 };
 
-constexpr size_t PACKET_HEADER_SIZE = 21;
+constexpr size_t PACKET_HEADER_SIZE = 17;
 
 inline void SerializePacketHeader(BufferWriter& writer, const PacketHeader& header)
 {
 	writer.WriteU16(header.protocolMagic);
 	writer.WriteU8(header.protocolVersion);
 	writer.WriteU8(header.packetType);
-	writer.WriteU32(header.sessionId);
 	writer.WriteU8(header.playerId);
 	writer.WriteU16(header.sequence);
 	writer.WriteU16(header.ack);
@@ -232,7 +230,6 @@ inline bool DeserializePacketHeader(BufferReader& reader, PacketHeader& header)
 	if (reader.ReadU8(header.protocolVersion) == false)		return false;
 	if (reader.ReadU8(type) == false)						return false;
 	header.packetType = type;
-	if (reader.ReadU32(header.sessionId) == false)			return false;
 	if (reader.ReadU8(header.playerId) == false)			return false;
 	if (reader.ReadU16(header.sequence) == false)			return false;
 	if (reader.ReadU16(header.ack) == false)				return false;
@@ -244,13 +241,13 @@ inline bool DeserializePacketHeader(BufferReader& reader, PacketHeader& header)
 
 struct MsgClientHello
 {
-	uint64_t clientNonce;
+	uint8_t persistentId;
 	std::string playerName;
 };
 
 inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg)
 {
-	writer.WriteU64(msg.clientNonce);
+	writer.WriteU8(msg.persistentId);
 	writer.WriteU8((uint8_t)msg.playerName.size());
 	writer.WriteBytes(msg.playerName.data(), msg.playerName.size());
 }
@@ -258,7 +255,7 @@ inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg
 inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 {
 	uint8_t nameLen;
-	if (reader.ReadU64(msg.clientNonce) == false)	return false;
+	if (reader.ReadU8(msg.persistentId) == false)	return false;
 	if (reader.ReadU8(nameLen) == false)			return false;
 	if (reader.CanRead(nameLen) == false)			return false;
 
@@ -271,29 +268,98 @@ inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 
 struct MsgServerWelcome
 {
-	uint32_t sessionId;
 	uint8_t  playerId;
 	uint8_t  serverTickRate;
-	uint16_t mapId;
 	uint32_t serverTimeMs;
 };
 
 inline void SerializeServerWelcome(BufferWriter& writer, const MsgServerWelcome& message)
 {
-	writer.WriteU32(message.sessionId);
 	writer.WriteU8(message.playerId);
 	writer.WriteU8(message.serverTickRate);
-	writer.WriteU16(message.mapId);
 	writer.WriteU32(message.serverTimeMs);
 }
 
 inline bool DeserializeServerWelcome(BufferReader& reader, MsgServerWelcome& message)
 {
-	return reader.ReadU32(message.sessionId) &&
-		reader.ReadU8(message.playerId) &&
+	return reader.ReadU8(message.playerId) &&
 		reader.ReadU8(message.serverTickRate) &&
-		reader.ReadU16(message.mapId) &&
 		reader.ReadU32(message.serverTimeMs);
+}
+
+struct MsgMatchStart
+{
+	uint32_t matchDurationMs;
+};
+
+inline void SerializeMatchStart(BufferWriter& writer, const MsgMatchStart& msg)
+{
+	writer.WriteU32(msg.matchDurationMs);
+}
+
+inline bool DeserializeMatchStart(BufferReader& reader, MsgMatchStart& msg)
+{
+	return reader.ReadU32(msg.matchDurationMs);
+}
+
+struct MsgDisconnect
+{
+	uint8_t reasonCode;
+};
+
+inline void SerializeDisconnect(BufferWriter& writer, const MsgDisconnect& msg)
+{
+	writer.WriteU8(msg.reasonCode);
+}
+
+inline bool DeserializeDisconnect(BufferReader& reader, MsgDisconnect& msg)
+{
+	return reader.ReadU8(msg.reasonCode);
+}
+
+struct MsgInput
+{
+	uint8_t inputFlags;
+};
+
+inline void SerializeClientInput(BufferWriter& writer, const MsgInput& msg)
+{
+	writer.WriteU8(msg.inputFlags);
+}
+
+inline bool DeserializeClientInput(BufferReader& reader, MsgInput& msg)
+{
+	return reader.ReadU8(msg.inputFlags);
+}
+
+struct MsgSnapshot
+{
+
+};
+
+inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg)
+{
+
+}
+
+inline bool DeserializeServerSnapshot(BufferReader& reader, MsgSnapshot& msg)
+{
+	return true;
+}
+
+struct MsgPing
+{
+	uint32_t pingId;
+};
+
+inline void SerializePing(BufferWriter& writer, const MsgPing& msg)
+{
+	writer.WriteU32(msg.pingId);
+}
+
+inline bool DeserializePing(BufferReader& reader, MsgPing& msg)
+{
+	return reader.ReadU32(msg.pingId);
 }
 
 #endif 
