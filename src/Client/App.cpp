@@ -37,7 +37,11 @@ void App::OnStart()
 	m_pPlayer2 = new Player();
 	m_pPlayer2->Create(XMFLOAT3(0, 0, 25), XMINT3(0, 0, 255));
 	
-	m_pseudo = new InputText(m_font, XMINT2(0, 0));
+	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 10);
+	m_loginAdrr = new InputText(m_font, pos, CPU_TEXT_CENTER);
+	m_loginAdrr->SetActive(true);
+	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
+	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +54,20 @@ void App::OnUpdate()
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
 	
+	if (m_loginAdrr->IsFinished() == false)
+	{
+		m_loginAdrr->Update();
+		return;
+	}
+	m_loginAdrr->SetActive(false);
+	m_loginPort->SetActive(true);
+	if (m_loginPort->IsFinished() == false)
+	{
+		m_loginPort->Update();
+		return;
+	}
+	m_loginPort->SetActive(false);
+	m_pseudo->SetActive(true);
 	if (m_pseudo->IsFinished() == false)
 	{
 		m_pseudo->Update();
@@ -100,11 +118,21 @@ void App::OnRender(int pass)
 		case CPU_PASS_UI_END:
 		{
 			std::string info;
-			if (m_pseudo->GetText().empty())
-			{
+			if (m_loginAdrr->IsActive() && m_loginAdrr->GetText().empty())
+				info = "Enter an addresse";
+			else if (m_loginAdrr->IsActive())
+				m_loginAdrr->Render();
+
+			if (m_loginPort->IsActive() && m_loginPort->GetText().empty())
+				info = "Enter a port";
+			else if (m_loginPort->IsActive())
+				m_loginPort->Render();
+
+			if (m_pseudo->IsActive() && m_pseudo->GetText().empty())
 				info = "Enter a pseudo";
-			}
-			m_pseudo->Render();
+			else if(m_pseudo->IsActive())
+				m_pseudo->Render();
+
 			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
 			break;
 		}

@@ -6,7 +6,7 @@ class Missile
 public:
     Missile() = default;
     ~Missile();
-    void Create(cpu_transform& _transform, float _angle);
+    void Create(cpu_transform& _transform);
     void Update();
 
     cpu_entity& GetEntity() const {return *m_pMissile; };
@@ -28,15 +28,13 @@ inline Missile::~Missile()
     m_pMissile = cpuEngine.Release(m_pMissile);
 }
 
-inline void Missile::Create(cpu_transform& _transform, float _angle)
+inline void Missile::Create(cpu_transform& _transform)
 {
     m_firstPos = _transform.pos;
     m_missileMaterial.color = cpu::ToColor(87, 87, 87);
     m_meshMissile.CreateSphere();
 
-    XMFLOAT3 forward;
-    forward.x = sin(_angle);
-    forward.z = cos(_angle);
+    XMFLOAT3 forward = _transform.dir;
     
     m_pMissile = cpuEngine.CreateEntity();
     m_pMissile->pMesh = &m_meshMissile;
@@ -52,5 +50,6 @@ inline void Missile::Create(cpu_transform& _transform, float _angle)
 inline void Missile::Update()
 {
     float dt = cpuTime.delta;
+    float dist = 
     m_pMissile->transform.Move(m_speed * dt);
 }

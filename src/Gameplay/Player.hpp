@@ -86,9 +86,7 @@ inline void Player::Update()
     m_pHead->transform.pos = posBody;
     m_pHead->transform.pos.y += 0.5f;
     
-    XMFLOAT3 forward;
-    forward.x = sin(m_pAngle);
-    forward.z = cos(m_pAngle);
+    XMFLOAT3 forward = m_pBody->transform.dir;
 
     m_pCanon->transform.pos = posBody;
     m_pCanon->transform.pos.x += forward.x * 1.5f;

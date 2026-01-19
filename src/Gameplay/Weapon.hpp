@@ -6,7 +6,7 @@
 class Weapon
 {
 public:
-    Weapon(float& _angle, cpu_transform& _wpTransform) : m_pAngle(&_angle), m_pWeaponTransform(&_wpTransform) {};
+    Weapon(float& _angle, cpu_transform& _wpTransform) : m_pWeaponTransform(&_wpTransform) {};
     ~Weapon();
     void Init();
     void Update();
@@ -14,7 +14,6 @@ public:
 protected:
     
 private:
-    float* m_pAngle;
     cpu_transform* m_pWeaponTransform;
     std::vector<Missile*> m_pMissiles;
 };
@@ -28,7 +27,7 @@ inline Weapon::~Weapon()
 inline void Weapon::Shoot()
 {
     Missile* missile = new Missile();
-    missile->Create(*m_pWeaponTransform, *m_pAngle);
+    missile->Create(*m_pWeaponTransform);
     m_pMissiles.push_back(missile);
 }
 

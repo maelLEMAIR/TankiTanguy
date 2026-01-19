@@ -31,6 +31,8 @@ private:
 
 	// UI
 	InputText* m_pseudo;
+	InputText* m_loginAdrr;
+	InputText* m_loginPort;
 };
 
 // =======STATE-MACHINE======= //

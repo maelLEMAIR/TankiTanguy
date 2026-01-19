@@ -15,6 +15,9 @@ void InputText::Update()
         if (cpuInput.IsKeyDown(c))
             m_text += c;
     
+    if (cpuInput.IsKeyDown(VK_OEM_PERIOD))
+        m_text += '.';
+
     // Backspace
     if (cpuInput.IsKeyDown(VK_BACK))
         if (!m_text.empty())
@@ -30,5 +33,5 @@ void InputText::Render()
     cpuDevice.DrawText(m_font,
         m_text.c_str(),
         m_pos.x, m_pos.y,
-        CPU_TEXT_LEFT);
+        m_anchor);
 }
