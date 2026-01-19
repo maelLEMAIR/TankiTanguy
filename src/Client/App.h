@@ -1,5 +1,6 @@
 #pragma once
 
+#include "InputText.h"
 #include "Gameplay/Player.hpp"
 #include "Gameplay/PlayerController.hpp"
 
@@ -16,9 +17,6 @@ public:
 	void OnExit();
 	void OnRender(int pass);
 
-	static void MissileShader(cpu_ps_io& io);
-	static void RockShader(cpu_ps_io& io);
-
 private:
 	inline static App* s_pApp = nullptr;
 
@@ -30,6 +28,9 @@ private:
 	Player* m_pPlayer;
 	PlayerController* m_pPlCrt;
 	Player* m_pPlayer2;
+
+	// UI
+	InputText* m_pseudo;
 };
 
 // =======STATE-MACHINE======= //

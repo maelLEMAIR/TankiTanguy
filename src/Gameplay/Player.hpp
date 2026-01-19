@@ -51,12 +51,15 @@ inline void Player::Create(XMFLOAT3 _pos, XMINT3 _color)
     m_pHead->pMesh = &m_meshTank;
     m_pHead->pMaterial = &m_materialTank;
     m_pHead->transform.pos = _pos;
+    m_pHead->transform.pos.y += 0.5f;
     m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
 
     m_pCanon = cpuEngine.CreateEntity();
     m_pCanon->pMesh = &m_meshTank;
     m_pCanon->pMaterial = &m_materialTank;
     m_pCanon->transform.pos = _pos;
+    m_pCanon->transform.pos.y += 0.5f;
+    m_pCanon->transform.pos.z -= 1.5f;
     m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
 
     m_pCamera = new GameCamera(m_pAngle, m_pBody->transform);

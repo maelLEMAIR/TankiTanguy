@@ -30,12 +30,14 @@ void App::OnStart()
 
 	// Player
 	m_pPlayer = new Player();
-	m_pPlayer->Create(XMFLOAT3(0, 3, 0), XMINT3(255, 128, 0));
+	m_pPlayer->Create(XMFLOAT3(0, 0, 0), XMINT3(255, 128, 0));
 	m_pPlCrt = new PlayerController();
 	m_pPlCrt->Init(*m_pPlayer);
 
 	m_pPlayer2 = new Player();
-	m_pPlayer2->Create(XMFLOAT3(0, 3, 50), XMINT3(0, 0, 255));
+	m_pPlayer2->Create(XMFLOAT3(0, 0, 25), XMINT3(0, 0, 255));
+	
+	m_pseudo = new InputText(m_font, XMINT2(0, 0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,13 +46,20 @@ void App::OnStart()
 
 void App::OnUpdate()
 {
+	// Quit
+	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
+		cpuEngine.Quit();
+	
+	if (m_pseudo->IsFinished() == false)
+	{
+		m_pseudo->Update();
+		return;
+	}
+	
 	// Update
 	m_pPlCrt->HandleInput();
 	m_pPlayer->Update();
 	
-	// Quit
-	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
-		cpuEngine.Quit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +99,12 @@ void App::OnRender(int pass)
 		}
 		case CPU_PASS_UI_END:
 		{
-			std::string info = "TANKITANGUY";
+			std::string info;
+			if (m_pseudo->GetText().empty())
+			{
+				info = "Enter a pseudo";
+			}
+			m_pseudo->Render();
 			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
 			break;
 		}
