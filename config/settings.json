@@ -62,7 +62,8 @@
                 "preprocessorDefinitions": []
             },
             "dependencies": [
-                "63E37ADA-2DB1-4D24-295A-7DBB3B7A2FC7"
+                "63E37ADA-2DB1-4D24-295A-7DBB3B7A2FC7",
+                "663D4113-3A44-7486-4B72-1004170131E0"
             ],
             "dependents": [],
             "name": "Server",
@@ -86,7 +87,8 @@
             },
             "dependencies": [],
             "dependents": [
-                "643B6879-09CE-3711-6938-1BE103BE7B0B"
+                "643B6879-09CE-3711-6938-1BE103BE7B0B",
+                "644B3A67-66B6-0D0E-32AD-6892408941DE"
             ],
             "name": "Gameplay",
             "property-lib": true,

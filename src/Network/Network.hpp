@@ -316,12 +316,12 @@ inline bool DeserializeDisconnect(BufferReader& reader, MsgDisconnect& msg)
 
 struct MsgInput
 {
-	uint8_t inputFlags;
+	uint16_t buttons;  // bitfield (jump, fire, dash…)
 };
 
 inline void SerializeClientInput(BufferWriter& writer, const MsgInput& msg)
 {
-	writer.WriteU8(msg.inputFlags);
+	writer.WriteU16(msg.buttons);
 }
 
 inline bool DeserializeClientInput(BufferReader& reader, MsgInput& msg)

@@ -1,5 +1,5 @@
 #include "Server.h"
-#include "GameSim.h"
+
 
 Server::Server()
 {
@@ -15,9 +15,9 @@ void Server::MainLoop()
 {
 	while (m_running)
 	{
-		if (m_toStart && m_pSim == nullptr)
+		if (m_toStart && m_pGM == nullptr)
 		{
-			m_pSim->Start();
+			m_pGM->Start();
 			m_toStart = false;
 		}
 
@@ -37,13 +37,13 @@ void Server::Start()
 	m_vClientsInfo.push_back(client2);
 
 	m_running = true;
-	m_pSim = new GameSim();
+	m_pGM = GameManager::Get();
 	m_listenThread = CreateThread(NULL, 0, Listen, this, 0, NULL);
 }
 
 void Server::Update()
 {
-	m_pSim->Update(1.0f / 60.0f);
+	m_pGM->Update();
 }
 
 void Server::Exit()
@@ -69,11 +69,9 @@ void Server::Exit()
 		m_listenThread = nullptr;
 	}
 
-	if (m_pSim)
+	if (m_pGM)
 	{
-		m_pSim->Stop();
-		delete m_pSim;
-		m_pSim = nullptr;
+		m_pGM->Stop();
 	}
 }
 
@@ -265,6 +263,7 @@ void Server::HandleClientHello(BufferReader& reader)
 
 void Server::HandleClientInput(BufferReader& reader)
 {
+
 }
 
 void Server::HandlePing(BufferReader& reader)

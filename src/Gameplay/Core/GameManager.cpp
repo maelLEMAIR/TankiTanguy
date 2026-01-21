@@ -8,12 +8,10 @@ GameManager* GameManager::s_pInstance = nullptr;
 
 GameManager::GameManager()
 {
-    
 }
 
 GameManager::~GameManager()
 {
-    delete m_pPlCrt;
 }
 
 GameManager* GameManager::Get()
@@ -24,17 +22,19 @@ GameManager* GameManager::Get()
 
 void GameManager::Start()
 {
-    m_pPlCrt = new PlayerController();
-    m_pPlCrt->Init(*App::GetInstance().m_pPlayer);
+
 }
 
 void GameManager::Update()
 {
     float dt = cpuTime.delta;
     CollisionCheck();
-    m_pPlCrt->HandleInput();
-    /*for (GameObject* pGameObject : m_gameObjects)
-        pGameObject->Update();*/
+}
+
+void GameManager::Stop()
+{
+    delete s_pInstance;
+	s_pInstance = nullptr;
 }
 
 void GameManager::CollisionCheck()
@@ -43,7 +43,7 @@ void GameManager::CollisionCheck()
 
     for (Collider* pCollider : colliders)
     {
-        if (pCollider->m_isActiveCollider == false)   continue;
+        if (pCollider->m_isActiveCollider == false) continue;
         
         for (Collider* pOther : colliders)
         {

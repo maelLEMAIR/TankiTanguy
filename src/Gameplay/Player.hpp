@@ -13,6 +13,7 @@ public:
     Player();
     ~Player() override;
     void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
+    void ServerInit(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
     void Update();
     void Move(float _dir);
     void Turn(float _dir);
@@ -80,6 +81,42 @@ inline void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string
         m_pCanon->transform.pos.z + forward.z
     );
     
+    m_pCamera = new GameCamera(m_pEntity->transform);
+    m_pWeapon = new Weapon(m_pCanon->transform);
+}
+
+inline void Player::ServerInit(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo)
+{
+    m_pseudo = _pseudo;
+    m_pAngle = _angle;
+    m_pEntity->transform.SetYPR(m_pAngle, 0.f, 0.f);
+    m_pEntity->transform.sca = XMFLOAT3(1.0f, 1.0f, 2.0f);
+
+    m_center = _pos;
+    m_pOwner = this;
+    m_rigidBody = false;
+
+    m_pHead = cpuEngine.CreateEntity();
+    m_pHead->transform.pos = _pos;
+    m_pHead->transform.pos.y += 0.5f;
+    m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
+
+    XMFLOAT3 forward = m_pEntity->transform.dir;
+
+    m_pCanon = cpuEngine.CreateEntity();
+    m_pCanon->transform.pos = _pos;
+    m_pCanon->transform.pos.x += forward.x * 1.5f;
+    m_pCanon->transform.pos.z += forward.z * 1.5f;
+    m_pCanon->transform.pos.y += 0.5f;
+    m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
+
+
+    m_pCanon->transform.LookAt(
+        m_pCanon->transform.pos.x + forward.x,
+        m_pCanon->transform.pos.y,
+        m_pCanon->transform.pos.z + forward.z
+    );
+
     m_pCamera = new GameCamera(m_pEntity->transform);
     m_pWeapon = new Weapon(m_pCanon->transform);
 }

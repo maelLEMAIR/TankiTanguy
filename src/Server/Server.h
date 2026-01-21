@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include "Gameplay/Core/GameManager.h"
 #include "Network.hpp"
 #include <iostream>
 
@@ -13,6 +14,8 @@ struct ClientInfo
 	SocketAddress address;
 	bool isConnected = false;
 };
+
+class GameManager;
 
 class Server
 {
@@ -53,7 +56,7 @@ private:
 
 	HANDLE m_listenThread = nullptr;
 	
-	GameSim* m_pSim = nullptr;
+	GameManager* m_pGM = nullptr;
 	bool m_toStart = false;
 	bool m_running = false;
 	std::vector<ClientInfo*> m_vClientsInfo;
