@@ -3,6 +3,7 @@
 #include "InputText.h"
 #include "Gameplay/Player.hpp"
 #include "Gameplay/PlayerController.hpp"
+#include "Gameplay/Core/GameManager.h"
 
 class App
 {
@@ -19,16 +20,17 @@ public:
 	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth,
 	                   int screenHeight);
 
+	Player* m_pPlayer;
+	
 private:
 	inline static App* s_pApp = nullptr;
-
+	GameManager* m_pGameManager = nullptr;
+	
 	// Resources
 	cpu_font m_font;
 	cpu_rt* m_rts[1];
 
 	// 3D
-	Player* m_pPlayer;
-	PlayerController* m_pPlCrt;
 	Player* m_pPlayer2;
 	Player* m_pPlayer3;
 

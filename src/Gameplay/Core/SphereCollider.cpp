@@ -1,12 +1,10 @@
 ﻿#include "SphereCollider.h"
-#include "GameObject.h"
 #include "GameObject.hpp"
-#include "PhysicsComponent.h"
 #include "Utils.hpp"
 
 using namespace Utils;
 
-SphereCollider::SphereCollider(XMFLOAT3 _centre, float _radius) : m_centre(_centre), m_radius(_radius)
+SphereCollider::SphereCollider(XMFLOAT3 _center, float _radius) : m_center(_center), m_radius(_radius)
 {}
 
 /////////////////////////////////////////////////////
@@ -18,14 +16,8 @@ void SphereCollider::RepulseSphere(SphereCollider* o)
     if (dt == 0.0f) dt = 0.001f;
 
     // Adapts the calculations to the Physics Components using the next frame
-    XMFLOAT3 pos = m_centre;
-    XMFLOAT3 oPos = o->m_centre;
-    PhysicsComponent* pC = dynamic_cast<PhysicsComponent*>(m_pOwner);
-    PhysicsComponent* opC = dynamic_cast<PhysicsComponent*>(o->m_pOwner);
-    if (pC != nullptr)
-        pos += pC->m_velocity * dt;
-    if (opC != nullptr)
-        oPos += opC->m_velocity * dt;
+    XMFLOAT3 pos = m_center;
+    XMFLOAT3 oPos = o->m_center;
 
     // Calculate the push
     XMFLOAT3 dir;
@@ -41,19 +33,16 @@ void SphereCollider::RepulseSphere(SphereCollider* o)
     if (o->m_rigidBody == true)
     {
         push /= 2.0f;
-        if (opC != nullptr)
-            opC->m_velocity -= push / dt;
-        else
-            m_pOwner->m_pEntity->transform.pos.x -= push.x;
+        m_pOwner->m_pEntity->transform.pos.x -= push.x;
         m_pOwner->m_pEntity->transform.pos.y -= push.y;
         m_pOwner->m_pEntity->transform.pos.z -= push.z;
     }
-    if (pC != nullptr)
-        pC->m_velocity += push / dt;
     else
+    {
         m_pOwner->m_pEntity->transform.pos.x += push.x;
         m_pOwner->m_pEntity->transform.pos.y += push.y;
         m_pOwner->m_pEntity->transform.pos.z += push.z;
+    }
 }
 
 ////////////////////////////////////////////////////////////
@@ -77,14 +66,8 @@ bool SphereCollider::SphereToSphere(SphereCollider* pOther)
     if (o == nullptr) return false;
 
     // Adapts the calculations to the Physics Components using the next frame
-    XMFLOAT3 pos = m_centre;
-    XMFLOAT3 oPos = o->m_centre;
-    PhysicsComponent* casted = dynamic_cast<PhysicsComponent*>(GetOwner());
-    PhysicsComponent* oCasted = dynamic_cast<PhysicsComponent*>(o->GetOwner());
-    if (casted != nullptr)
-        pos += casted->m_velocity;
-    if (oCasted != nullptr)
-        oPos += oCasted->m_velocity;
+    XMFLOAT3 pos = m_center;
+    XMFLOAT3 oPos = o->m_center;
 
     // Calculates the distance between the 2 spheres
     float distance = sqrt(pow(pos.x - oPos.x, 2) + pow(pos.y - oPos.y, 2) + pow(pos.z - oPos.z, 2));

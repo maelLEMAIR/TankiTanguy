@@ -74,6 +74,12 @@ namespace Utils
         a = a + b;
         return a;
     }
+    
+    inline XMFLOAT3& operator-=(XMFLOAT3& a, const XMFLOAT3& b)
+    {
+        a = a - b;
+        return a;
+    }
 
     inline XMFLOAT3& operator*=(XMFLOAT3& a, float s)
     {

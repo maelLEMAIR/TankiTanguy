@@ -8,6 +8,7 @@ App::App()
 	CPU_CALLBACK_EXIT(OnExit);
 	CPU_CALLBACK_RENDER(OnRender);
 
+	m_pGameManager = GameManager::Get();
 	m_pPlayer = nullptr;
 }
 
@@ -29,23 +30,23 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 
 	// Player
-	m_pPlayer = new Player();
-	m_pPlayer->Create(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0));
-	m_pPlCrt = new PlayerController();
-	m_pPlCrt->Init(*m_pPlayer);
+	m_pPlayer = m_pGameManager->CreateObject<Player>();
+	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
 
-	m_pPlayer2 = new Player();
-	m_pPlayer2->Create(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255));
+	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
+	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
 
-	m_pPlayer3 = new Player();
-	m_pPlayer3->Create(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0));
+	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
+	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
 
 	// UI
-	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 10);
+	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 30);
 	m_loginAdrr = new InputText(m_font, pos, CPU_TEXT_CENTER);
 	m_loginAdrr->SetActive(true);
 	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
 	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
+	
+	m_pGameManager->Start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,12 +76,13 @@ void App::OnUpdate()
 	if (m_pseudo->IsFinished() == false)
 	{
 		m_pseudo->Update();
+		m_pPlayer->GetPseudo() = m_pseudo->GetText();
 		return;
 	}
 	
 	// Update
-	m_pPlCrt->HandleInput();
 	m_pPlayer->Update();
+	m_pGameManager->Update();
 	
 }
 
@@ -91,7 +93,6 @@ void App::OnUpdate()
 void App::OnExit()
 {
 	CPU_DELPTR(m_pPlayer);
-	delete m_pPlCrt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,10 +141,14 @@ void App::OnRender(int pass)
 			XMFLOAT2 screenPos;
 			if (WorldToScreen(m_pPlayer2->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
 			{
-				cpuDevice.DrawText(&m_font, m_pPlayer2->GetPseudo()->c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+				cpuDevice.DrawText(&m_font, m_pPlayer2->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
 			}
-			
-			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
+			if (WorldToScreen(m_pPlayer3->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+			{
+				cpuDevice.DrawText(&m_font, m_pPlayer3->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+			}
+			cpuDevice.DrawText(&m_font, "TANKYTANGUY", (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
+			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 30, CPU_TEXT_CENTER);
 			break;
 		}
 	}

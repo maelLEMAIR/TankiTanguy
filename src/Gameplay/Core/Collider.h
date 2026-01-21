@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "pch.h"
 
-class BoxCollider;
+class GameManager;
 class SphereCollider;
 class GameObject;
 
@@ -29,12 +29,9 @@ protected:
     std::vector<Collider*> m_collidingEntities;
     bool IsAlreadyColliding(Collider* pOther);
     
-    virtual void RepulseBox    (BoxCollider* pOther)    = 0;
     virtual void RepulseSphere (SphereCollider* pOther) = 0;
 
 private:
     
-    friend class PhysicsSystem;
+    friend class GameManager;
 };
-
-#endif

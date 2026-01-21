@@ -1,5 +1,5 @@
 ﻿#include "Collider.h"
-#include "GameObject.hpp"
+#include "GameManager.h"
 #include "SphereCollider.h"
 
 bool Collider::IsAlreadyColliding(Collider* pOther)

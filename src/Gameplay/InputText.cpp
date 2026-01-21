@@ -15,7 +15,15 @@ void InputText::Update()
         if (cpuInput.IsKeyDown(c))
             m_text += c;
     
-    if (cpuInput.IsKeyDown(VK_OEM_PERIOD))
+    int temp = 0;
+    for (int i = VK_NUMPAD0; i <= VK_NUMPAD9; i++)
+    {
+        if (cpuInput.IsKeyDown(i))
+            m_text += std::to_string(temp);
+        temp++;
+    }
+    
+    if (cpuInput.IsKeyDown(VK_OEM_PERIOD) || cpuInput.IsKeyDown(VK_DECIMAL))
         m_text += '.';
 
     // Backspace
