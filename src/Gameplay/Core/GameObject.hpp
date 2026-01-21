@@ -7,6 +7,7 @@ public:
     GameObject() = default;
     virtual ~GameObject();
     virtual void Update() = 0;
+    virtual void Dead() = 0;
     
     cpu_entity* m_pEntity = nullptr;
 protected:

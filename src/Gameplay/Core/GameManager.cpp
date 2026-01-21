@@ -14,6 +14,7 @@ GameManager::GameManager()
 GameManager::~GameManager()
 {
     delete m_pPlCrt;
+    s_pInstance = nullptr;
 }
 
 GameManager* GameManager::Get()

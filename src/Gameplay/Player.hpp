@@ -13,10 +13,11 @@ public:
     Player();
     ~Player() override;
     void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
-    void Update();
+    void Update() override;
     void Move(float _dir);
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
+    void Dead() override;
     XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
     std::string& GetPseudo() { return m_pseudo; }
 protected:
@@ -134,3 +135,9 @@ inline void Player::Turn(float _dir)
     m_pAngle += _dir * dt;
     m_pEntity->transform.AddYPR(dt * _dir);
 }
+
+inline void Player::Dead()
+{
+    
+}
+
