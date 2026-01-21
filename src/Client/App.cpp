@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Core/UIDialogue.h"
+#include "Core/UIHealthBar.hpp"
 
 App::App()
 {
@@ -49,6 +50,9 @@ void App::OnStart()
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
+
+	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(XMFLOAT2(0.0f, cpuDevice.GetHeight() - 32.0f), 32.0f, *m_pPlayer, "../../res/Gameplay/alkya.png");
 	
 	m_pGameManager->Start();
 }

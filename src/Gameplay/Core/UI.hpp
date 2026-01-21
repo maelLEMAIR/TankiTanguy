@@ -13,7 +13,7 @@ public:
     void SetActive(bool _state) { m_isActive = _state; }
 
 protected:
-    bool m_isActive = false;
+    bool m_isActive = true;
     
     XMFLOAT2 m_pos;
     XMFLOAT2 m_size;

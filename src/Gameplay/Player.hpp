@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "GameCamera.hpp"
+#include "Life.hpp"
 #include "pch.h"
 #include "Weapon.h"
 #include "Core/GameObject.hpp"
@@ -12,14 +13,18 @@ class Player : public GameObject, public SphereCollider
 public:
     Player();
     ~Player() override;
+    
     void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
     void Update() override;
     void Move(float _dir);
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
     void Dead() override;
+    
+    Life& GetLife() { return m_life; }
     XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
     std::string& GetPseudo() { return m_pseudo; }
+    
 protected:
 
 private:
@@ -30,6 +35,7 @@ private:
     cpu_material m_materialTank;
 
     std::string m_pseudo;
+    Life m_life;
     
     GameCamera* m_pCamera;
     Weapon* m_pWeapon;
@@ -38,7 +44,7 @@ private:
     float m_pAngle = XM_PI;
 };
 
-inline Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr) { }
+inline Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr), m_life(Life(300)) { }
 
 inline void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo)
 {
