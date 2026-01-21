@@ -4,6 +4,13 @@
 #include "Network.hpp"
 #include <iostream>
 
+struct ServerInfo
+{
+	uint8_t  playerId;
+	uint8_t  serverTickRate;
+	uint32_t serverTimeMs;
+};
+
 class ClientSocket
 {
 public:
@@ -20,12 +27,14 @@ public:
 
 	//Logique de traitement des messages
 	void HandleServerWelcome(BufferReader& reader);
+	void HandleServerSnapshot(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);
 
 private:
 	SOCKET m_socket;
+	ServerInfo m_serverInfo;
 	sockaddr_in m_serverAddr;
 };
 

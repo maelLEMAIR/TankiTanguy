@@ -241,13 +241,11 @@ inline bool DeserializePacketHeader(BufferReader& reader, PacketHeader& header)
 
 struct MsgClientHello
 {
-	uint8_t persistentId;
 	std::string playerName;
 };
 
 inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg)
 {
-	writer.WriteU8(msg.persistentId);
 	writer.WriteU8((uint8_t)msg.playerName.size());
 	writer.WriteBytes(msg.playerName.data(), msg.playerName.size());
 }
@@ -255,7 +253,6 @@ inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg
 inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 {
 	uint8_t nameLen;
-	if (reader.ReadU8(msg.persistentId) == false)	return false;
 	if (reader.ReadU8(nameLen) == false)			return false;
 	if (reader.CanRead(nameLen) == false)			return false;
 

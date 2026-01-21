@@ -23,7 +23,6 @@ void ClientSocket::ConnectToServer(const char* ipAddress, int port)
 	header.packetType = PacketType::ClientHello;
 
 	MsgClientHello hello;
-	hello.persistentId = 151;
 	hello.playerName = "Alice";
 
 	BufferWriter writer;
@@ -78,6 +77,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::ServerWelcome:
 		HandleServerWelcome(reader);
 		break;
+	case PacketType::ServerSnapshot:
+		HandleServerSnapshot(reader);
+		break;
 	case PacketType::Ping:
 		HandlePing(reader);
 		break;
@@ -95,8 +97,22 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 
 void ClientSocket::HandleServerWelcome(BufferReader& reader)
 {
-
 	std::cout << "Message ServerWelcome reçu\n";
+
+	MsgServerWelcome decoded;
+	bool msgOk = DeserializeServerWelcome(reader, decoded);
+
+	m_serverInfo.playerId = decoded.playerId;
+	m_serverInfo.serverTickRate = decoded.serverTickRate;
+	m_serverInfo.serverTimeMs = decoded.serverTimeMs;
+}
+
+void ClientSocket::HandleServerSnapshot(BufferReader& reader)
+{
+	std::cout << "Message ServerSnapshot reçu\n";
+
+	MsgSnapshot decoded;
+	bool msgOk = DeserializeServerSnapshot(reader, decoded);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)
