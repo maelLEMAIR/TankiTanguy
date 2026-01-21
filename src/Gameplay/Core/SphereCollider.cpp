@@ -15,11 +15,9 @@ void SphereCollider::RepulseSphere(SphereCollider* o)
     float dt = cpuTime.delta;
     if (dt == 0.0f) dt = 0.001f;
 
-    // Adapts the calculations to the Physics Components using the next frame
     XMFLOAT3 pos = m_center;
     XMFLOAT3 oPos = o->m_center;
 
-    // Calculate the push
     XMFLOAT3 dir;
     dir.x = pos.x - oPos.x;
     dir.y = pos.y - oPos.y;
@@ -27,7 +25,6 @@ void SphereCollider::RepulseSphere(SphereCollider* o)
     float distance = sqrtf(pow(oPos.x - pos.x, 2) + pow(oPos.y - pos.y, 2) + pow(oPos.z - pos.z, 2));
     dir = (distance > 0) ? dir / distance : XMFLOAT3(1.0f, 0.0f, 1.0f);
 
-    // Apply the push
     XMFLOAT3 push = dir * (m_radius - distance);
     
     if (o->m_rigidBody == true)

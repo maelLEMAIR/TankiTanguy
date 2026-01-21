@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Core/UIDialogue.h"
 
 App::App()
 {
@@ -9,6 +10,7 @@ App::App()
 	CPU_CALLBACK_RENDER(OnRender);
 
 	m_pGameManager = GameManager::Get();
+	m_pUIManager = UIManager::Get();
 	m_pPlayer = nullptr;
 }
 
@@ -40,11 +42,13 @@ void App::OnStart()
 	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
 
 	// UI
-	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 30);
-	m_loginAdrr = new InputText(m_font, pos, CPU_TEXT_CENTER);
-	m_loginAdrr->SetActive(true);
-	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
-	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
+	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+
+	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
+	dialogueLog->Init(m_pseudo);
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
 	
 	m_pGameManager->Start();
 }
@@ -58,32 +62,13 @@ void App::OnUpdate()
 	// Quit
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
-	
-	if (m_loginAdrr->IsFinished() == false)
-	{
-		m_loginAdrr->Update();
-		return;
-	}
-	m_loginAdrr->SetActive(false);
-	m_loginPort->SetActive(true);
-	if (m_loginPort->IsFinished() == false)
-	{
-		m_loginPort->Update();
-		return;
-	}
-	m_loginPort->SetActive(false);
-	m_pseudo->SetActive(true);
-	if (m_pseudo->IsFinished() == false)
-	{
-		m_pseudo->Update();
-		m_pPlayer->GetPseudo() = m_pseudo->GetText();
-		return;
-	}
+
+	m_pUIManager->Update();
+	if (m_isPause) return;
 	
 	// Update
 	m_pPlayer->Update();
 	m_pGameManager->Update();
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,9 +80,7 @@ void App::OnExit()
 	CPU_DELPTR(m_pPlayer);
 	CPU_DELPTR(m_pPlayer2);
 	CPU_DELPTR(m_pPlayer3);
-	CPU_DELPTR(m_pseudo);
-	CPU_DELPTR(m_loginAdrr);
-	CPU_DELPTR(m_loginPort);
+	//CPU_DELPTR(m_pseudo);
 	
 }
 
@@ -108,7 +91,8 @@ void App::OnExit()
 void App::OnRender(int pass)
 {
 	// YOUR CODE HERE
-
+	m_pUIManager->Render();
+	
 	switch ( pass )
 	{
 		case CPU_PASS_PARTICLE_BEGIN:
@@ -129,21 +113,7 @@ void App::OnRender(int pass)
 		case CPU_PASS_UI_END:
 		{
 			std::string info;
-			if (m_loginAdrr->IsActive() && m_loginAdrr->GetText().empty())
-				info = "Enter an addresse";
-			else if (m_loginAdrr->IsActive())
-				m_loginAdrr->Render();
-
-			if (m_loginPort->IsActive() && m_loginPort->GetText().empty())
-				info = "Enter a port";
-			else if (m_loginPort->IsActive())
-				m_loginPort->Render();
-
-			if (m_pseudo->IsActive() && m_pseudo->GetText().empty())
-				info = "Enter a pseudo";
-			else if(m_pseudo->IsActive())
-				m_pseudo->Render();
-
+			
 			XMFLOAT2 screenPos;
 			if (WorldToScreen(m_pPlayer2->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
 			{
@@ -153,6 +123,9 @@ void App::OnRender(int pass)
 			{
 				cpuDevice.DrawText(&m_font, m_pPlayer3->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
 			}
+			if (m_pseudo != "")
+				cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
+				
 			cpuDevice.DrawText(&m_font, "TANKYTANGUY", (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
 			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 30, CPU_TEXT_CENTER);
 			break;

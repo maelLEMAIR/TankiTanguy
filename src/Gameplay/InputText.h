@@ -1,24 +1,25 @@
 ﻿#pragma once
 #include "pch.h"
+#include "Core/UI.hpp"
 
-class InputText
+class InputText : public UI
 {
 public:
-    InputText(cpu_font& _font, XMINT2 _pos, int _anchor) : m_font(&_font), m_pos(_pos), m_anchor(_anchor) {}
-
-    void Update();
-    void Render();
-    bool IsActive() const { return m_isActive;  }
-    void SetActive(bool _state) { m_isActive = _state; }
+    InputText() = default;
+    ~InputText() override;
+    
+    void Init(cpu_font& _font, XMFLOAT2 _pos, int _anchor, std::string const& _text);
+    void Update() override;
+    void Render() override;
+    
     bool IsFinished() const { return m_finished;};
-    const std::string& GetText() const { return m_text;};
+    const std::string& GetText() const { return m_text; }
 
 private:
-    int m_anchor = 0;
-    bool m_isActive = false;
-    XMINT2 m_pos;
-    cpu_font* m_font;
+    std::string m_question;
     std::string m_text;
+    int m_anchor = 0;
+    cpu_font* m_font;
     bool m_finished = false;
 };
 

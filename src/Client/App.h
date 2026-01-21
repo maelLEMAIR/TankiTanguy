@@ -1,8 +1,8 @@
 #pragma once
 
 #include "InputText.h"
+#include "Core/UIManager.h"
 #include "Gameplay/Player.hpp"
-#include "Gameplay/PlayerController.hpp"
 #include "Gameplay/Core/GameManager.h"
 
 class App
@@ -12,7 +12,6 @@ public:
 	virtual ~App();
 
 	static App& GetInstance() { return *s_pApp; }
-
 	void OnStart();
 	void OnUpdate();
 	void OnExit();
@@ -21,10 +20,13 @@ public:
 	                   int screenHeight);
 
 	Player* m_pPlayer;
+	bool m_isPause = false;
+	std::string m_pseudo;
 	
 private:
 	inline static App* s_pApp = nullptr;
 	GameManager* m_pGameManager = nullptr;
+
 	
 	// Resources
 	cpu_font m_font;
@@ -35,9 +37,7 @@ private:
 	Player* m_pPlayer3;
 
 	// UI
-	InputText* m_pseudo;
-	InputText* m_loginAdrr;
-	InputText* m_loginPort;
+	UIManager* m_pUIManager;
 };
 
 // =======STATE-MACHINE======= //

@@ -1,5 +1,19 @@
 ﻿#include "InputText.h"
 
+InputText::~InputText()
+{
+    
+}
+
+void InputText::Init(cpu_font& _font, XMFLOAT2 _pos, int _anchor, std::string const& _question)
+{
+    m_pos = _pos;
+    m_font = &_font;
+    m_anchor = _anchor;
+    m_question = _question;
+    m_text.clear();
+}
+
 void InputText::Update()
 {
     if (m_finished)
@@ -38,8 +52,15 @@ void InputText::Update()
 
 void InputText::Render()
 {
-    cpuDevice.DrawText(m_font,
-        m_text.c_str(),
-        m_pos.x, m_pos.y,
-        m_anchor);
+    const std::string& textToDisplay =
+        m_text.empty() ? m_question : m_text;
+
+    cpuDevice.DrawText(
+        m_font,
+        textToDisplay.c_str(),
+        static_cast<int>(m_pos.x),
+        static_cast<int>(m_pos.y),
+        m_anchor
+    );
 }
+
