@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Core/UIDialogue.h"
+#include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
 
 App::App()
@@ -35,27 +36,24 @@ void App::OnStart()
 	// Player
 	m_pPlayer = m_pGameManager->CreateObject<Player>();
 	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
-
 	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
-
 	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
-
+	
+	cpuEngine.GetParticleData()->Create(1000000);
 	// UI
-	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
-
-	/*UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
+	/*XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
 	dialogueLog->Init(m_pseudo);
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
 	*/
-
-	std::string path = "../../res/Gameplay/vert2.png";
-	
+	std::string pathGreen = "../../res/Gameplay/vert.png";
+	std::string pathGray = "../../res/Gameplay/gris.png";
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, path);
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);
 
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);

@@ -3,15 +3,17 @@
 #include "Core/GameObject.hpp"
 #include "Core/SphereCollider.h"
 
+class Player;
+
 class Missile : public GameObject, public SphereCollider
 {
 public:
     Missile();
     ~Missile() override;
-    void Init(cpu_transform& _transform);
+    void Init(cpu_transform& _transform, Player& _player);
     void Update() override;
     void OnCollisionEnter(Collider* pOther) override;
-    void Dead() override;
+    void Dead(float _dt = 0.0f) override;
 
     cpu_entity& GetEntity() const {return *m_pEntity; };
     
@@ -19,9 +21,12 @@ protected:
     
 private:
     XMFLOAT3 m_firstPos;
+    
     cpu_mesh m_meshMissile;
     cpu_material m_missileMaterial;
     cpu_particle_emitter* m_pEmitter;
+
+    Player* m_pOwnerPlayer = nullptr;
     
     float m_speed = 10.0f;
 };
@@ -36,8 +41,10 @@ inline Missile::~Missile()
     GameObject::~GameObject();
 }
 
-inline void Missile::Init(cpu_transform& _transform)
+inline void Missile::Init(cpu_transform& _transform, Player& _player)
 {
+    m_pOwnerPlayer = &_player;
+    
     m_firstPos = _transform.pos;
     m_missileMaterial.color = cpu::ToColor(87, 87, 87);
     m_meshMissile.CreateSphere();
@@ -56,7 +63,6 @@ inline void Missile::Init(cpu_transform& _transform)
     m_center = m_pEntity->transform.pos;
     m_radius = 0.4f;
 
-    cpuEngine.GetParticleData()->Create(1000000);
     m_pEmitter = cpuEngine.CreateParticleEmitter();
     m_pEmitter->density = 100.0f;
     m_pEmitter->colorMin = cpu::ToColor(255, 0, 0);
@@ -89,7 +95,7 @@ inline void Missile::OnCollisionEnter(Collider* pOther)
     Dead();
 }
 
-inline void Missile::Dead()
+inline void Missile::Dead(float _dt)
 {
     m_pEntity->dead = true;
     m_pEmitter->dead = true;

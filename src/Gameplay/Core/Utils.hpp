@@ -136,4 +136,14 @@ namespace Utils
             a.x * b.y - a.y * b.x
         };
     }
+
+    inline float Distance(const XMFLOAT3& a, const XMFLOAT3& b)
+    {
+        return sqrtf(pow(a.x - b.x, 2) + pow(a.y - b.y, 2)+ pow(a.z - b.z, 2));
+    }
+
+    inline float Distance(const XMFLOAT2& a, const XMFLOAT2& b)
+    {
+        return sqrtf(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
+    }
 }

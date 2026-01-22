@@ -9,7 +9,8 @@ public:
 
     void Heal(int _heal);
     void TakeDamage(int _damage);
-
+    void ResetLIfe() { m_currentLife = m_maxLife; }
+    
     int GetMaxLife() const { return m_maxLife; };
     int GetCurrentLife() const { return m_currentLife; };
     bool IsDead() { return m_currentLife <= 0; }

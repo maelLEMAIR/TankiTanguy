@@ -2,8 +2,9 @@
 
 #include "InputText.h"
 #include "Core/UIManager.h"
-#include "Gameplay/Player.hpp"
 #include "Gameplay/Core/GameManager.h"
+
+class Player;
 
 class App
 {

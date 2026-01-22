@@ -1,32 +1,37 @@
 ﻿#pragma once
 #include "pch.h"
-#include "Player.hpp"
+#include "Player.h"
 #include "UI.hpp"
 
 class UIHealthBar : public UI
 {
 public:
-    void Init(cpu_font& _font, XMFLOAT2 _pos, float _size, Player& _player, std::string const& _path);
+    void Init(cpu_font& _font, XMFLOAT2 _pos, float _size, Player& _player, std::string const& _pathGreen, std::string const& _pathGray);
     void Update() override;
     void Render() override;
 
 private:
     std::vector<cpu_sprite*> m_sprites;
-    cpu_texture m_text;
+    cpu_texture m_textGreen;
+    cpu_texture m_textGray;
     cpu_font m_font;
     Player* m_pPlayer = nullptr;
 };
 
-inline void UIHealthBar::Init(cpu_font& _font, XMFLOAT2 _pos, float _size, Player& _player, std::string const& _path)
+inline void UIHealthBar::Init(cpu_font& _font, XMFLOAT2 _pos, float _size, Player& _player, std::string const& _pathGreen, std::string const& _pathGray)
 {
     m_pos = _pos;
     m_font = _font;
-    m_text =  cpu_texture();
-    m_text.Load(_path.c_str());
+    
+    m_textGreen = cpu_texture();
+    m_textGreen.Load(_pathGreen.c_str());
+    m_textGray = cpu_texture();
+    m_textGray.Load(_pathGray.c_str());
+    
     for (int i = 0; i < 5; i++)
     {
         cpu_sprite* sprite = cpuEngine.CreateSprite();
-        sprite->pTexture = &m_text;
+        sprite->pTexture = &m_textGreen;
         sprite->x = static_cast<int>(_pos.x) + i * static_cast<int>(_size);
         sprite->y = static_cast<int>(_pos.y);
         m_sprites.push_back(sprite);
@@ -43,7 +48,10 @@ inline void UIHealthBar::Update()
 
     for (int i = 0; i < m_sprites.size(); i++)
     {
-        m_sprites[i]->visible = (currentHP > i * hpPerSprite);
+        if (currentHP > i * hpPerSprite)
+            m_sprites[i]->pTexture = &m_textGreen;
+        else
+            m_sprites[i]->pTexture = &m_textGray;
     }
 }
 
