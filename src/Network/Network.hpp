@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #pragma comment(lib, "Ws2_32.lib")
 #include <winsock2.h>
@@ -316,7 +317,6 @@ inline bool DeserializeDisconnect(BufferReader& reader, MsgDisconnect& msg)
 
 struct InputCmd
 {
-	uint32_t sequence;			// numéro de tick / input
 	uint16_t buttons;		// actions 
 };
 
@@ -332,7 +332,6 @@ inline void SerializeInputList(BufferWriter& writer, const MsgInputList& msg)
 
 	for (const auto& input : msg.inputsList)
 	{
-		writer.WriteU32(input.sequence);
 		writer.WriteU16(input.buttons);
 	}
 }
@@ -349,8 +348,6 @@ inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
 	for (uint16_t i = 0; i < count; ++i)
 	{
 		InputCmd cmd;
-		if (reader.ReadU32(cmd.sequence) == false)
-			return false;
 		if (reader.ReadU16(cmd.buttons) == false)
 			return false;
 

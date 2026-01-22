@@ -5,6 +5,10 @@
 #include "Gameplay/PlayerController.hpp"
 #include "Gameplay/Core/GameManager.h"
 
+constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
+
+class ClientSocket;
+
 class App
 {
 public:
@@ -17,8 +21,8 @@ public:
 	void OnUpdate();
 	void OnExit();
 	void OnRender(int pass);
-	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth,
-	                   int screenHeight);
+	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight);
+	static DWORD WINAPI Listen(LPVOID lpParam);
 
 	Player* m_pPlayer;
 	
@@ -38,26 +42,7 @@ private:
 	InputText* m_pseudo;
 	InputText* m_loginAdrr;
 	InputText* m_loginPort;
-};
 
-// =======STATE-MACHINE======= //
-/*struct StateShipGlobal
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
+	//Network
+	ClientSocket* m_pClientSocket;
 };
-
-struct StateShipIdle
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
-};
-
-struct StateShipBlink
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
-};*/

@@ -2,6 +2,8 @@
 
 ClientSocket::ClientSocket()
 {
+	s_pClient = this;
+
 	m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (m_socket == INVALID_SOCKET)
 	{
@@ -29,7 +31,7 @@ void ClientSocket::ConnectToServer(const char* ipAddress, int port)
 	SerializePacketHeader(writer, header);
 	SerializeClientHello(writer, hello);
 
-	SendPacket(writer.data, (int)writer.data.size());
+	SendPacket((const char*)writer.data.data(), (int)writer.data.size());
 }
 
 void ClientSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
@@ -52,9 +54,9 @@ void ClientSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
 	}
 }
 
-void ClientSocket::SendPacket(std::vector<uint8_t> data, int length)
+void ClientSocket::SendPacket(const char* data, int length)
 {
-	int ret = sendto(m_socket, (const char*)data.data(), length, 0, (sockaddr*)&m_serverAddr, sizeof(m_serverAddr));
+	int ret = sendto(m_socket, (const char*)data, length, 0, (sockaddr*)&m_serverAddr, sizeof(m_serverAddr));
 	if (ret == SOCKET_ERROR)
 	{
 		std::cout << "Erreur envoi : " << WSAGetLastError() << std::endl;
@@ -113,6 +115,8 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 	MsgSnapshot decoded;
 	bool msgOk = DeserializeServerSnapshot(reader, decoded);
+
+
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

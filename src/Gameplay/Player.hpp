@@ -12,14 +12,21 @@ class Player : public GameObject, public SphereCollider
 public:
     Player();
     ~Player() override;
+
     void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
     void ServerInit(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
+
     void Update();
+
     void Move(float _dir);
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
+
     XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
     std::string& GetPseudo() { return m_pseudo; }
+	float GetAngle() const { return m_pAngle; }
+
+	void SetAngle(float angle) { m_pAngle = angle; }
 protected:
 
 private:

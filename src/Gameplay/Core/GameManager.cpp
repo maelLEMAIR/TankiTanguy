@@ -3,11 +3,14 @@
 #include "Collider.h"
 #include "GameObject.hpp"
 #include "Client/App.h"
+#include <Network/Network.hpp>
+#include "PlayerController.hpp"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
 GameManager::GameManager()
 {
+
 }
 
 GameManager::~GameManager()
@@ -20,21 +23,48 @@ GameManager* GameManager::Get()
     return s_pInstance;
 }
 
-void GameManager::Start()
+void GameManager::ClientSideStart()
 {
-
+	m_pLocalPlayerCtrl = new PlayerController();
+	m_pLocalPlayerCtrl->Init(*App::GetInstance().m_pPlayer);
 }
 
-void GameManager::Update()
+void GameManager::ClientSideUpdate()
 {
     float dt = cpuTime.delta;
-    CollisionCheck();
+	m_pLocalPlayerCtrl->HandleInput();
 }
 
-void GameManager::Stop()
+void GameManager::ClientSideStop()
 {
     delete s_pInstance;
 	s_pInstance = nullptr;
+}
+
+void GameManager::ServerSideStart()
+{
+    m_matchState.players[0].player = new Player();
+    m_matchState.players[0].player->ServerInit(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
+    m_matchState.players[0].playerCtrl = new PlayerController();
+    m_matchState.players[0].playerCtrl->Init(*m_matchState.players[0].player);
+
+    m_matchState.players[1].player = new Player();
+    m_matchState.players[1].player->ServerInit(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
+    m_matchState.players[1].playerCtrl = new PlayerController();
+    m_matchState.players[1].playerCtrl->Init(*m_matchState.players[1].player);
+}
+
+void GameManager::ServerSideUpdate()
+{
+    float dt = cpuTime.delta;
+    CollisionCheck();
+    UpdateMatchState();
+}
+
+void GameManager::ServerSideStop()
+{   
+    delete s_pInstance;
+    s_pInstance = nullptr;
 }
 
 void GameManager::CollisionCheck()
@@ -62,5 +92,22 @@ void GameManager::CollisionCheck()
             }
         }
     }
+}
+
+void GameManager::UpdateMatchState()
+{
+    for (PlayerState& playerState : m_matchState.players)
+    {
+		PlayerController* playerCtrl = playerState.playerCtrl;
+        for (int input : playerState.inputs)
+        {
+			playerCtrl->HandleInput(input);
+		}
+	}
+
+    for (auto& [id, missile] : m_matchState.missiles)
+    {
+        missile->Update();
+	}
 }
 

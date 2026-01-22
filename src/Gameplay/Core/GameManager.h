@@ -1,63 +1,25 @@
 ﻿#pragma once
 #include "pch.h"
-#include "Player.hpp"
 #include "Missile.hpp"
 #include "Life.hpp"
 
+
 class GameObject;
 class Collider;
+class Player;
+class PlayerController;
 
 struct PlayerState
 {
-    int id;
-    XMFLOAT3 position;
-	XMFLOAT3 direction;
-    float angle;
-    Life life;
-	std::list<int> inputs;
-
-    // Ajout d'un constructeur par défaut explicite
-    PlayerState()
-        : id(0),
-          position(0, 0, 0),
-          direction(0, 0, 0),
-          angle(0.0f),
-          life(100.0f),
-          inputs()
-    {}
-
-    // Constructeur personnalisé déjà utilisé dans l'initialisation
-    PlayerState(int _id, XMFLOAT3 _position, XMFLOAT3 _direction, float _angle, Life _life, std::list<int> _inputs)
-        : id(_id),
-          position(_position),
-          direction(_direction),
-          angle(_angle),
-          life(_life),
-          inputs(_inputs)
-    {}
-};
-
-struct MissileState
-{
-    int id;
-	int ownerId;
-	XMFLOAT3 position;
-	XMFLOAT3 direction;
-	int ttl;  // time to live in frames
+	Player* player;
+    PlayerController* playerCtrl;
+    std::vector<int> inputs;
 };
 
 struct MatchState
 {
     PlayerState players[2];
-    std::map<int, MissileState*> missiles;
-
-    MatchState()
-    {
-        // Initialisation explicite des PlayerState
-        players[0] = PlayerState{0, XMFLOAT3(0,0,0), XMFLOAT3(0,0,0), 0.0f, Life(100.0f), std::list<int>()};
-        players[1] = PlayerState{1, XMFLOAT3(0,0,0), XMFLOAT3(0,0,0), 0.0f, Life(100.0f), std::list<int>()};
-        // La map missiles est déjà initialisée par défaut
-    }
+    std::map<int, Missile*> missiles;
 };
 
 class GameManager
@@ -68,13 +30,19 @@ public:
 
     static GameManager* Get();
 
-    void Start();
-    void Update();
-	void Stop();
+    void ClientSideStart();
+    void ClientSideUpdate();
+	void ClientSideStop();
 
-    void CollisionCheck();
+	void ServerSideStart();
+    void ServerSideUpdate();
+	void ServerSideStop();
+
+    void CollisionCheck(); 
+	void UpdateMatchState();
 
 	MatchState& GetMatchState() { return m_matchState; }
+	bool IsServer() const { return true; }
 
     template <class ObjectClass> ObjectClass* CreateObject();
     template <class ObjectClass> std::vector<GameObject*> GetAllObjects();
@@ -85,6 +53,7 @@ private:
     static GameManager* s_pInstance;
     
     std::vector<GameObject*> m_gameObjects;
+	PlayerController* m_pLocalPlayerCtrl;
 	MatchState m_matchState;
 };
 

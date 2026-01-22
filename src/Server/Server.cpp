@@ -17,7 +17,7 @@ void Server::MainLoop()
 	{
 		if (m_toStart && m_pGM == nullptr)
 		{
-			m_pGM->Start();
+			m_pGM->ServerSideStart();
 			m_toStart = false;
 		}
 
@@ -43,7 +43,7 @@ void Server::Start()
 
 void Server::Update()
 {
-	m_pGM->Update();
+	m_pGM->ServerSideUpdate();
 	Sleep(16); // ~60 FPS
 }
 
@@ -72,7 +72,7 @@ void Server::Exit()
 
 	if (m_pGM)
 	{
-		m_pGM->Stop();
+		m_pGM->ServerSideStop();
 	}
 }
 
@@ -153,7 +153,7 @@ DWORD Server::Listen(LPVOID lpParam)
 
 void Server::SendPacket(uint8_t clientID, const char* data, int length)
 {
-	ClientInfo* pClient = m_vClientsInfo[clientID];
+	ClientInfo* pClient = m_vClientsInfo[clientID - 1];
 
 	if (pClient == nullptr || !pClient->isConnected)
 	{
@@ -289,6 +289,7 @@ void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
 {
 	GameManager::Get()->GetMatchState().players[playerIndex].inputs.push_back(buttons);
+	std::cout << "Received input from Player " << (playerIndex + 1) << ": " << buttons << "\n";
 }
 
 void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)

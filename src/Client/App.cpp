@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "ClientSocket.h"
 
 App::App()
 {
@@ -10,6 +11,7 @@ App::App()
 
 	m_pGameManager = GameManager::Get();
 	m_pPlayer = nullptr;
+	m_pClientSocket = new ClientSocket();
 }
 
 App::~App()
@@ -46,7 +48,7 @@ void App::OnStart()
 	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
 	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
 	
-	m_pGameManager->Start();
+	m_pGameManager->ClientSideStart();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +84,7 @@ void App::OnUpdate()
 	
 	//Update
 	m_pPlayer->Update();
-	m_pGameManager->Update();
+	m_pGameManager->ClientSideUpdate();
 	
 }
 
@@ -175,71 +177,55 @@ bool App::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 con
 	return true;
 }
 
-// =======STATE-MACHINE======= //
-/*
-void StateShipGlobal::OnEnter(Ship& cur, int from)
+DWORD App::Listen(LPVOID lpParam)
 {
-}
+	ClientSocket* pClient = static_cast<ClientSocket*>(lpParam);
+	std::vector<uint8_t> buffer(MAX_UDP_PACKET_SIZE);
 
-void StateShipGlobal::OnExecute(Ship& cur)
-{
-	cur.Update();
-}
-
-void StateShipGlobal::OnExit(Ship& cur, int to)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void StateShipIdle::OnEnter(Ship& cur, int from)
-{
-}
-
-void StateShipIdle::OnExecute(Ship& cur)
-{
-	// Blink every 3 seconds
-	if ( cur.GetFSM()->totalTime>3.0f )
+	while (true) //A REMPLACER 
 	{
-		cur.GetFSM()->ToState(CPU_ID(StateShipBlink));
-		return;
-	}
-}
+		sockaddr_in serverAddr;
+		socklen_t serverSocketLen = sizeof(sockaddr_in);
 
-void StateShipIdle::OnExit(Ship& cur, int to)
-{
-}
+		int ret = recvfrom(
+			pClient->GetSocket(),
+			reinterpret_cast<char*>(buffer.data()),
+			static_cast<int>(buffer.size()),
+			0,
+			reinterpret_cast<sockaddr*>(&serverAddr),
+			&serverSocketLen
+		);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		if (ret > 0)
+		{
+			BufferReader reader{ buffer.data(), static_cast<size_t>(ret), 0 };
 
-void StateShipBlink::OnEnter(Ship& cur, int from)
-{
-}
+			PacketHeader header;
+			if (DeserializePacketHeader(reader, header) == false)
+				continue;	// paquet invalide -> ignore
 
-void StateShipBlink::OnExecute(Ship& cur)
-{
-	float v = fmod(cur.GetFSM()->totalTime, 0.2f);
-	if ( v<0.1f )
-	{
-		cur.GetEntity()->visible = true;
-	}
-	else
-	{
-		cur.GetEntity()->visible = false;
+			pClient->HandleOnPacketType(reader, header);
+		}
+		else if (ret == SOCKET_ERROR)
+		{
+			int err = WSAGetLastError();
+
+			// Cas très fréquent en UDP Windows (ICMP port unreachable)
+			if (err == WSAECONNRESET)
+			{
+				continue; // ignore
+			}
+
+			// Si socket fermé pendant l'écoute
+			if (err == WSAENOTSOCK || err == WSAEINVAL)
+			{
+				break;
+			}
+
+			// Évite le spam console en boucle
+			std::cerr << "recvfrom failed, WSA error: " << err << "\n";
+		}
 	}
 
-	if ( cur.GetFSM()->totalTime>1.0f )
-	{
-		cur.GetFSM()->ToState(CPU_ID(StateShipIdle));
-		return;
-	}
+	return 0;
 }
-
-void StateShipBlink::OnExit(Ship& cur, int to)
-{
-}
-*/

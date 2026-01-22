@@ -60,6 +60,7 @@ private:
 	GameManager* m_pGM = nullptr;
 	bool m_toStart = false;
 	bool m_running = false;
+
 	std::vector<ClientInfo*> m_vClientsInfo;
 };
 
