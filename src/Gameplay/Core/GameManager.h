@@ -15,6 +15,26 @@ struct PlayerState
     float angle;
     Life life;
 	std::list<int> inputs;
+
+    // Ajout d'un constructeur par défaut explicite
+    PlayerState()
+        : id(0),
+          position(0, 0, 0),
+          direction(0, 0, 0),
+          angle(0.0f),
+          life(100.0f),
+          inputs()
+    {}
+
+    // Constructeur personnalisé déjà utilisé dans l'initialisation
+    PlayerState(int _id, XMFLOAT3 _position, XMFLOAT3 _direction, float _angle, Life _life, std::list<int> _inputs)
+        : id(_id),
+          position(_position),
+          direction(_direction),
+          angle(_angle),
+          life(_life),
+          inputs(_inputs)
+    {}
 };
 
 struct MissileState
@@ -30,6 +50,14 @@ struct MatchState
 {
     PlayerState players[2];
     std::map<int, MissileState*> missiles;
+
+    MatchState()
+    {
+        // Initialisation explicite des PlayerState
+        players[0] = PlayerState{0, XMFLOAT3(0,0,0), XMFLOAT3(0,0,0), 0.0f, Life(100.0f), std::list<int>()};
+        players[1] = PlayerState{1, XMFLOAT3(0,0,0), XMFLOAT3(0,0,0), 0.0f, Life(100.0f), std::list<int>()};
+        // La map missiles est déjà initialisée par défaut
+    }
 };
 
 class GameManager
