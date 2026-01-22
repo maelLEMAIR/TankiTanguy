@@ -1,10 +1,10 @@
 ﻿#ifndef PLAYER_CONTROLLER_HPP
 #define PLAYER_CONTROLLER_HPP
 
-#include "Player.hpp"
 #include "Network/Network.hpp"
-#include "Gameplay/Core/GameManager.h"
-#include "Client/ClientSocket.h"
+#include "Core/GameManager.h"
+#include "../Client/ClientSocket.h"
+#include "Player.hpp"
 
 class PlayerController
 {
@@ -114,7 +114,7 @@ inline void PlayerController::UpdateWithSnapshot()
 inline bool PlayerController::ShouldSend() const
 {
     static DWORD lastSendTime = 0;
-    DWORD currentTime = GetTickCount();
+    DWORD currentTime = GetTickCount64();
     if (currentTime - lastSendTime >= 50) // envoi toutes les 50 ms
     {
         lastSendTime = currentTime;

@@ -47,6 +47,9 @@ void App::OnStart()
 	m_loginAdrr->SetActive(true);
 	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
 	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
+
+	// Start Client
+	m_pClientSocket->ConnectToServer("127.0.0.1", 1888);
 	
 	m_pGameManager->ClientSideStart();
 }

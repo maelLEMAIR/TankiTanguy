@@ -1,5 +1,5 @@
 #include "Server.h"
-
+#include "Gameplay/Player.hpp"
 
 Server::Server()
 {
@@ -45,6 +45,7 @@ void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
 	Sleep(16); // ~60 FPS
+	SendServerSnapshotsToClients();
 }
 
 void Server::Exit()
@@ -284,6 +285,28 @@ void Server::HandlePong(BufferReader& reader, PacketHeader& header)
 
 void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
+}
+
+void Server::SendServerSnapshotsToClients()
+{
+	PacketHeader header;
+	header.packetType = PacketType::ServerSnapshot;
+
+	Player* player = m_pGM->GetMatchState().players[0].player;
+
+	PlayerNetState playerState;
+	playerState.posX = player->GetPos().x;
+	playerState.posY = player->GetPos().z;
+	playerState.angle = player->GetAngle();
+	playerState.hp = 100;
+
+	MsgSnapshot snapshotMsg;
+	snapshotMsg.state = playerState;
+
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	SerializeServerSnapshot(writer, snapshotMsg);
+	SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)

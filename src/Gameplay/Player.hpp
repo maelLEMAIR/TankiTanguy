@@ -26,6 +26,7 @@ public:
     std::string& GetPseudo() { return m_pseudo; }
 	float GetAngle() const { return m_pAngle; }
 
+    void SetPos(XMFLOAT3 pos)  { m_pEntity->transform.pos = pos; }
 	void SetAngle(float angle) { m_pAngle = angle; }
 protected:
 

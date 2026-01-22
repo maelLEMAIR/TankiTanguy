@@ -11,6 +11,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int cmdShow)
     WSADATA data;
     WSAStartup(MAKEWORD(2, 2), &data);
 
+	Sleep(1000); // Wait for server to be ready
     // RETRO FULLSCREEN
     CPU_RUN(512, 256, true, true);
 

@@ -3,7 +3,6 @@
 #include "Missile.hpp"
 #include "Life.hpp"
 
-
 class GameObject;
 class Collider;
 class Player;
@@ -19,7 +18,7 @@ struct PlayerState
 struct MatchState
 {
     PlayerState players[2];
-    std::map<int, Missile*> missiles;
+    std::vector<Missile*> missiles;
 };
 
 class GameManager

@@ -46,6 +46,8 @@ public:
 	void HandlePong(BufferReader& reader, PacketHeader& header);
 	void HandleDisconnect(BufferReader& reader, PacketHeader& header);
 
+	void SendServerSnapshotsToClients();
+
 	void SetPlayerInput(int playerIndex, uint16_t buttons);
 	void SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg);
 

@@ -32,7 +32,7 @@ void GameManager::ClientSideStart()
 void GameManager::ClientSideUpdate()
 {
     float dt = cpuTime.delta;
-	m_pLocalPlayerCtrl->HandleInput();
+	m_pLocalPlayerCtrl->UpdateInputs();
 }
 
 void GameManager::ClientSideStop()
@@ -103,9 +103,11 @@ void GameManager::UpdateMatchState()
         {
 			playerCtrl->HandleInput(input);
 		}
+        playerState.inputs.clear();
+		playerState.player->Update();
 	}
 
-    for (auto& [id, missile] : m_matchState.missiles)
+    for ( Missile* missile : m_matchState.missiles)
     {
         missile->Update();
 	}

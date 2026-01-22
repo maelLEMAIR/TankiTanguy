@@ -139,6 +139,16 @@ struct BufferWriter
 		data.insert(data.end(), (uint8_t*)&hostValue, (uint8_t*)&hostValue + 8);
 	}
 
+	void WriteF32(float hostValue)
+	{
+		static_assert(sizeof(float) == 4, "float is not 32 bits");
+
+		uint32_t bits;
+		std::memcpy(&bits, &hostValue, 4);
+
+		WriteU32(bits);
+	}
+
 	void WriteBytes(const void* src, size_t size)
 	{
 		const uint8_t* b = (const uint8_t*)src;
@@ -196,6 +206,16 @@ struct BufferReader
 		std::memcpy(&netValue, data + offset, 8);
 		netValue = NetToHost64(netValue);
 		offset += 8;
+		return true;
+	}
+
+	bool ReadF32(float& netValue)
+	{
+		uint32_t bits;
+		if (ReadU32(bits) == false)
+			return false;
+
+		std::memcpy(&netValue, &bits, 4);
 		return true;
 	}
 
@@ -357,19 +377,43 @@ inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
 	return true;
 }
 
+struct PlayerNetState
+{
+	float posX;
+	float posY;
+	float angle;
+	uint16_t hp;
+};
+
+inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& playerNetState)
+{
+	writer.WriteF32(playerNetState.posX);
+	writer.WriteF32(playerNetState.posY);
+	writer.WriteF32(playerNetState.angle);
+	writer.WriteU16(playerNetState.hp);
+}
+
+inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& playerNetState)
+{
+	return reader.ReadF32(playerNetState.posX) &&
+		reader.ReadF32(playerNetState.posY) &&
+		reader.ReadF32(playerNetState.angle) &&
+		reader.ReadU16(playerNetState.hp);
+}
+
 struct MsgSnapshot
 {
-
+	PlayerNetState state;
 };
 
 inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg)
 {
-
+	SerializePlayerNetState(writer, msg.state);
 }
 
 inline bool DeserializeServerSnapshot(BufferReader& reader, MsgSnapshot& msg)
 {
-	return true;
+	return DeserializePlayerNetState(reader, msg.state);
 }
 
 struct MsgPing
