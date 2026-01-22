@@ -13,6 +13,4 @@
 #include <SDKDDKVer.h>
 #include "../../lib/cpulib/include/cpu-engine/cpu-engine.h"
 
-class Ship;
-
 #include "App.h"

@@ -80,7 +80,7 @@ void App::OnUpdate()
 		return;
 	}
 	
-	// Update
+	//Update
 	m_pPlayer->Update();
 	m_pGameManager->Update();
 	
