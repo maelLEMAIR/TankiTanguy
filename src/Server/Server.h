@@ -41,11 +41,12 @@ public:
 
 	//Logique de traitement des messages
 	void HandleClientHello(BufferReader& reader);
-	void HandleClientInput(BufferReader& reader);
-	void HandlePing(BufferReader& reader);
-	void HandlePong(BufferReader& reader);
-	void HandleDisconnect(BufferReader& reader);
+	void HandleClientInput(BufferReader& reader, PacketHeader& header);
+	void HandlePing(BufferReader& reader, PacketHeader& header);
+	void HandlePong(BufferReader& reader, PacketHeader& header);
+	void HandleDisconnect(BufferReader& reader, PacketHeader& header);
 
+	void SetPlayerInput(int playerIndex, uint16_t buttons);
 	void SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg);
 
 	sockaddr_in m_lastClientAddr;

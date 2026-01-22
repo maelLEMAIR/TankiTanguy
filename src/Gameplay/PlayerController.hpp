@@ -9,6 +9,7 @@ public:
     void Init(Player& _player) { m_pPlayer = &_player; };
     void HandleInput();
 protected:
+
 private:
     Player* m_pPlayer;
 };

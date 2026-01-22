@@ -314,19 +314,50 @@ inline bool DeserializeDisconnect(BufferReader& reader, MsgDisconnect& msg)
 	return reader.ReadU8(msg.reasonCode);
 }
 
-struct MsgInput
+struct InputCmd
 {
-	uint16_t buttons;  // bitfield (jump, fire, dash…)
+	uint32_t sequence;			// numéro de tick / input
+	uint16_t buttons;		// actions 
 };
 
-inline void SerializeClientInput(BufferWriter& writer, const MsgInput& msg)
+struct MsgInputList
 {
-	writer.WriteU16(msg.buttons);
+	std::vector<InputCmd> inputsList;
+};
+
+inline void SerializeInputList(BufferWriter& writer, const MsgInputList& msg)
+{
+	uint16_t count = static_cast<uint16_t>(msg.inputsList.size());
+	writer.WriteU16(count);
+
+	for (const auto& input : msg.inputsList)
+	{
+		writer.WriteU32(input.sequence);
+		writer.WriteU16(input.buttons);
+	}
 }
 
-inline bool DeserializeClientInput(BufferReader& reader, MsgInput& msg)
+inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
 {
-	return reader.ReadU8(msg.inputFlags);
+	uint16_t count;
+	if (reader.ReadU16(count) == false)
+		return false;
+
+	msg.inputsList.clear();
+	msg.inputsList.reserve(count);
+
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		InputCmd cmd;
+		if (reader.ReadU32(cmd.sequence) == false)
+			return false;
+		if (reader.ReadU16(cmd.buttons) == false)
+			return false;
+
+		msg.inputsList.push_back(cmd);
+	}
+
+	return true;
 }
 
 struct MsgSnapshot

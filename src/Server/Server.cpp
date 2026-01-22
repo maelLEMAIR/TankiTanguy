@@ -44,6 +44,7 @@ void Server::Start()
 void Server::Update()
 {
 	m_pGM->Update();
+	Sleep(16); // ~60 FPS
 }
 
 void Server::Exit()
@@ -117,11 +118,9 @@ DWORD Server::Listen(LPVOID lpParam)
 			BufferReader reader { buffer.data(), static_cast<size_t>(ret), 0 };
 
 			PacketHeader header;
-			if (!DeserializePacketHeader(reader, header)) 
-			{
-				// paquet invalide -> ignore
-				continue;
-			}
+			if (DeserializePacketHeader(reader, header) == false) 
+				continue;	// paquet invalide -> ignore
+
 			pServer->HandleOnPacketType(reader, header);
 		}
 		else if (ret == SOCKET_ERROR)
@@ -193,16 +192,16 @@ void Server::HandleOnPacketType(BufferReader& reader, PacketHeader& header)
 		HandleClientHello(reader);
 		break;
 	case PacketType::ClientInput:
-		HandleClientInput(reader);
+		HandleClientInput(reader, header);
 		break;
 	case PacketType::Ping:
-		HandlePing(reader);
+		HandlePing(reader, header);
 		break;
 	case PacketType::Pong:
-		HandlePong(reader);
+		HandlePong(reader, header);
 		break;
 	case PacketType::Disconnect:
-		HandleDisconnect(reader);
+		HandleDisconnect(reader, header);
 		break;
 	default:
 		std::cout << "Type de message inconnu reçu: " << (int)header.packetType << "\n";
@@ -261,21 +260,35 @@ void Server::HandleClientHello(BufferReader& reader)
 	SendPacket(welcomeMsg.playerId, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
-void Server::HandleClientInput(BufferReader& reader)
+void Server::HandleClientInput(BufferReader& reader, PacketHeader& header)
 {
+	MsgInputList decoded;
+	bool msgOk = DeserializeInputList(reader, decoded);
+	if (msgOk == false) return;
 
+	int playerIndex = header.playerId - 1;
+	
+	for (const InputCmd& cmd : decoded.inputsList)
+	{
+		SetPlayerInput(playerIndex, cmd.buttons);
+	}
 }
 
-void Server::HandlePing(BufferReader& reader)
+void Server::HandlePing(BufferReader& reader, PacketHeader& header)
 {
 }
 
-void Server::HandlePong(BufferReader& reader)
+void Server::HandlePong(BufferReader& reader, PacketHeader& header)
 {
 }
 
-void Server::HandleDisconnect(BufferReader& reader)
+void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
+}
+
+void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
+{
+	GameManager::Get()->GetMatchState().players[playerIndex].inputs.push_back(buttons);
 }
 
 void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)
