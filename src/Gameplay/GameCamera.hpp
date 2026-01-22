@@ -24,7 +24,7 @@ inline GameCamera::GameCamera(cpu_transform& _bodyTransform)
 
 inline void GameCamera::Update()
 {
-    float camDist = 1.5f;
+    float camDist = 1.75f;
     float camHeight = 1.25f;
 
     XMFLOAT3 forward = m_pBodyTransform->dir;

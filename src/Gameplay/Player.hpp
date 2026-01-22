@@ -44,14 +44,16 @@ private:
     float m_pAngle = XM_PI;
 };
 
-inline Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr), m_life(Life(300)) { }
+inline Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr), m_life(Life(100)) { }
 
 inline void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo)
 {
     m_pseudo = _pseudo;
     m_pAngle = _angle;
+    
     m_materialTank.color = cpu::ToColor(_color.x, _color.y, _color.z);
     m_meshTank.CreateCube();
+    
     m_pEntity->pMesh = &m_meshTank;
     m_pEntity->pMaterial = &m_materialTank;
     m_pEntity->transform.pos = _pos;

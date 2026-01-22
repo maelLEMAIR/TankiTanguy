@@ -8,7 +8,7 @@ public:
     ~Life() = default;
 
     void Heal(int _heal);
-    void TakeDamage(int _damage) { m_currentLife -= _damage; };
+    void TakeDamage(int _damage);
 
     int GetMaxLife() const { return m_maxLife; };
     int GetCurrentLife() const { return m_currentLife; };
@@ -33,4 +33,12 @@ inline void Life::Heal(int _heal)
         m_currentLife += _heal;
     else
         m_currentLife = m_maxLife;
+}
+
+inline void Life::TakeDamage(int _damage)
+{
+    if (0 < m_currentLife - _damage)
+        m_currentLife -= _damage;
+    else
+        m_currentLife = 0;
 }

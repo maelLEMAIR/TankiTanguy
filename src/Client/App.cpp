@@ -45,14 +45,33 @@ void App::OnStart()
 	// UI
 	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
 
-	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
+	/*UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
 	dialogueLog->Init(m_pseudo);
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
+	*/
 
+	std::string path = "../../res/Gameplay/vert2.png";
+	
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(XMFLOAT2(0.0f, cpuDevice.GetHeight() - 32.0f), 32.0f, *m_pPlayer, "../../res/Gameplay/alkya.png");
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, path);
+
+	m_pFloorMesh.CreateCube();
+	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
+	
+	for (int i = 0; i < 25; i++)
+	{
+		for (int j = -12; j < 13; j++)
+		{
+			cpu_entity* floor = cpuEngine.CreateEntity();
+			floor->pMesh = &m_pFloorMesh;
+			floor->pMaterial = &m_pFloorMaterial;
+			floor->transform.pos = XMFLOAT3(j * 5.0f, -1.0f, i * 5.0f);
+			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
+			m_pFloor.push_back(floor);
+		}
+	}
 	
 	m_pGameManager->Start();
 }

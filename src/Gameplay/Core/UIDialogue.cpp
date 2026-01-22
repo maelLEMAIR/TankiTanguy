@@ -25,6 +25,7 @@ void UIDialogue::Update()
 {
     if (m_dialogue[m_currentIndex]->IsFinished())
     {
+         *m_answer = m_dialogue[m_currentIndex]->GetText();
          if (m_dialogue.size() > m_currentIndex + 1)
          {
              m_currentIndex++;
@@ -32,8 +33,6 @@ void UIDialogue::Update()
          else
          {
              App::GetInstance().m_isPause = false;
-             if (m_answer != nullptr)
-                *m_answer = m_dialogue[m_currentIndex]->GetText();
              m_isActive = false;
          }
     }

@@ -24,7 +24,7 @@ inline void PlayerController::HandleInput()
     if (cpuInput.IsKey(VK_LEFT))
         m_pPlayer->Turn(-1);
     if (cpuInput.IsKeyDown('N'))
-        m_pPlayer->GetLife().TakeDamage(10);
+        m_pPlayer->GetLife().TakeDamage(5);
     
     if (cpuInput.IsKey(VK_SPACE))
         m_pPlayer->Shoot();

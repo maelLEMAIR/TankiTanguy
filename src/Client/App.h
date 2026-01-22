@@ -27,6 +27,8 @@ private:
 	inline static App* s_pApp = nullptr;
 	GameManager* m_pGameManager = nullptr;
 
+	float m_width = 25.0f;
+	float m_height = 25.0f;
 	
 	// Resources
 	cpu_font m_font;
@@ -35,7 +37,10 @@ private:
 	// 3D
 	Player* m_pPlayer2;
 	Player* m_pPlayer3;
-
+	std::vector<cpu_entity*> m_pFloor;
+	cpu_mesh m_pFloorMesh;
+	cpu_material m_pFloorMaterial;
+	
 	// UI
 	UIManager* m_pUIManager;
 };
