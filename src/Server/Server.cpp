@@ -1,5 +1,6 @@
 #include "Server.h"
-#include "Gameplay/Player.hpp"
+#include "Gameplay/Player.h"
+#include "Gameplay/Core/GameManager.h"
 
 Server::Server()
 {
@@ -37,7 +38,8 @@ void Server::Start()
 	m_vClientsInfo.push_back(client2);
 
 	m_running = true;
-	m_pGM = GameManager::Get();
+	m_pGM = &GameManager::Get();
+	m_pGM->ServerSideStart();
 	m_listenThread = CreateThread(NULL, 0, Listen, this, 0, NULL);
 }
 
@@ -73,7 +75,7 @@ void Server::Exit()
 
 	if (m_pGM)
 	{
-		m_pGM->ServerSideStop();
+		//m_pGM->ServerSideStop();
 	}
 }
 
@@ -289,30 +291,30 @@ void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 
 void Server::SendServerSnapshotsToClients()
 {
-	PacketHeader header;
-	header.packetType = PacketType::ServerSnapshot;
+	//PacketHeader header;
+	//header.packetType = PacketType::ServerSnapshot;
 
-	Player* player = m_pGM->GetMatchState().players[0].player;
+	//Player* player = m_pGM->GetMatchState().players[0].player;
 
-	PlayerNetState playerState;
-	playerState.posX = player->GetPos().x;
-	playerState.posY = player->GetPos().z;
-	playerState.angle = player->GetAngle();
-	playerState.hp = 100;
+	//PlayerNetState playerState;
+	//playerState.posX = player->GetPos().x;
+	//playerState.posY = player->GetPos().z;
+	//playerState.angle = player->GetAngle();
+	//playerState.hp = 100;
 
-	MsgSnapshot snapshotMsg;
-	snapshotMsg.state = playerState;
+	//MsgSnapshot snapshotMsg;
+	//snapshotMsg.state = playerState;
 
-	BufferWriter writer;
-	SerializePacketHeader(writer, header);
-	SerializeServerSnapshot(writer, snapshotMsg);
-	SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
+	//BufferWriter writer;
+	//SerializePacketHeader(writer, header);
+	//SerializeServerSnapshot(writer, snapshotMsg);
+	//SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
 {
-	GameManager::Get()->GetMatchState().players[playerIndex].inputs.push_back(buttons);
-	std::cout << "Received input from Player " << (playerIndex + 1) << ": " << buttons << "\n";
+	//GameManager::Get()->GetMatchState().players[playerIndex].inputs.push_back(buttons);
+	//std::cout << "Received input from Player " << (playerIndex + 1) << ": " << buttons << "\n";
 }
 
 void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)

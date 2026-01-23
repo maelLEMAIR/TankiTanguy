@@ -6,25 +6,6 @@ Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(
 
 Player::~Player()
 {
-public:
-    Player();
-    ~Player() override;
-
-    void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo);
-
-    void Update();
-
-    void Move(float _dir);
-    void Turn(float _dir);
-    void Shoot() { m_pWeapon->Shoot(); };
-
-    XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
-    std::string& GetPseudo() { return m_pseudo; }
-	float GetAngle() const { return m_pAngle; }
-
-    void SetPos(XMFLOAT3 pos)  { m_pEntity->transform.pos = pos; }
-	void SetAngle(float angle) { m_pAngle = angle; }
-protected:
     m_pHead = cpuEngine.Release(m_pHead);
     m_pCanon = cpuEngine.Release(m_pCanon);
     CPU_DELPTR( m_pWeapon );

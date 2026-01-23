@@ -1,10 +1,11 @@
 #pragma once
 
 #include "InputText.h"
-#include "Core/UIManager.h"
 #include "Gameplay/Core/GameManager.h"
 
 class Player;
+class GameManager;
+class UIManager;
 
 class App
 {
@@ -13,6 +14,7 @@ public:
 	virtual ~App();
 
 	static App& GetInstance() { return *s_pApp; }
+
 	void OnStart();
 	void OnUpdate();
 	void OnExit();
@@ -35,25 +37,3 @@ private:
 	// UI
 	UIManager* m_pUIManager;
 };
-
-// =======STATE-MACHINE======= //
-/*struct StateShipGlobal
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
-};
-
-struct StateShipIdle
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
-};
-
-struct StateShipBlink
-{
-	void OnEnter(Ship& cur, int from);
-	void OnExecute(Ship& cur);
-	void OnExit(Ship& cur, int to);
-};*/

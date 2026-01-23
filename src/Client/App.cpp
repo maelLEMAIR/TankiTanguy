@@ -2,6 +2,7 @@
 #include "Core/UIDialogue.h"
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
+#include "Core/UIManager.h"
 
 App::App()
 {

@@ -5,6 +5,9 @@
 #include "Collider.h"
 #include "Utils.hpp"
 #include "Client/App.h"
+#include "PlayerController.h"
+#include "Player.h"
+
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -61,10 +64,19 @@ void GameManager::Start()
 void GameManager::Update()
 {
     // float dt = cpuTime.delta;
-    CollisionCheck();
-    m_pPlCrt->HandleInput();
-    for (GameObject* go : m_gameObjects)
-        go->Update();
+    //CollisionCheck();
+    //m_pPlCrt->HandleInput();
+    //for (GameObject* go : m_gameObjects)
+    //    go->Update();
+}
+
+void GameManager::ServerSideStart()
+{
+	Player* player1 = CreateObject<Player>();
+}
+
+void GameManager::ServerSideUpdate()
+{
 }
 
 bool GameManager::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight)

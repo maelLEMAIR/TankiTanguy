@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PlayerController.h"
 
-#include "Player.hpp"
+#include "Player.h"
 #include "Network/ClientSocket.h"
 #include "Core/GameManager.h"
 
@@ -81,12 +81,12 @@ void PlayerController::UpdateInputs()
 
 void PlayerController::UpdateWithSnapshot()
 {
-    GameManager* gm = GameManager::Get();
-    ClientSocket* clientSocket = &ClientSocket::GetInstance();
-    PlayerState& playerState = gm->GetMatchState().players[clientSocket->GetServerInfo().playerId - 1];
+    //GameManager* gm = GameManager::Get();
+    //ClientSocket* clientSocket = &ClientSocket::GetInstance();
+    //PlayerState& playerState = gm->GetMatchState().players[clientSocket->GetServerInfo().playerId - 1];
 
-    m_pPlayer->GetOwner()->m_pEntity->transform.pos = playerState.player->GetPos();
-    m_pPlayer->SetAngle(playerState.player->GetAngle());
+    //m_pPlayer->GetOwner()->m_pEntity->transform.pos = playerState.player->GetPos();
+    //m_pPlayer->SetAngle(playerState.player->GetAngle());
 }
 
 bool PlayerController::ShouldSend() const

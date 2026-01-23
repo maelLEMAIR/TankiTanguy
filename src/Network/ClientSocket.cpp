@@ -1,7 +1,7 @@
 #include "ClientSocket.h"
 
 #include "Gameplay/Core/GameManager.h"
-#include "Gameplay/Player.hpp"
+#include "Gameplay/Player.h"
 
 ClientSocket::ClientSocket()
 {
@@ -114,16 +114,16 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 
 void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 {
-	std::cout << "Message ServerSnapshot reçu\n";
+	//std::cout << "Message ServerSnapshot reçu\n";
 
-	MsgSnapshot decoded;
-	bool msgOk = DeserializeServerSnapshot(reader, decoded);
+	//MsgSnapshot decoded;
+	//bool msgOk = DeserializeServerSnapshot(reader, decoded);
 
-	GameManager* pGM = GameManager::Get();
-	Player* player = pGM->GetMatchState().players[1].player;
-	player->SetPos(XMFLOAT3(decoded.state.posX, 0.0f, decoded.state.posY));
-	player->SetAngle(decoded.state.angle);
-	player->Update();
+	//GameManager* pGM = GameManager::Get();
+	//Player* player = pGM->GetMatchState().players[1].player;
+	//player->SetPos(XMFLOAT3(decoded.state.posX, 0.0f, decoded.state.posY));
+	//player->SetAngle(decoded.state.angle);
+	//player->Update();
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)
