@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "ClientSocket.h"
+#include "Gameplay/Player.hpp"
+#include "Gameplay/PlayerController.h"
+#include "Gameplay/Core/GameManager.h"
 
 App::App()
 {

@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include "pch.h"
+
 #include <iostream>
 
 #include "GameCamera.hpp"
-#include "pch.h"
 #include "Weapon.h"
 #include "Core/GameObject.hpp"
 #include "Core/SphereCollider.h"

@@ -1,6 +1,4 @@
 #include "pch.h"
-#include "Network.hpp"
-#include "ClientSocket.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int cmdShow)
 {

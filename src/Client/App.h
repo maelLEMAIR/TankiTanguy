@@ -1,13 +1,13 @@
 #pragma once
 
 #include "InputText.h"
-#include "Gameplay/Player.hpp"
-#include "Gameplay/PlayerController.hpp"
-#include "Gameplay/Core/GameManager.h"
 
 constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
 
 class ClientSocket;
+class GameManager;
+class Player;
+class PlayerController;
 
 class App
 {

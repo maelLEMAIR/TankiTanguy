@@ -3,7 +3,7 @@
 
 Server::Server()
 {
-	s_pServer = this;
+	s_pInstance = this;
 }
 
 Server::~Server()

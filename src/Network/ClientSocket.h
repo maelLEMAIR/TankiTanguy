@@ -1,8 +1,9 @@
 #ifndef CLIENT_SOCKET_H
 #define CLIENT_SOCKET_H
 
-#include "Network/Network.hpp"
 #include <iostream>
+
+#include "Network.hpp"
 
 struct ServerInfo
 {

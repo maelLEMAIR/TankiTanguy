@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include "pch.h"
-#include "Missile.hpp"
-#include "Life.hpp"
+
+#include <vector>
 
 class GameObject;
 class Collider;
 class Player;
 class PlayerController;
+class Missile;
+class Life;
 
 struct PlayerState
 {
@@ -41,6 +43,7 @@ public:
 	void UpdateMatchState();
 
 	MatchState& GetMatchState() { return m_matchState; }
+	PlayerController* GetLocalPlayerController() const { return m_pLocalPlayerCtrl; }
 	bool IsServer() const { return true; }
 
     template <class ObjectClass> ObjectClass* CreateObject();

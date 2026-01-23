@@ -23,7 +23,7 @@ public:
 	Server();
 	~Server();
 
-	static Server& GetInstance() { return *s_pServer; }
+	static Server* GetInstance() { return s_pInstance; }
 
 	void MainLoop();
 
@@ -55,7 +55,7 @@ public:
 	SOCKET m_socket;
 
 private:
-	inline static Server* s_pServer = nullptr;
+	inline static Server* s_pInstance = nullptr;
 
 	HANDLE m_listenThread = nullptr;
 	

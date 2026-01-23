@@ -3,8 +3,10 @@
 #include "Collider.h"
 #include "GameObject.hpp"
 #include "Client/App.h"
-#include <Network/Network.hpp>
-#include "PlayerController.hpp"
+#include "PlayerController.h"
+#include "Player.hpp"
+#include "Missile.hpp"
+#include "Life.hpp"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -43,12 +45,12 @@ void GameManager::ClientSideStop()
 
 void GameManager::ServerSideStart()
 {
-    m_matchState.players[0].player = new Player();
+    m_matchState.players[0].player = CreateObject<Player>();
     m_matchState.players[0].player->ServerInit(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
     m_matchState.players[0].playerCtrl = new PlayerController();
     m_matchState.players[0].playerCtrl->Init(*m_matchState.players[0].player);
 
-    m_matchState.players[1].player = new Player();
+    m_matchState.players[1].player = CreateObject<Player>();
     m_matchState.players[1].player->ServerInit(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
     m_matchState.players[1].playerCtrl = new PlayerController();
     m_matchState.players[1].playerCtrl->Init(*m_matchState.players[1].player);
@@ -101,7 +103,7 @@ void GameManager::UpdateMatchState()
 		PlayerController* playerCtrl = playerState.playerCtrl;
         for (int input : playerState.inputs)
         {
-			playerCtrl->HandleInput(input);
+			playerCtrl->ApplyInput(input);
 		}
         playerState.inputs.clear();
 		playerState.player->Update();
