@@ -11,7 +11,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int cmdShow)
 
 	Sleep(1000); // Wait for server to be ready
     // RETRO FULLSCREEN
-    CPU_RUN(512, 256, true, true);
+    CPU_RUN(512, 256, false, true);
 
     // MODERN
     //CPU_RUN(1024, 576);

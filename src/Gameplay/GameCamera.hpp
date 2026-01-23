@@ -1,3 +1,4 @@
+#pragma once
 #include "pch.h"
 
 class GameCamera
@@ -6,7 +7,8 @@ public:
     GameCamera(cpu_transform& _bodyTransform);
     ~GameCamera() = default;
     void Update();
-    
+    void FollowPlayer();
+
 protected:
     
 private:
@@ -24,7 +26,12 @@ inline GameCamera::GameCamera(cpu_transform& _bodyTransform)
 
 inline void GameCamera::Update()
 {
-    float camDist = 1.5f;
+    
+}
+
+inline void GameCamera::FollowPlayer()
+{
+    float camDist = 1.75f;
     float camHeight = 1.25f;
 
     XMFLOAT3 forward = m_pBodyTransform->dir;

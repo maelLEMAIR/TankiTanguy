@@ -1,13 +1,10 @@
 #pragma once
 
 #include "InputText.h"
+#include "Core/UIManager.h"
+#include "Gameplay/Core/GameManager.h"
 
-constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
-
-class ClientSocket;
-class GameManager;
 class Player;
-class PlayerController;
 
 class App
 {
@@ -16,33 +13,47 @@ public:
 	virtual ~App();
 
 	static App& GetInstance() { return *s_pApp; }
-
 	void OnStart();
 	void OnUpdate();
 	void OnExit();
 	void OnRender(int pass);
-	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight);
-	static DWORD WINAPI Listen(LPVOID lpParam);
-
-	Player* m_pPlayer;
+	
+	bool m_isPause = false;
+	std::string m_pseudo;
 	
 private:
 	inline static App* s_pApp = nullptr;
-	GameManager* m_pGameManager = nullptr;
+	GameManager m_pGameManager;
+
+	float m_width = 25.0f;
+	float m_height = 25.0f;
 	
 	// Resources
 	cpu_font m_font;
 	cpu_rt* m_rts[1];
-
-	// 3D
-	Player* m_pPlayer2;
-	Player* m_pPlayer3;
-
+	
 	// UI
-	InputText* m_pseudo;
-	InputText* m_loginAdrr;
-	InputText* m_loginPort;
-
-	//Network
-	ClientSocket* m_pClientSocket;
+	UIManager* m_pUIManager;
 };
+
+// =======STATE-MACHINE======= //
+/*struct StateShipGlobal
+{
+	void OnEnter(Ship& cur, int from);
+	void OnExecute(Ship& cur);
+	void OnExit(Ship& cur, int to);
+};
+
+struct StateShipIdle
+{
+	void OnEnter(Ship& cur, int from);
+	void OnExecute(Ship& cur);
+	void OnExit(Ship& cur, int to);
+};
+
+struct StateShipBlink
+{
+	void OnEnter(Ship& cur, int from);
+	void OnExecute(Ship& cur);
+	void OnExit(Ship& cur, int to);
+};*/

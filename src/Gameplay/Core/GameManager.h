@@ -1,51 +1,28 @@
 ﻿#pragma once
+#include "Map.h"
 #include "pch.h"
+#include "PlayerController.hpp"
 
-#include <vector>
-
-class GameObject;
 class Collider;
 class Player;
-class PlayerController;
-class Missile;
-class Life;
-
-struct PlayerState
-{
-	Player* player;
-    PlayerController* playerCtrl;
-    std::vector<int> inputs;
-};
-
-struct MatchState
-{
-    PlayerState players[2];
-    std::vector<Missile*> missiles;
-};
+class PlayerManager;
 
 class GameManager
 {
 public:
     GameManager();
     ~GameManager();
-
-    static GameManager* Get();
-
-    void ClientSideStart();
-    void ClientSideUpdate();
-	void ClientSideStop();
-
-	void ServerSideStart();
-    void ServerSideUpdate();
-	void ServerSideStop();
-
-    void CollisionCheck(); 
-	void UpdateMatchState();
-
-	MatchState& GetMatchState() { return m_matchState; }
-	PlayerController* GetLocalPlayerController() const { return m_pLocalPlayerCtrl; }
-	bool IsServer() const { return true; }
-
+    static GameManager& Get();
+    void Start();
+    void Update();
+    
+    bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight);
+    std::vector<Player*> GetPlayers() const { return m_players; };
+    
+    void CollisionCheck();
+    void AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _mainPlayer = false);
+    void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.0f);
+    
     template <class ObjectClass> ObjectClass* CreateObject();
     template <class ObjectClass> std::vector<GameObject*> GetAllObjects();
     template <class ComponentClass> std::vector<ComponentClass*> GetAllComponents();
@@ -53,10 +30,14 @@ protected:
     
 private:
     static GameManager* s_pInstance;
+    Map m_map;
+    std::vector<cpu_entity*> m_floors;
+    cpu_mesh m_pFloorMesh;
+    cpu_material m_pFloorMaterial;
     
+    PlayerController* m_pPlCrt;
+    std::vector<Player*> m_players;
     std::vector<GameObject*> m_gameObjects;
-	PlayerController* m_pLocalPlayerCtrl;
-	MatchState m_matchState;
 };
 
 #include "GameManager.inl"

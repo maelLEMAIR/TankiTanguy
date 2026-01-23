@@ -15,8 +15,8 @@
             },
             "dependencies": [],
             "dependents": [
-                "644B3A67-66B6-0D0E-32AD-6892408941DE",
-                "643B6879-09CE-3711-6938-1BE103BE7B0B"
+                "643B6879-09CE-3711-6938-1BE103BE7B0B",
+                "644B3A67-66B6-0D0E-32AD-6892408941DE"
             ],
             "name": "Network",
             "property-lib": true,

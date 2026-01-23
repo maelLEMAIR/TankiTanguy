@@ -1,8 +1,7 @@
 #include "pch.h"
-#include "ClientSocket.h"
-#include "Gameplay/Player.hpp"
-#include "Gameplay/PlayerController.h"
-#include "Gameplay/Core/GameManager.h"
+#include "Core/UIDialogue.h"
+#include "Gameplay/Player.h"
+#include "Core/UIHealthBar.hpp"
 
 App::App()
 {
@@ -13,8 +12,7 @@ App::App()
 	CPU_CALLBACK_RENDER(OnRender);
 
 	m_pGameManager = GameManager::Get();
-	m_pPlayer = nullptr;
-	m_pClientSocket = new ClientSocket();
+	m_pUIManager = UIManager::Get();
 }
 
 App::~App()
@@ -33,28 +31,23 @@ void App::OnStart()
 	// Resources
 	m_font.Create(12);
 	m_rts[0] = cpuEngine.CreateRT();
-
-	// Player
-	m_pPlayer = m_pGameManager->CreateObject<Player>();
-	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
-
-	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
-	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
-
-	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
-	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
-
-	// UI
-	XMINT2 pos = XMINT2((int)(cpuDevice.GetWidth() * 0.5f), 30);
-	m_loginAdrr = new InputText(m_font, pos, CPU_TEXT_CENTER);
-	m_loginAdrr->SetActive(true);
-	m_loginPort = new InputText(m_font, pos, CPU_TEXT_CENTER);
-	m_pseudo = new InputText(m_font, XMINT2(0, 0), CPU_TEXT_LEFT);
-
-	// Start Client
-	m_pClientSocket->ConnectToServer("127.0.0.1", 1888);
 	
-	m_pGameManager->ClientSideStart();
+	cpuEngine.GetParticleData()->Create(1000000);
+	// UI
+	/*XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
+	dialogueLog->Init(m_pseudo);
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
+	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
+	*/
+	std::string pathGreen = "../../res/Gameplay/vert.png";
+	std::string pathGray = "../../res/Gameplay/gris.png";
+
+	/*UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);*/
+	
+	m_pGameManager.Start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,32 +59,12 @@ void App::OnUpdate()
 	// Quit
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
+
+	m_pUIManager->Update();
+	if (m_isPause) return;
 	
-	if (m_loginAdrr->IsFinished() == false)
-	{
-		m_loginAdrr->Update();
-		return;
-	}
-	m_loginAdrr->SetActive(false);
-	m_loginPort->SetActive(true);
-	if (m_loginPort->IsFinished() == false)
-	{
-		m_loginPort->Update();
-		return;
-	}
-	m_loginPort->SetActive(false);
-	m_pseudo->SetActive(true);
-	if (m_pseudo->IsFinished() == false)
-	{
-		m_pseudo->Update();
-		m_pPlayer->GetPseudo() = m_pseudo->GetText();
-		return;
-	}
-	
-	//Update
-	m_pPlayer->Update();
-	m_pGameManager->ClientSideUpdate();
-	
+	// Update
+	m_pGameManager.Update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +73,8 @@ void App::OnUpdate()
 
 void App::OnExit()
 {
-	CPU_DELPTR(m_pPlayer);
+	//CPU_DELPTR(m_pseudo);
+	CPU_DELPTR(m_pUIManager);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +84,8 @@ void App::OnExit()
 void App::OnRender(int pass)
 {
 	// YOUR CODE HERE
-
+	m_pUIManager->Render();
+	
 	switch ( pass )
 	{
 		case CPU_PASS_PARTICLE_BEGIN:
@@ -131,107 +106,93 @@ void App::OnRender(int pass)
 		case CPU_PASS_UI_END:
 		{
 			std::string info;
-			if (m_loginAdrr->IsActive() && m_loginAdrr->GetText().empty())
-				info = "Enter an addresse";
-			else if (m_loginAdrr->IsActive())
-				m_loginAdrr->Render();
-
-			if (m_loginPort->IsActive() && m_loginPort->GetText().empty())
-				info = "Enter a port";
-			else if (m_loginPort->IsActive())
-				m_loginPort->Render();
-
-			if (m_pseudo->IsActive() && m_pseudo->GetText().empty())
-				info = "Enter a pseudo";
-			else if(m_pseudo->IsActive())
-				m_pseudo->Render();
-
 			XMFLOAT2 screenPos;
-			if (WorldToScreen(m_pPlayer2->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+			std::vector<Player*> players = m_pGameManager.GetPlayers();
+			for (Player* player: players)
 			{
-				cpuDevice.DrawText(&m_font, m_pPlayer2->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+				if (m_pGameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+				{
+					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+				}
 			}
-			if (WorldToScreen(m_pPlayer3->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
-			{
-				cpuDevice.DrawText(&m_font, m_pPlayer3->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
-			}
-			cpuDevice.DrawText(&m_font, "TANKYTANGUY", (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
-			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 30, CPU_TEXT_CENTER);
+			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
+			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
+			break;
+		}
+		default:
+		{
 			break;
 		}
 	}
 }
 
-bool App::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight)
+
+
+// =======STATE-MACHINE======= //
+/*
+void StateShipGlobal::OnEnter(Ship& cur, int from)
 {
-	float clip[4];
-
-	clip[0] = world.x * viewProj.m[0][0] + world.y * viewProj.m[1][0] + world.z * viewProj.m[2][0] + viewProj.m[3][0];
-	clip[1] = world.x * viewProj.m[0][1] + world.y * viewProj.m[1][1] + world.z * viewProj.m[2][1] + viewProj.m[3][1];
-	clip[2] = world.x * viewProj.m[0][2] + world.y * viewProj.m[1][2] + world.z * viewProj.m[2][2] + viewProj.m[3][2];
-	clip[3] = world.x * viewProj.m[0][3] + world.y * viewProj.m[1][3] + world.z * viewProj.m[2][3] + viewProj.m[3][3];
-
-	if (clip[3] <= 0.0f)
-		return false;
-
-	float ndcX = clip[0] / clip[3];
-	float ndcY = clip[1] / clip[3];
-
-	screen.x = (ndcX * 0.5f + 0.5f) * static_cast<float>(screenWidth);
-	screen.y = (1.0f - (ndcY * 0.5f + 0.5f)) * static_cast<float>(screenHeight);
-
-	return true;
 }
 
-DWORD App::Listen(LPVOID lpParam)
+void StateShipGlobal::OnExecute(Ship& cur)
 {
-	ClientSocket* pClient = static_cast<ClientSocket*>(lpParam);
-	std::vector<uint8_t> buffer(MAX_UDP_PACKET_SIZE);
+	cur.Update();
+}
 
-	while (true) //A REMPLACER 
+void StateShipGlobal::OnExit(Ship& cur, int to)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void StateShipIdle::OnEnter(Ship& cur, int from)
+{
+}
+
+void StateShipIdle::OnExecute(Ship& cur)
+{
+	// Blink every 3 seconds
+	if ( cur.GetFSM()->totalTime>3.0f )
 	{
-		sockaddr_in serverAddr;
-		socklen_t serverSocketLen = sizeof(sockaddr_in);
+		cur.GetFSM()->ToState(CPU_ID(StateShipBlink));
+		return;
+	}
+}
 
-		int ret = recvfrom(
-			pClient->GetSocket(),
-			reinterpret_cast<char*>(buffer.data()),
-			static_cast<int>(buffer.size()),
-			0,
-			reinterpret_cast<sockaddr*>(&serverAddr),
-			&serverSocketLen
-		);
+void StateShipIdle::OnExit(Ship& cur, int to)
+{
+}
 
-		if (ret > 0)
-		{
-			BufferReader reader{ buffer.data(), static_cast<size_t>(ret), 0 };
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			PacketHeader header;
-			if (DeserializePacketHeader(reader, header) == false)
-				continue;	// paquet invalide -> ignore
+void StateShipBlink::OnEnter(Ship& cur, int from)
+{
+}
 
-			pClient->HandleOnPacketType(reader, header);
-		}
-		else if (ret == SOCKET_ERROR)
-		{
-			int err = WSAGetLastError();
-
-			// Cas très fréquent en UDP Windows (ICMP port unreachable)
-			if (err == WSAECONNRESET)
-			{
-				continue; // ignore
-			}
-
-			// Si socket fermé pendant l'écoute
-			if (err == WSAENOTSOCK || err == WSAEINVAL)
-			{
-				break;
-			}
-
-			// Évite le spam console en boucle
-			std::cerr << "recvfrom failed, WSA error: " << err << "\n";
-		}
+void StateShipBlink::OnExecute(Ship& cur)
+{
+	float v = fmod(cur.GetFSM()->totalTime, 0.2f);
+	if ( v<0.1f )
+	{
+		cur.GetEntity()->visible = true;
+	}
+	else
+	{
+		cur.GetEntity()->visible = false;
 	}
 
-	return 0;
+	if ( cur.GetFSM()->totalTime>1.0f )
+	{
+		cur.GetFSM()->ToState(CPU_ID(StateShipIdle));
+		return;
+	}
 }
+
+void StateShipBlink::OnExit(Ship& cur, int to)
+{
+}
+*/

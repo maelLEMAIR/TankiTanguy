@@ -10,4 +10,8 @@ public:
 
 	XMFLOAT3 albedo;
 	float intensity;
+	XMFLOAT2 uv;
+#ifdef _DEBUG
+	XMFLOAT2 uvDebug;
+#endif
 };
