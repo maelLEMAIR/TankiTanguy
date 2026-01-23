@@ -50,6 +50,6 @@ private:
     float m_pAngle = XM_PI;
     
     float m_deadDuration = 0.0f;
-    float m_deadTime = 2.0f;
+    float m_deadTime = 3.0f;
 };
 

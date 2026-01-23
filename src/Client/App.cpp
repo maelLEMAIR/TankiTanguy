@@ -2,6 +2,7 @@
 #include "Core/UIDialogue.h"
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
+#include "Core/PlayerManager.h"
 
 App::App()
 {
@@ -36,10 +37,19 @@ void App::OnStart()
 	// Player
 	m_pPlayer = m_pGameManager->CreateObject<Player>();
 	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
+	m_players.push_back(m_pPlayer);
 	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
+	m_players.push_back(m_pPlayer2);
 	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
+	m_players.push_back(m_pPlayer3);
+	
+	
+	Map* map = new Map();
+	map->Init(50, 50);
+	m_pPlayerManager = new PlayerManager();
+	m_pPlayerManager->Init(m_players, *map);
 	
 	cpuEngine.GetParticleData()->Create(1000000);
 	// UI
@@ -88,7 +98,7 @@ void App::OnUpdate()
 	if (m_isPause) return;
 	
 	// Update
-	m_pPlayer->Update();
+	m_pPlayerManager->Update();
 	m_pGameManager->Update();
 }
 

@@ -6,7 +6,8 @@ public:
     GameCamera(cpu_transform& _bodyTransform);
     ~GameCamera() = default;
     void Update();
-    
+    void FollowPlayer();
+
 protected:
     
 private:
@@ -23,6 +24,11 @@ inline GameCamera::GameCamera(cpu_transform& _bodyTransform)
 }
 
 inline void GameCamera::Update()
+{
+    
+}
+
+inline void GameCamera::FollowPlayer()
 {
     float camDist = 1.75f;
     float camHeight = 1.25f;

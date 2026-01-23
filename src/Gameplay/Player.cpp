@@ -86,7 +86,6 @@ void Player::Update()
         m_pCanon->transform.pos.z + forward.z
     );
     
-    m_pCamera->Update();
     m_pWeapon->Update();
 
     m_center = posBody;
@@ -96,6 +95,7 @@ void Player::Move(float _dir)
 {
     float dt = cpuTime.delta;
     m_pEntity->transform.Move(dt * m_speed * _dir);
+    m_pCamera->FollowPlayer();
 }
 
 void Player::Turn(float _dir)
@@ -103,6 +103,7 @@ void Player::Turn(float _dir)
     float dt = cpuTime.delta;
     m_pAngle += _dir * dt;
     m_pEntity->transform.AddYPR(dt * _dir);
+    m_pCamera->FollowPlayer();
 }
 
 void Player::Revive(XMFLOAT3 _pos)

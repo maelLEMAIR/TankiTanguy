@@ -9,7 +9,7 @@ void Weapon::Shoot()
     if (m_fireDuration >= m_fireDurationMax)
     {
         Missile* missile = GameManager::Get()->CreateObject<Missile>();
-        missile->Init(*m_pWeaponTransform);
+        missile->Init(*m_pWeaponTransform, *m_pOwner);
         m_pMissiles.push_back(missile);
         m_fireDuration = 0.0f;
     }

@@ -1,7 +1,7 @@
 ﻿#include "GameManager.h"
 
 #include "Collider.h"
-#include "GameObject.hpp"
+#include "PlayerManager.h"
 #include "Client/App.h"
 
 GameManager* GameManager::s_pInstance = nullptr;

@@ -15,6 +15,9 @@ private:
 
 inline void PlayerController::HandleInput()
 {
+    if (m_pPlayer->IsDead() == false)
+        return;
+    
     if (cpuInput.IsKey(VK_UP))
         m_pPlayer->Move(1);
     if (cpuInput.IsKey(VK_DOWN))

@@ -2,9 +2,9 @@
 #include "pch.h"
 #include "PlayerController.hpp"
 
-class GameObject;
 class Collider;
 class Player;
+class PlayerManager;
 
 class GameManager
 {
@@ -22,7 +22,9 @@ protected:
     
 private:
     static GameManager* s_pInstance;
-    
+
+
+    PlayerManager* m_pPlayerManager = nullptr;
     PlayerController* m_pPlCrt;
     std::vector<GameObject*> m_gameObjects;
 };
