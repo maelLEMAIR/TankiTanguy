@@ -15,6 +15,7 @@ Player::~Player()
 
 void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string const& _pseudo)
 {
+    m_tag = "Player";
     m_pseudo = _pseudo;
     m_pAngle = _angle;
     
@@ -54,19 +55,15 @@ void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string const&
         m_pCanon->transform.pos.y,
         m_pCanon->transform.pos.z + forward.z
     );
-    
-    m_pCamera = new GameCamera(m_pEntity->transform);
     m_pWeapon = new Weapon(m_pCanon->transform, *this);
 }
 
 void Player::Update()
 {
     float dt = cpuTime.delta;
-    if (m_life.IsDead())
-        Dead(dt);
     
     m_pEntity->transform.SetYPR(m_pAngle, 0.f, 0.f);
-    
+        
     XMFLOAT3 posBody = m_pEntity->transform.pos;
     
     m_pHead->transform.SetYPR(m_pAngle, 0.f, 0.f);
@@ -87,15 +84,23 @@ void Player::Update()
     );
     
     m_pWeapon->Update();
-
     m_center = posBody;
+    
+    if (m_life.IsDead())
+    {
+        Dead(dt);
+        return;
+    }
+    
+    if (m_pCamera != nullptr)
+        m_pCamera->FollowPlayer();
+    
 }
 
 void Player::Move(float _dir)
 {
     float dt = cpuTime.delta;
     m_pEntity->transform.Move(dt * m_speed * _dir);
-    m_pCamera->FollowPlayer();
 }
 
 void Player::Turn(float _dir)
@@ -103,7 +108,6 @@ void Player::Turn(float _dir)
     float dt = cpuTime.delta;
     m_pAngle += _dir * dt;
     m_pEntity->transform.AddYPR(dt * _dir);
-    m_pCamera->FollowPlayer();
 }
 
 void Player::Revive(XMFLOAT3 _pos)
@@ -112,11 +116,19 @@ void Player::Revive(XMFLOAT3 _pos)
     m_life.ResetLIfe();
 }
 
+void Player::AttachCamera()
+{
+    m_pCamera = new GameCamera(m_pEntity->transform);
+}
+
 void Player::Dead(float _dt)
 {
     if (m_deadDuration > m_deadTime)
     {
         PlayerManager::Get()->RespawnPlayer(this);
+        m_deadDuration = 0.0f;
+        return;
     }
+    m_pEntity->transform.pos.y = -2.0f;
     m_deadDuration += _dt;
 }

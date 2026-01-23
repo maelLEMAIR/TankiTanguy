@@ -12,7 +12,7 @@ public:
     void Init(std::vector<Player*>& _players, Map const& _map);
     static PlayerManager* Get();
     void Update();
-    void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 10.f);
+    void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.f);
 
 protected:
 private:

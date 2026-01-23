@@ -1,16 +1,18 @@
 ﻿#include "Missile.h"
 
-inline Missile::Missile() : SphereCollider(XMFLOAT3(1.0f, 1.0f, 1.0f), 1.0f), m_pEmitter(nullptr)
+#include "Player.h"
+
+Missile::Missile() : SphereCollider(XMFLOAT3(1.0f, 1.0f, 1.0f), 1.0f), m_pEmitter(nullptr)
 {
     m_firstPos = XMFLOAT3(1.0f, 1.0f, 1.0f);
 }
 
-inline Missile::~Missile()
+Missile::~Missile()
 {
     GameObject::~GameObject();
 }
 
-inline void Missile::Init(cpu_transform& _transform, Player& _player)
+void Missile::Init(cpu_transform& _transform, Player& _player)
 {
     m_pOwnerPlayer = &_player;
     
@@ -38,7 +40,7 @@ inline void Missile::Init(cpu_transform& _transform, Player& _player)
     m_pEmitter->colorMax = cpu::ToColor(255, 128, 0);
 }
 
-inline void Missile::Update()
+void Missile::Update()
 {
     float dt = cpuTime.delta;
     
@@ -58,13 +60,22 @@ inline void Missile::Update()
     m_center = m_pEntity->transform.pos;
 }
 
-inline void Missile::OnCollisionEnter(Collider* pOther)
+void Missile::OnCollisionEnter(Collider* pOther)
 {
-    pOther->GetOwner()->m_pEntity->dead = true;
+    if (m_pEntity->dead)
+        return;
+    
+    if (pOther->GetOwner() == m_pOwnerPlayer->GetOwner())
+        return;
+    
+    if (pOther->GetOwner()->GetTag() == "Player")
+        if (Player* pPlayer = dynamic_cast<Player*>(pOther))
+            pPlayer->GetLife().TakeDamage(100);
+    
     Dead();
 }
 
-inline void Missile::Dead(float _dt)
+void Missile::Dead(float _dt)
 {
     m_pEntity->dead = true;
     m_pEmitter->dead = true;

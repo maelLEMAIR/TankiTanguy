@@ -6,16 +6,19 @@ class PlayerController
 public:
     PlayerController() = default;
     ~PlayerController() = default;
+    
     void Init(Player& _player) { m_pPlayer = &_player; };
     void HandleInput();
+    
 protected:
+    
 private:
     Player* m_pPlayer;
 };
 
 inline void PlayerController::HandleInput()
 {
-    if (m_pPlayer->IsDead() == false)
+    if (m_pPlayer->IsDead())
         return;
     
     if (cpuInput.IsKey(VK_UP))

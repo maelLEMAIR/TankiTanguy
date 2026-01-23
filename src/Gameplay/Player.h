@@ -23,14 +23,15 @@ public:
     void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
     void Revive(XMFLOAT3 _pos);
-
+    void AttachCamera();
+    
     bool IsDead() { return m_life.IsDead(); }
     XMFLOAT3& GetPos() {return m_pEntity->transform.pos; }
     
     Life& GetLife() { return m_life; }
     XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
     std::string& GetPseudo() { return m_pseudo; }
-    
+
 protected:
 
 private:

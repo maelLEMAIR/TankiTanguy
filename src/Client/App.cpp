@@ -37,10 +37,13 @@ void App::OnStart()
 	// Player
 	m_pPlayer = m_pGameManager->CreateObject<Player>();
 	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
+	m_pPlayer->AttachCamera();
 	m_players.push_back(m_pPlayer);
+	
 	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
 	m_players.push_back(m_pPlayer2);
+	
 	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
 	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
 	m_players.push_back(m_pPlayer3);
@@ -68,14 +71,14 @@ void App::OnStart()
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
 	
-	for (int i = 0; i < 25; i++)
+	for (int i = -(map->m_width / 2); i < map->m_width; i++)
 	{
-		for (int j = -12; j < 13; j++)
+		for (int j = -(map->m_height / 2); j < map->m_height; j++)
 		{
 			cpu_entity* floor = cpuEngine.CreateEntity();
 			floor->pMesh = &m_pFloorMesh;
 			floor->pMaterial = &m_pFloorMaterial;
-			floor->transform.pos = XMFLOAT3(j * 5.0f, -1.0f, i * 5.0f);
+			floor->transform.pos = XMFLOAT3(j * 5, -1.0f, i * 5);
 			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
 			m_pFloor.push_back(floor);
 		}
