@@ -2,7 +2,6 @@
 #include "Core/UIDialogue.h"
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
-#include "Core/PlayerManager.h"
 
 App::App()
 {
@@ -14,7 +13,6 @@ App::App()
 
 	m_pGameManager = GameManager::Get();
 	m_pUIManager = UIManager::Get();
-	m_pPlayer = nullptr;
 }
 
 App::~App()
@@ -33,26 +31,6 @@ void App::OnStart()
 	// Resources
 	m_font.Create(12);
 	m_rts[0] = cpuEngine.CreateRT();
-
-	// Player
-	m_pPlayer = m_pGameManager->CreateObject<Player>();
-	m_pPlayer->Init(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge");
-	m_pPlayer->AttachCamera();
-	m_players.push_back(m_pPlayer);
-	
-	m_pPlayer2 = m_pGameManager->CreateObject<Player>();
-	m_pPlayer2->Init(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
-	m_players.push_back(m_pPlayer2);
-	
-	m_pPlayer3 = m_pGameManager->CreateObject<Player>();
-	m_pPlayer3->Init(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
-	m_players.push_back(m_pPlayer3);
-	
-	
-	Map* map = new Map();
-	map->Init(50, 50);
-	m_pPlayerManager = new PlayerManager();
-	m_pPlayerManager->Init(m_players, *map);
 	
 	cpuEngine.GetParticleData()->Create(1000000);
 	// UI
@@ -65,26 +43,11 @@ void App::OnStart()
 	*/
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
-	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);
 
-	m_pFloorMesh.CreateCube();
-	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
+	/*UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);*/
 	
-	for (int i = -(map->m_width / 2); i < map->m_width; i++)
-	{
-		for (int j = -(map->m_height / 2); j < map->m_height; j++)
-		{
-			cpu_entity* floor = cpuEngine.CreateEntity();
-			floor->pMesh = &m_pFloorMesh;
-			floor->pMaterial = &m_pFloorMaterial;
-			floor->transform.pos = XMFLOAT3(j * 5, -1.0f, i * 5);
-			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
-			m_pFloor.push_back(floor);
-		}
-	}
-	
-	m_pGameManager->Start();
+	m_pGameManager.Start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,8 +64,7 @@ void App::OnUpdate()
 	if (m_isPause) return;
 	
 	// Update
-	m_pPlayerManager->Update();
-	m_pGameManager->Update();
+	m_pGameManager.Update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,11 +73,8 @@ void App::OnUpdate()
 
 void App::OnExit()
 {
-	CPU_DELPTR(m_pPlayer);
-	CPU_DELPTR(m_pPlayer2);
-	CPU_DELPTR(m_pPlayer3);
 	//CPU_DELPTR(m_pseudo);
-	
+	CPU_DELPTR(m_pUIManager);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,46 +106,27 @@ void App::OnRender(int pass)
 		case CPU_PASS_UI_END:
 		{
 			std::string info;
-			
 			XMFLOAT2 screenPos;
-			if (WorldToScreen(m_pPlayer2->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+			std::vector<Player*> players = m_pGameManager.GetPlayers();
+			for (Player* player: players)
 			{
-				cpuDevice.DrawText(&m_font, m_pPlayer2->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+				if (m_pGameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+				{
+					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
+				}
 			}
-			if (WorldToScreen(m_pPlayer3->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
-			{
-				cpuDevice.DrawText(&m_font, m_pPlayer3->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
-			}
-			if (m_pseudo != "")
-				cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
-				
-			cpuDevice.DrawText(&m_font, "TANKYTANGUY", (int)(cpuDevice.GetWidth()*0.5f), 10, CPU_TEXT_CENTER);
-			cpuDevice.DrawText(&m_font, info.c_str(), (int)(cpuDevice.GetWidth()*0.5f), 30, CPU_TEXT_CENTER);
+			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
+			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
+			break;
+		}
+		default:
+		{
 			break;
 		}
 	}
 }
 
-bool App::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight)
-{
-	float clip[4];
 
-	clip[0] = world.x * viewProj.m[0][0] + world.y * viewProj.m[1][0] + world.z * viewProj.m[2][0] + viewProj.m[3][0];
-	clip[1] = world.x * viewProj.m[0][1] + world.y * viewProj.m[1][1] + world.z * viewProj.m[2][1] + viewProj.m[3][1];
-	clip[2] = world.x * viewProj.m[0][2] + world.y * viewProj.m[1][2] + world.z * viewProj.m[2][2] + viewProj.m[3][2];
-	clip[3] = world.x * viewProj.m[0][3] + world.y * viewProj.m[1][3] + world.z * viewProj.m[2][3] + viewProj.m[3][3];
-
-	if (clip[3] <= 0.0f)
-		return false;
-
-	float ndcX = clip[0] / clip[3];
-	float ndcY = clip[1] / clip[3];
-
-	screen.x = (ndcX * 0.5f + 0.5f) * static_cast<float>(screenWidth);
-	screen.y = (1.0f - (ndcY * 0.5f + 0.5f)) * static_cast<float>(screenHeight);
-
-	return true;
-}
 
 // =======STATE-MACHINE======= //
 /*

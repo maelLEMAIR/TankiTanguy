@@ -1,12 +1,12 @@
 ﻿#pragma once
+#include "pch.h"
 #include "Weapon.h"
 #include "GameCamera.hpp"
 #include "Life.hpp"
-#include "pch.h"
 #include "Core/GameObject.hpp"
 #include "Core/SphereCollider.h"
 
-class PlayerManager;
+class GameManager;
 class Weapon;
 
 class Player : public GameObject, public SphereCollider

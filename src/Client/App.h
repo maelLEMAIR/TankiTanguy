@@ -5,7 +5,6 @@
 #include "Gameplay/Core/GameManager.h"
 
 class Player;
-class PlayerManager;
 
 class App
 {
@@ -18,16 +17,13 @@ public:
 	void OnUpdate();
 	void OnExit();
 	void OnRender(int pass);
-	bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth,
-	                   int screenHeight);
-
-	Player* m_pPlayer;
+	
 	bool m_isPause = false;
 	std::string m_pseudo;
 	
 private:
 	inline static App* s_pApp = nullptr;
-	GameManager* m_pGameManager = nullptr;
+	GameManager m_pGameManager;
 
 	float m_width = 25.0f;
 	float m_height = 25.0f;
@@ -35,18 +31,6 @@ private:
 	// Resources
 	cpu_font m_font;
 	cpu_rt* m_rts[1];
-
-	// 3D
-	Player* m_pPlayer2;
-	Player* m_pPlayer3;
-	std::vector<Player*> m_players;
-	std::vector<cpu_entity*> m_pFloor;
-	
-	cpu_mesh m_pFloorMesh;
-	cpu_material m_pFloorMaterial;
-
-
-	PlayerManager* m_pPlayerManager = nullptr;
 	
 	// UI
 	UIManager* m_pUIManager;

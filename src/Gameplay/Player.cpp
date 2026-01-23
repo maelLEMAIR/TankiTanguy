@@ -1,7 +1,6 @@
 ﻿#include "Player.h"
 #include "Weapon.h"
-
-#include "Core/PlayerManager.h"
+#include "Core/GameManager.h"
 
 Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr), m_life(Life(100)) { }
 
@@ -125,7 +124,7 @@ void Player::Dead(float _dt)
 {
     if (m_deadDuration > m_deadTime)
     {
-        PlayerManager::Get()->RespawnPlayer(this);
+        GameManager::Get().RespawnPlayer(this);
         m_deadDuration = 0.0f;
         return;
     }

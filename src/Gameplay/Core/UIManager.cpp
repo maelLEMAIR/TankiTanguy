@@ -15,7 +15,11 @@ UIManager* UIManager::Get()
 
 UIManager::~UIManager()
 {
+    for (UI* ui : m_UIs)
+        delete ui;
+
     m_UIs.clear();
+    s_pInstance = nullptr;
 }
 
 void UIManager::Update()
