@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "Map.h"
 #include "pch.h"
-#include "PlayerController.hpp"
 
 class Collider;
 class Player;
-class PlayerManager;
+class PlayerController;
 
 class GameManager
 {

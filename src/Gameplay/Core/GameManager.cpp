@@ -5,6 +5,7 @@
 #include "Collider.h"
 #include "Utils.hpp"
 #include "Client/App.h"
+#include "Player.h"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -16,11 +17,13 @@ GameManager::GameManager() : m_pPlCrt(nullptr)
 
 GameManager::~GameManager()
 {
+    for (GameObject* go : m_gameObjects)
+        CPU_DELPTR(go);
+
     m_gameObjects.clear();
-    for (Player* player : m_players)
-        delete player;
     m_players.clear();
-    delete m_pPlCrt;
+
+    CPU_DELPTR(m_pPlCrt);
     s_pInstance = nullptr;
 }
 
