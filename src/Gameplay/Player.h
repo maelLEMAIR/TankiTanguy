@@ -22,8 +22,10 @@ public:
     void Shoot() { m_pWeapon->Shoot(); };
     void AttachCamera();
     void Revive(XMFLOAT3 _pos);
-    bool IsDead() { return m_life.IsDead(); }
+    void SetPseudo(std::string const& _pseudo) { m_pseudo = _pseudo; };
+
     
+    bool IsDead() { return m_life.IsDead(); }
     Life& GetLife() { return m_life; }
     std::string& GetPseudo() { return m_pseudo; }
 

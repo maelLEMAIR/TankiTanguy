@@ -31,11 +31,14 @@ private:
 	// Resources
 	cpu_font m_font;
 	cpu_rt* m_rts[1];
+
+	// Player
+	Player* m_pPlayer = nullptr;
 	
 	// UI
 	UIManager* m_pUIManager;
 
-	//Map
+	// Map
 	std::vector<cpu_entity*> m_floors;
 	cpu_mesh m_pFloorMesh;
 	cpu_material m_pFloorMaterial;

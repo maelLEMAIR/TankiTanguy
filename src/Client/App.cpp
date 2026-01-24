@@ -33,19 +33,20 @@ void App::OnStart()
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI
-	/*XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
 	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
 	dialogueLog->Init(m_pseudo);
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
-	*/
+	
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
 
-	Player* pPlayer = m_gameManager.GetMainPlayer();
+	m_pPlayer = m_gameManager.GetMainPlayer();
+	m_pPlayer->SetPseudo(m_pseudo);
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *pPlayer, pathGreen, pathGray);
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
@@ -124,6 +125,9 @@ void App::OnRender(int pass)
 			std::vector<Player*> players = m_gameManager.GetPlayers();
 			for (Player* player: players)
 			{
+				if (player == m_pPlayer)
+					continue;
+				
 				if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
 				{
 					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
@@ -131,6 +135,7 @@ void App::OnRender(int pass)
 			}
 			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
 			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
+			if (m_pseudo != "") cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
 			break;
 		}
 		default:
