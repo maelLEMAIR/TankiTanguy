@@ -17,9 +17,10 @@ GameManager::GameManager(bool _isServer)
 
 GameManager::~GameManager()
 {
+    for (GameObject* go : m_gameObjects)
+        CPU_DELPTR(go);
+
     m_gameObjects.clear();
-    for (Player* player : m_players)
-        delete player;
     m_players.clear();
     delete m_pPlCrt;
     s_pInstance = nullptr; 

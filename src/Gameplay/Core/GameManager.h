@@ -5,7 +5,6 @@
 
 class Collider;
 class Player;
-class PlayerManager;
 class GameObject;
 
 class GameManager
