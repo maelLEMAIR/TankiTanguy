@@ -29,7 +29,7 @@ inline void PlayerController::HandleInput()
         m_pPlayer->Turn(-1);
     
     if (cpuInput.IsKeyDown('N'))
-        m_pPlayer->GetLife().TakeDamage(5);
+        m_pPlayer->GetLife().TakeDamage(10);
     
     if (cpuInput.IsKey(VK_SPACE))
         m_pPlayer->Shoot();

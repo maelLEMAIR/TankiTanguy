@@ -9,7 +9,7 @@
 
 GameManager* GameManager::s_pInstance = nullptr;
 
-GameManager::GameManager(bool _isServer) : m_pPlCrt(nullptr)
+GameManager::GameManager(bool _isServer)
 {
     m_isServer = _isServer;
     s_pInstance = this;
@@ -119,6 +119,7 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
     {
         if (_isServer == false) player->AttachCamera();
         m_pPlCrt->Init(*player);
+        m_mainPlayer = player;
     }
     m_players.push_back(player);
 }

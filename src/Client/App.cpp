@@ -42,8 +42,10 @@ void App::OnStart()
 	*/
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
-	/*UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);*/
+
+	Player* pPlayer = m_gameManager.GetMainPlayer();
+	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *pPlayer, pathGreen, pathGray);
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);

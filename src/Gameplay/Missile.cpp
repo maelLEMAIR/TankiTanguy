@@ -83,7 +83,7 @@ void Missile::Update()
     if (dist > 25.f)
         Dead();
     
-    Move(m_speed * dt);
+    Move(1);
 }
 
 void Missile::OnCollisionEnter(Collider* pOther)

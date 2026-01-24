@@ -24,6 +24,7 @@ public:
     void AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer = false);
     void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.0f);
 
+    Player* GetMainPlayer() const { return m_mainPlayer; };
     std::vector<Player*> GetPlayers() { return m_players; };
 
     template <class ObjectClass> ObjectClass* CreateObject(bool _isServer);
@@ -39,7 +40,8 @@ private:
     std::vector<GameObject*> m_gameObjects;
     Map* m_pMap = nullptr;
     
-    PlayerController* m_pPlCrt;
+    PlayerController* m_pPlCrt = nullptr;
+    Player* m_mainPlayer = nullptr;
     std::vector<Player*> m_players;
 };
 

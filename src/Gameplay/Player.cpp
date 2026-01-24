@@ -26,7 +26,6 @@ void Player::Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT
     m_center = _pos;
 
     m_pOwner = this;
-    m_rigidBody = false;
     
     XMFLOAT3 forward = m_transform.dir;
     if (m_isServer)

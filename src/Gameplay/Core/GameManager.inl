@@ -36,7 +36,6 @@ ObjectClass* GameManager::CreateObject(bool _isServer)
         delete newObject;
         return nullptr;
     }
-    //casted->m_pEntity = cpuEngine.CreateEntity();
     m_gameObjects.push_back(casted);
     return newObject;
 
