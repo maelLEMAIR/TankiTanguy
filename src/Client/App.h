@@ -23,10 +23,10 @@ public:
 	
 private:
 	inline static App* s_pApp = nullptr;
-	GameManager m_pGameManager;
+	GameManager m_gameManager;
 
-	float m_width = 25.0f;
-	float m_height = 25.0f;
+	float m_width = 50.0f;
+	float m_height = 50.0f;
 	
 	// Resources
 	cpu_font m_font;
@@ -34,6 +34,11 @@ private:
 	
 	// UI
 	UIManager* m_pUIManager;
+
+	//Map
+	std::vector<cpu_entity*> m_floors;
+	cpu_mesh m_pFloorMesh;
+	cpu_material m_pFloorMaterial;
 };
 
 // =======STATE-MACHINE======= //

@@ -7,18 +7,16 @@ public:
     PlayerController() = default;
     ~PlayerController() = default;
     
-    void Init(Player& _player) { m_pPlayer = &_player; };
+    void Init(Player& _player) { m_pPlayer = &_player; }
     void HandleInput();
     
-protected:
-    
 private:
-    Player* m_pPlayer;
+    Player* m_pPlayer = nullptr;
 };
 
 inline void PlayerController::HandleInput()
 {
-    if (m_pPlayer->IsDead())
+    if (!m_pPlayer || m_pPlayer->IsDead())
         return;
     
     if (cpuInput.IsKey(VK_UP))
@@ -29,6 +27,7 @@ inline void PlayerController::HandleInput()
         m_pPlayer->Turn(1);
     if (cpuInput.IsKey(VK_LEFT))
         m_pPlayer->Turn(-1);
+    
     if (cpuInput.IsKeyDown('N'))
         m_pPlayer->GetLife().TakeDamage(5);
     

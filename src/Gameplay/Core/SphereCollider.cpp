@@ -1,5 +1,5 @@
 ﻿#include "SphereCollider.h"
-#include "GameObject.hpp"
+#include "GameObject.h"
 #include "Utils.hpp"
 
 using namespace Utils;
@@ -30,15 +30,17 @@ void SphereCollider::RepulseSphere(SphereCollider* o)
     if (o->m_rigidBody == true)
     {
         push /= 2.0f;
-        m_pOwner->m_pEntity->transform.pos.x -= push.x;
-        m_pOwner->m_pEntity->transform.pos.y -= push.y;
-        m_pOwner->m_pEntity->transform.pos.z -= push.z;
+        if (m_pOwner->IsServer())
+            m_pOwner->m_pEntity->transform.pos -= push;
+        else
+            m_pOwner->m_transform.pos -= push;
     }
     else
     {
-        m_pOwner->m_pEntity->transform.pos.x += push.x;
-        m_pOwner->m_pEntity->transform.pos.y += push.y;
-        m_pOwner->m_pEntity->transform.pos.z += push.z;
+        if (m_pOwner->IsServer())
+            m_pOwner->m_pEntity->transform.pos += push;
+        else
+            m_pOwner->m_transform.pos += push;
     }
 }
 
