@@ -1,11 +1,10 @@
 ﻿#include "GameManager.h"
 
 #include <random>
-
 #include "Collider.h"
 #include "Utils.hpp"
-#include "Client/App.h"
 #include "GameObject.h"
+#include "Player.h"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -164,8 +163,6 @@ void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayer
             return;
         }
     }
-    
-    // Fallback si aucune position trouvée
     _player->Revive({ 0.f, 0.f, 0.f });
 }
 
