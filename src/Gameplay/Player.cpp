@@ -2,122 +2,139 @@
 #include "Weapon.h"
 #include "Core/GameManager.h"
 
-Player::Player() : SphereCollider(XMFLOAT3(), 1.0f), m_pHead(nullptr), m_pCanon(nullptr), m_pCamera(nullptr), m_pWeapon(nullptr), m_life(Life(100)) { }
+Player::Player(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT3(), 1.0f), m_life(Life(100)) { }
 
 Player::~Player()
 {
-    m_pHead = cpuEngine.Release(m_pHead);
-    m_pCanon = cpuEngine.Release(m_pCanon);
-    CPU_DELPTR( m_pWeapon );
-    CPU_DELPTR( m_pCamera );
+    CPU_DELPTR(m_pWeapon);
+    CPU_DELPTR(m_pCamera);
+    if (m_isServer)
+    {
+        cpuEngine.Release(m_pCanon);
+        cpuEngine.Release(m_pHead);
+    }
 }
 
-void Player::Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string const& _pseudo)
+void Player::Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color)
 {
     m_tag = "Player";
     m_pseudo = _pseudo;
-    m_pAngle = _angle;
-    
-    m_materialTank.color = cpu::ToColor(_color.x, _color.y, _color.z);
-    m_meshTank.CreateCube();
-    
-    m_pEntity->pMesh = &m_meshTank;
-    m_pEntity->pMaterial = &m_materialTank;
-    m_pEntity->transform.pos = _pos;
-    m_pEntity->transform.SetYPR(m_pAngle, 0.f, 0.f);
-    m_pEntity->transform.sca = XMFLOAT3(1.0f, 1.0f, 2.0f);
 
+    m_angle = _angle;
+    m_speed = 2.5f;
+    m_transform.pos = _pos;
     m_center = _pos;
-    m_pOwner = this;
-    m_rigidBody = false;
-    
-    m_pHead = cpuEngine.CreateEntity();
-    m_pHead->pMesh = &m_meshTank;
-    m_pHead->pMaterial = &m_materialTank;
-    m_pHead->transform.pos = _pos;
-    m_pHead->transform.pos.y += 0.5f;
-    m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
 
-    XMFLOAT3 forward = m_pEntity->transform.dir;
+    m_pOwner = this;
     
-    m_pCanon = cpuEngine.CreateEntity();
-    m_pCanon->pMesh = &m_meshTank;
-    m_pCanon->pMaterial = &m_materialTank;
-    m_pCanon->transform.pos = _pos;
-    m_pCanon->transform.pos.x += forward.x * 1.5f;
-    m_pCanon->transform.pos.z += forward.z * 1.5f;
-    m_pCanon->transform.pos.y += 0.5f;
-    m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
+    XMFLOAT3 forward = m_transform.dir;
+    if (m_isServer)
+    {
+        m_transformCanon.pos = _pos;
+        m_transformCanon.pos.y += 0.5f;
+        m_pWeapon = new Weapon(m_transformCanon, *this, m_isServer);
+    }
+    else
+    {
+        m_material.color = cpu::ToColor(_color.x, _color.y, _color.z);
+        m_mesh.CreateCube();
+
+        m_pEntity->pMesh = &m_mesh;
+        m_pEntity->pMaterial = &m_material;
+        m_pEntity->transform.pos = _pos;
+        m_pEntity->transform.sca = XMFLOAT3(1.0f, 1.0f, 2.0f);
+        m_pEntity->transform.SetYPR(_angle, 0.0f, 0.0f);
+        
+        m_pHead = cpuEngine.CreateEntity();
+        m_pHead->pMesh = &m_mesh;
+        m_pHead->pMaterial = &m_material;
+        m_pHead->transform.pos = _pos;
+        m_pHead->transform.pos.y += 0.5f;
+        m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
     
-    m_pCanon->transform.LookAt(
-        m_pCanon->transform.pos.x + forward.x,
-        m_pCanon->transform.pos.y,
-        m_pCanon->transform.pos.z + forward.z
-    );
-    m_pWeapon = new Weapon(m_pCanon->transform, *this);
+        m_pCanon = cpuEngine.CreateEntity();
+        m_pCanon->pMesh = &m_mesh;
+        m_pCanon->pMaterial = &m_material;
+        m_pCanon->transform.pos = _pos;
+        m_pCanon->transform.pos.x += forward.x * 1.5f;
+        m_pCanon->transform.pos.z += forward.z * 1.5f;
+        m_pCanon->transform.pos.y += 0.5f;
+        m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
+        m_pWeapon = new Weapon(m_pCanon->transform, *this, m_isServer);
+    }
 }
 
 void Player::Update()
 {
     float dt = cpuTime.delta;
+    GameObject::Update();
     
-    m_pEntity->transform.SetYPR(m_pAngle, 0.f, 0.f);
+    XMFLOAT3 forward;
+    XMFLOAT3 pos;
+    
+
+    if (m_isServer)
+    {
+        forward = m_transform.dir;
+        pos = m_transform.pos;
         
-    XMFLOAT3 posBody = m_pEntity->transform.pos;
-    
-    m_pHead->transform.SetYPR(m_pAngle, 0.f, 0.f);
-    m_pHead->transform.pos = posBody;
-    m_pHead->transform.pos.y += 0.5f;
-    
-    XMFLOAT3 forward = m_pEntity->transform.dir;
+        m_transformCanon.pos.x += forward.x * 1.5f;
+        m_transformCanon.pos.y = pos.y;
+        m_transformCanon.pos.z += forward.z * 1.5f;
 
-    m_pCanon->transform.pos = posBody;
-    m_pCanon->transform.pos.x += forward.x * 1.5f;
-    m_pCanon->transform.pos.z += forward.z * 1.5f;
-    m_pCanon->transform.pos.y += 0.5f;
-
-    m_pCanon->transform.LookAt(
-        m_pCanon->transform.pos.x + forward.x,
-        m_pCanon->transform.pos.y,
-        m_pCanon->transform.pos.z + forward.z
-    );
-    
+        m_transform.LookAt(
+            m_transform.pos.x + forward.x,
+            m_transform.pos.y,
+            m_transform.pos.z + forward.z
+        );
+        m_center = m_transform.pos;
+    }
+    else
+    {
+        forward = m_pEntity->transform.dir;
+        pos = m_pEntity->transform.pos;
+        
+        m_pHead->transform.pos = pos;
+        m_pHead->transform.pos.y += 0.5f;
+        m_pHead->transform.rot = m_pEntity->transform.rot;
+        
+        m_pCanon->transform.pos = pos;
+        m_pCanon->transform.pos.x += forward.x * 1.5f;
+        m_pCanon->transform.pos.z += forward.z * 1.5f;
+        m_pCanon->transform.pos.y += 0.5f;
+        
+        m_pCanon->transform.LookAt(
+            m_pCanon->transform.pos.x + forward.x,
+            m_pCanon->transform.pos.y,
+            m_pCanon->transform.pos.z + forward.z
+        );
+        
+        m_center = m_pEntity->transform.pos;
+    }
     m_pWeapon->Update();
-    m_center = posBody;
     
     if (m_life.IsDead())
     {
         Dead(dt);
         return;
     }
-    
-    if (m_pCamera != nullptr)
+
+    if (m_pCamera && m_isServer == false)
         m_pCamera->FollowPlayer();
-    
-}
-
-void Player::Move(float _dir)
-{
-    float dt = cpuTime.delta;
-    m_pEntity->transform.Move(dt * m_speed * _dir);
-}
-
-void Player::Turn(float _dir)
-{
-    float dt = cpuTime.delta;
-    m_pAngle += _dir * dt;
-    m_pEntity->transform.AddYPR(dt * _dir);
-}
-
-void Player::Revive(XMFLOAT3 _pos)
-{
-    m_pEntity->transform.pos = _pos;
-    m_life.ResetLIfe();
 }
 
 void Player::AttachCamera()
 {
     m_pCamera = new GameCamera(m_pEntity->transform);
+}
+
+void Player::Revive(XMFLOAT3 _pos)
+{
+    if (m_isServer)
+        m_transform.pos = _pos;
+    else
+        m_pEntity->transform.pos = _pos;
+    m_life.ResetLIfe();
 }
 
 void Player::Dead(float _dt)
@@ -128,6 +145,13 @@ void Player::Dead(float _dt)
         m_deadDuration = 0.0f;
         return;
     }
-    m_pEntity->transform.pos.y = -2.0f;
+    if (m_isServer)
+        m_transform.pos.y = -2.0f;
+    else
+        m_pEntity->transform.pos.y = -2.0f;
+    
     m_deadDuration += _dt;
 }
+
+
+

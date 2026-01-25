@@ -4,7 +4,7 @@
 #include "Core/UIHealthBar.hpp"
 #include "Core/UIManager.h"
 
-App::App()
+App::App() : m_gameManager(GameManager(false))
 {
 	s_pApp = this;
 	CPU_CALLBACK_START(OnStart);
@@ -12,7 +12,6 @@ App::App()
 	CPU_CALLBACK_EXIT(OnExit);
 	CPU_CALLBACK_RENDER(OnRender);
 
-	m_pGameManager = GameManager::Get();
 	m_pUIManager = UIManager::Get();
 }
 
@@ -27,28 +26,43 @@ App::~App()
 
 void App::OnStart()
 {
-	// YOUR CODE HERE
-
 	// Resources
 	m_font.Create(12);
 	m_rts[0] = cpuEngine.CreateRT();
 	
+	m_gameManager.Start();
 	cpuEngine.GetParticleData()->Create(1000000);
+
 	// UI
-	/*XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
 	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
 	dialogueLog->Init(m_pseudo);
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
-	*/
+	
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
 
-	/*UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);*/
+	m_pPlayer = m_gameManager.GetMainPlayer();
+	m_pPlayer->SetPseudo(m_pseudo);
+	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);
 	
-	m_pGameManager.Start();
+	m_pFloorMesh.CreateCube();
+	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
+	for (int i = -(m_width / 2); i < m_width; i++)
+	{
+		for (int j = -(m_height / 2); j < m_height; j++)
+		{
+			cpu_entity* floor = cpuEngine.CreateEntity();
+			floor->pMesh = &m_pFloorMesh;
+			floor->pMaterial = &m_pFloorMaterial;
+			floor->transform.pos = XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
+			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
+			m_floors.push_back(floor);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +79,7 @@ void App::OnUpdate()
 	if (m_isPause) return;
 	
 	// Update
-	m_pGameManager.Update();
+	m_gameManager.Update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +90,7 @@ void App::OnExit()
 {
 	//CPU_DELPTR(m_pseudo);
 	CPU_DELPTR(m_pUIManager);
+	m_floors.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,16 +123,20 @@ void App::OnRender(int pass)
 		{
 			std::string info;
 			XMFLOAT2 screenPos;
-			std::vector<Player*> players = m_pGameManager.GetPlayers();
+			std::vector<Player*> players = m_gameManager.GetPlayers();
 			for (Player* player: players)
 			{
-				if (m_pGameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+				if (player == m_pPlayer)
+					continue;
+				
+				if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
 				{
 					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
 				}
 			}
 			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
 			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
+			if (m_pseudo != "") cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
 			break;
 		}
 		default:

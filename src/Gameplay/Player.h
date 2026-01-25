@@ -3,7 +3,7 @@
 #include "Weapon.h"
 #include "GameCamera.hpp"
 #include "Life.hpp"
-#include "Core/GameObject.hpp"
+#include "Core/GameObject.h"
 #include "Core/SphereCollider.h"
 
 class GameManager;
@@ -12,43 +12,37 @@ class Weapon;
 class Player : public GameObject, public SphereCollider
 {
 public:
-    Player();
+    Player(bool _isServer);
     ~Player() override;
-    void Init(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string const& _pseudo);
+    void Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color = XMINT3(255.0f, 255.0f,255.0f));
     
     void Update() override;
     void Dead(float _dt) override;
     
-    void Move(float _dir);
-    void Turn(float _dir);
     void Shoot() { m_pWeapon->Shoot(); };
-    void Revive(XMFLOAT3 _pos);
     void AttachCamera();
+    void Revive(XMFLOAT3 _pos);
+    void SetPseudo(std::string const& _pseudo) { m_pseudo = _pseudo; };
+
     
     bool IsDead() { return m_life.IsDead(); }
-    XMFLOAT3& GetPos() {return m_pEntity->transform.pos; }
-    
     Life& GetLife() { return m_life; }
-    XMFLOAT3 GetPos() const { return m_pEntity->transform.pos; }
     std::string& GetPseudo() { return m_pseudo; }
 
 protected:
 
 private:
-    cpu_entity* m_pHead;
-    cpu_entity* m_pCanon;
-    
-    cpu_mesh m_meshTank;
-    cpu_material m_materialTank;
-
     std::string m_pseudo;
     Life m_life;
     
-    GameCamera* m_pCamera;
-    Weapon* m_pWeapon;
-    float m_speed = 2.5f;
-
-    float m_pAngle = XM_PI;
+    Weapon* m_pWeapon = nullptr;
+    
+    GameCamera* m_pCamera = nullptr;
+    
+    cpu_entity* m_pCanon = nullptr;
+    cpu_entity* m_pHead = nullptr;
+    
+    cpu_transform m_transformCanon;
     
     float m_deadDuration = 0.0f;
     float m_deadTime = 3.0f;

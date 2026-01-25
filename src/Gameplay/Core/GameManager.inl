@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "GameObject.hpp"
+#include "GameObject.h"
 
 template <class ObjectClass>
 std::vector<GameObject*> GameManager::GetAllObjects()
@@ -26,9 +26,9 @@ std::vector<ComponentClass*> GameManager::GetAllComponents()
 }
 
 template <class ObjectClass>
-ObjectClass* GameManager::CreateObject()
+ObjectClass* GameManager::CreateObject(bool _isServer)
 {
-    ObjectClass* newObject = new ObjectClass();
+    ObjectClass* newObject = new ObjectClass(_isServer);
 
     GameObject* casted = dynamic_cast<GameObject*>(newObject);
     if (casted == nullptr)
@@ -36,7 +36,6 @@ ObjectClass* GameManager::CreateObject()
         delete newObject;
         return nullptr;
     }
-    casted->m_pEntity = cpuEngine.CreateEntity();
     m_gameObjects.push_back(casted);
     return newObject;
 

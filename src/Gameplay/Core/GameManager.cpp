@@ -1,30 +1,28 @@
 ﻿#include "GameManager.h"
 
 #include <random>
-
 #include "Collider.h"
 #include "Utils.hpp"
-#include "Client/App.h"
-#include "PlayerController.h"
+#include "GameObject.h"
 #include "Player.h"
-
 
 GameManager* GameManager::s_pInstance = nullptr;
 
-GameManager::GameManager() : m_pPlCrt(nullptr)
+GameManager::GameManager(bool _isServer)
 {
-    m_map = Map();
+    m_isServer = _isServer;
     s_pInstance = this;
 }
 
 GameManager::~GameManager()
 {
+    for (GameObject* go : m_gameObjects)
+        CPU_DELPTR(go);
+
     m_gameObjects.clear();
-    for (Player* player : m_players)
-        delete player;
     m_players.clear();
     delete m_pPlCrt;
-    s_pInstance = nullptr;
+    s_pInstance = nullptr; 
 }
 
 GameManager& GameManager::Get()
@@ -37,28 +35,13 @@ void GameManager::Start()
     delete m_pPlCrt;
     m_pPlCrt = new PlayerController();
 
-    m_map.Init(50, 50);
-
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", true);
-    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu");
-    AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert");
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
+    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
+    AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
-    m_pFloorMesh.CreateCube();
-    m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
-	
-    for (int i = -(m_map.m_width / 2); i < m_map.m_width; i++)
-    {
-        for (int j = -(m_map.m_height / 2); j < m_map.m_height; j++)
-        {
-            cpu_entity* floor = cpuEngine.CreateEntity();
-            floor->pMesh = &m_pFloorMesh;
-            floor->pMaterial = &m_pFloorMaterial;
-            floor->transform.pos = XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
-            floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
-            m_floors.push_back(floor);
-        }
-    }
+    m_pMap = new Map();
+    m_pMap->Init(50, 50);
 }
 
 void GameManager::Update()
@@ -77,6 +60,21 @@ void GameManager::ServerSideStart()
 
 void GameManager::ServerSideUpdate()
 {
+    float dt = cpuTime.delta;
+    CollisionCheck();
+    m_pPlCrt->HandleInput();
+    
+    for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
+    {
+        GameObject* pGameObject = *it;
+        if (pGameObject->IsNeedToBeDestroyed())
+            it = m_gameObjects.erase(it);
+        else
+        {
+            pGameObject->Update();
+            ++it;
+        }
+    }
 }
 
 bool GameManager::WorldToScreen( XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight)
@@ -127,14 +125,15 @@ void GameManager::CollisionCheck()
     }
 }
 
-void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _mainPlayer)
+void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
 {
-    Player* player = CreateObject<Player>();
-    player->Init(_pos, _angle, _color, _pseudo);
+    Player* player = CreateObject<Player>(_isServer);
+    player->Init(_pos, _angle, _pseudo, _color);
     if (_mainPlayer)
     {
-        player->AttachCamera();
+        if (_isServer == false) player->AttachCamera();
         m_pPlCrt->Init(*player);
+        m_mainPlayer = player;
     }
     m_players.push_back(player);
 }
@@ -143,7 +142,7 @@ void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayer
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<size_t> dist(0, m_map.m_map.size() - 1);
+    std::uniform_int_distribution<size_t> dist(0, m_pMap->m_map.size() - 1);
     constexpr int MAX_ATTEMPTS = 100;
     int attempts = 0;
 
@@ -151,7 +150,7 @@ void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayer
     {
         attempts++;
         
-        XMINT2 tile = m_map.m_map[dist(gen)];
+        XMINT2 tile = m_pMap->m_map[dist(gen)];
         XMFLOAT2 spawnPos = { (float)tile.x, (float)tile.y };
 
         bool valid = true;
@@ -178,8 +177,6 @@ void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayer
             return;
         }
     }
-    
-    // Fallback si aucune position trouvée
     _player->Revive({ 0.f, 0.f, 0.f });
 }
 
