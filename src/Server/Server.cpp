@@ -38,7 +38,7 @@ void Server::Start()
 	m_vClientsInfo.push_back(client2);
 
 	m_running = true;
-	m_pGM = &GameManager::Get();
+	m_pGM = new GameManager(true);
 	m_pGM->ServerSideStart();
 	m_listenThread = CreateThread(NULL, 0, Listen, this, 0, NULL);
 }
@@ -54,7 +54,7 @@ void Server::Exit()
 {
 	m_running = false;
 
-	// fermer le socket réveille recvfrom
+	// fermer le socket rï¿½veille recvfrom
 	if (m_socket != INVALID_SOCKET)
 	{
 		closesocket(m_socket);
@@ -130,23 +130,23 @@ DWORD Server::Listen(LPVOID lpParam)
 		{
 			int err = WSAGetLastError();
 
-			// Si on a demandé l'arrêt, c'est normal de sortir
+			// Si on a demandï¿½ l'arrï¿½t, c'est normal de sortir
 			if (!pServer->m_running) 
 				break;
 
-			// Cas très fréquent en UDP Windows (ICMP port unreachable)
+			// Cas trï¿½s frï¿½quent en UDP Windows (ICMP port unreachable)
 			if (err == WSAECONNRESET) 
 			{
 				continue; // ignore
 			}
 
-			// Si socket fermé pendant l'écoute
+			// Si socket fermï¿½ pendant l'ï¿½coute
 			if (err == WSAENOTSOCK || err == WSAEINVAL) 
 			{
 				break;
 			}
 
-			// Évite le spam console en boucle
+			// ï¿½vite le spam console en boucle
 			std::cerr << "recvfrom failed, WSA error: " << err << "\n";
 		}
 	}
@@ -184,7 +184,7 @@ void Server::UnpackHeader(BufferReader& reader, PacketHeader& header)
 	if (headerOk)
 		std::cout << "Packet Type: " << (int)header.packetType << "\n";
 	else
-		std::cout << "Header invalide reçu\n";
+		std::cout << "Header invalide reï¿½u\n";
 }
 
 void Server::HandleOnPacketType(BufferReader& reader, PacketHeader& header)
@@ -207,7 +207,7 @@ void Server::HandleOnPacketType(BufferReader& reader, PacketHeader& header)
 		HandleDisconnect(reader, header);
 		break;
 	default:
-		std::cout << "Type de message inconnu reçu: " << (int)header.packetType << "\n";
+		std::cout << "Type de message inconnu reï¿½u: " << (int)header.packetType << "\n";
 		break;
 	}
 }
