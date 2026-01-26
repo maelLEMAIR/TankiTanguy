@@ -38,7 +38,7 @@ void GameManager::Start()
     m_pPlCrt = new PlayerController();
 
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
     AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
@@ -139,7 +139,8 @@ void GameManager::CollisionCheck()
             }
             else
             {  
-                if (pCollider->IsAlreadyColliding(pOther) == true)  pCollider->OnCollisionExit(pOther);
+                if (pCollider->IsAlreadyColliding(pOther) == true)
+                    pCollider->OnCollisionExit(pOther);
             }
         }
     }
@@ -151,7 +152,9 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
     player->Init(_pos, _angle, _pseudo, _color);
     if (_mainPlayer)
     {
-        if (_isServer == false) player->AttachCamera();
+        if (_isServer == false)
+            player->AttachCamera();
+        
         m_pPlCrt->Init(*player);
         m_mainPlayer = player;
     }
@@ -163,15 +166,15 @@ void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayer
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<size_t> dist(0, m_pMap->m_map.size() - 1);
-    constexpr int MAX_ATTEMPTS = 100;
-    int attempts = 0;
+    constexpr int MAX_ATTEMPTS  = 100;
+    int attempts                = 0;
 
     while (attempts < MAX_ATTEMPTS)
     {
         attempts++;
         
-        XMINT2 tile = m_pMap->m_map[dist(gen)];
-        XMFLOAT2 spawnPos = { (float)tile.x, (float)tile.y };
+        XMINT2 tile         = m_pMap->m_map[dist(gen)];
+        XMFLOAT2 spawnPos   = { (float)tile.x, (float)tile.y };
 
         bool valid = true;
         for (Player* other : m_players)
