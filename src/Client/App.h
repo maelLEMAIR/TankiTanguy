@@ -39,7 +39,6 @@ private:
 	UIManager* m_pUIManager;
 
 	// Map
-	std::vector<cpu_entity*> m_floors;
 	cpu_mesh m_pFloorMesh;
 	cpu_material m_pFloorMaterial;
 };

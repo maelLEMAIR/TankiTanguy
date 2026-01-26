@@ -8,7 +8,7 @@ public:
     InputText() = default;
     ~InputText() override;
     
-    void Init(cpu_font& _font, XMFLOAT2 _pos, int _anchor, std::string const& _text);
+    void Init(cpu_font& _font, XMINT2 _pos, int _anchor, std::string const& _text);
     void Update() override;
     void Render() override;
     
