@@ -28,7 +28,7 @@ Missile::Missile(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT
 
 Missile::~Missile()
 {
-    CPU_DELPTR(m_pEmitter);
+    cpuEngine.Release(m_pEmitter);
 }
 
 void Missile::Init(cpu_transform& _transform, Player& _player)
