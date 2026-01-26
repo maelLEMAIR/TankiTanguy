@@ -20,7 +20,6 @@ void Player::Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT
     m_tag = "Player";
     m_pseudo = _pseudo;
 
-    m_angle = _angle;
     m_speed = 2.5f;
     m_transform.pos = _pos;
     m_center = _pos;

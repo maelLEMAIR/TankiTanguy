@@ -27,7 +27,6 @@ void GameObject::Move(float _dir)
 void GameObject::Turn(float _dir)
 {
     float dt = cpuTime.delta;
-    m_angle += _dir * dt;
     if (m_isServer)
         m_transform.AddYPR(_dir * dt);
     else

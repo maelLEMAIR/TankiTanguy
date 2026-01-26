@@ -30,7 +30,6 @@ protected:
     
     std::string m_tag;
     
-    float m_angle = XM_PI;
     float m_speed = 0.0f;
 private:
     
