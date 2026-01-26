@@ -9,7 +9,7 @@ void Weapon::Shoot()
     if (m_fireDuration >= m_fireDurationMax)
     {
         GameManager& s_pI = GameManager::Get();
-        Missile* missile = s_pI.CreateObject<Missile>(m_isServer);
+        Missile* missile = s_pI.AddMissile();
         missile->Init(*m_pWeaponTransform, *m_pOwner);
         m_pMissiles.push_back(missile);
         m_fireDuration = 0.0f;

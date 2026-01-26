@@ -6,6 +6,7 @@ class GameObject;
 class Collider;
 class Player;
 class PlayerController;
+class Missile;
 struct Map;
 
 class GameManager
@@ -26,6 +27,7 @@ public:
     
     void CollisionCheck();
     void AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer = false);
+    Missile* AddMissile();
     void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.0f);
 
     Player* GetMainPlayer() const { return m_mainPlayer; };
@@ -52,6 +54,7 @@ private:
     Player* m_mainPlayer = nullptr;
     std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
+    std::vector<Missile*> m_missiles;
 
     Chrono m_chrono;
 };

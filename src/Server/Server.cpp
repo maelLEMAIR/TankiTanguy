@@ -118,7 +118,7 @@ DWORD Server::Listen(LPVOID lpParam)
 
 			PacketHeader header;
 			if (DeserializePacketHeader(reader, header) == false) 
-				continue;	// paquet invalide -> ignore
+				continue;
 
 			pServer->HandleOnPacketType(reader, header);
 		}
@@ -126,23 +126,19 @@ DWORD Server::Listen(LPVOID lpParam)
 		{
 			int err = WSAGetLastError();
 
-			// Si on a demand� l'arr�t, c'est normal de sortir
 			if (!pServer->m_running) 
 				break;
 
-			// Cas tr�s fr�quent en UDP Windows (ICMP port unreachable)
 			if (err == WSAECONNRESET) 
 			{
 				continue; // ignore
 			}
 
-			// Si socket ferm� pendant l'�coute
 			if (err == WSAENOTSOCK || err == WSAEINVAL) 
 			{
 				break;
 			}
 
-			// �vite le spam console en boucle
 			std::cerr << "recvfrom failed, WSA error: " << err << "\n";
 		}
 	}

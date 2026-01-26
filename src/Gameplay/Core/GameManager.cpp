@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "Map.h"
 #include "PlayerController.h"
+#include "Missile.h"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -176,6 +177,13 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
         m_mainPlayer = player;
     }
     m_players.push_back(player);
+}
+
+Missile* GameManager::AddMissile()
+{
+    Missile* missile = CreateObject<Missile>(m_isServer);
+    m_missiles.push_back(missile);
+    return missile;
 }
 
 void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers)
