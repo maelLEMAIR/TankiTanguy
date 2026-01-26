@@ -9,7 +9,7 @@ public:
 	cpu_material* pMaterial;
 	float lifetime;
 	ui32 tile;
-	float radius;
+	cpu_sphere sphere;
 	cpu_aabb aabb;
 	cpu_obb obb;
 	cpu_rectangle box;
@@ -19,4 +19,7 @@ public:
 
 public:
 	cpu_entity();
+
+	void UpdateWorld(cpu_camera* pCamera, int width, int height);
+	void Clip(cpu_camera* pCamera, int* pStats = nullptr);
 };

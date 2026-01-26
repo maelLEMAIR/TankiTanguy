@@ -7,7 +7,7 @@ UIButton::UIButton()
 
 UIButton::~UIButton()
 {
-    delete m_pSprite;
+    cpuEngine.Release(m_pSprite);
 }
 
 void UIButton::Init(XMINT2 _pos, XMINT2 _size, std::string const& _path, std::string const& _hover)
