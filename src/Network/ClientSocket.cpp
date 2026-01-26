@@ -18,17 +18,21 @@ ClientSocket::~ClientSocket()
 {
 }
 
-void ClientSocket::ConnectToServer(const char* ipAddress, int port)
+bool ClientSocket::ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo)
 {
-	inet_pton(AF_INET, ipAddress, &m_serverAddr.sin_addr.s_addr);
+	int res = inet_pton(AF_INET, serverIp, &m_serverAddr.sin_addr.s_addr);
+	if (res != 1)
+	{
+		return false;
+	}
 	m_serverAddr.sin_family = AF_INET;
-	m_serverAddr.sin_port = htons(port);
-
+	m_serverAddr.sin_port = htons(serverPort);
+	
 	PacketHeader header;
 	header.packetType = PacketType::ClientHello;
 
 	MsgClientHello hello;
-	hello.playerName = "Alice";
+	hello.playerName = _pseudo;
 
 	BufferWriter writer;
 	SerializePacketHeader(writer, header);
@@ -40,6 +44,7 @@ void ClientSocket::ConnectToServer(const char* ipAddress, int port)
 
 	m_isRunning = true;
 	m_listenThread = CreateThread(NULL, 0, Listen, this, 0, NULL);
+	return true;
 }
 
 DWORD ClientSocket::Listen(LPVOID lpParam)
@@ -102,7 +107,7 @@ void ClientSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
 
 	if (ret > 0)
 	{
-		// Init d'un BufferReader pour lire les données reçues
+		// Init d'un BufferReader pour lire les donnï¿½es reï¿½ues
 		BufferReader reader{ buffer.data(), buffer.size(), 0 };
 		PacketHeader header;
 		UnpackHeader(reader, header);
@@ -129,7 +134,7 @@ void ClientSocket::UnpackHeader(BufferReader& reader, PacketHeader& header)
 	if (headerOk)
 		std::cout << "Packet Type: " << (int)header.packetType << "\n";
 	else
-		std::cout << "Header invalide reçu\n";
+		std::cout << "Header invalide reï¿½u\n";
 }
 
 void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header)
@@ -152,14 +157,14 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 		HandleDisconnect(reader);
 		break;
 	default:
-		std::cout << "Packet type inconnu reçu: " << (int)header.packetType << "\n";
+		std::cout << "Packet type inconnu reï¿½u: " << (int)header.packetType << "\n";
 		break;
 	}
 }
 
 void ClientSocket::HandleServerWelcome(BufferReader& reader)
 {
-	std::cout << "Message ServerWelcome reçu\n";
+	std::cout << "Message ServerWelcome reï¿½u\n";
 
 	MsgServerWelcome decoded;
 	bool msgOk = DeserializeServerWelcome(reader, decoded);
@@ -182,15 +187,15 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 void ClientSocket::HandlePing(BufferReader& reader)
 {
-	std::cout << "Message Ping reçu\n";
+	std::cout << "Message Ping reï¿½u\n";
 }
 
 void ClientSocket::HandlePong(BufferReader& reader)
 {
-	std::cout << "Message Pong reçu\n";
+	std::cout << "Message Pong reï¿½u\n";
 }
 
 void ClientSocket::HandleDisconnect(BufferReader& reader)
 {
-	std::cout << "Message Disconnect reçu\n";
+	std::cout << "Message Disconnect reï¿½u\n";
 }

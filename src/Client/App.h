@@ -7,6 +7,7 @@
 class Player;
 class GameManager;
 class UIManager;
+class UIDialogue;
 
 class App
 {
@@ -20,15 +21,21 @@ public:
 	void OnUpdate();
 	void OnExit();
 	void OnRender(int pass);
+
+	void Log();
 	
-	bool m_isPause = false;
+	std::string m_addr;
+	std::string m_port;
 	std::string m_pseudo;
 	
 private:
 	inline static App* s_pApp = nullptr;
 	GameManager m_gameManager;
+
+	UIDialogue* m_dialogueLog = nullptr;
 	ClientSocket m_client;
 
+	bool m_isLogin = false;
 	bool m_isRunning = false;
 
 	float m_width = 50.0f;
@@ -39,6 +46,7 @@ private:
 	cpu_rt* m_rts[1];
 
 	// Player
+	uint8_t* m_id = nullptr;
 	Player* m_pPlayer = nullptr;
 	
 	// UI

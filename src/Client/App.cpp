@@ -32,17 +32,19 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 	
 	m_gameManager.Start();
-	m_client.ConnectToServer("127.0.0.1", 1888);
 	
+	/*m_id = &m_client.GetServerInfo().playerId;
+	m_gameManager.SetMainPlayer(*m_id - 1);*/
+
+	m_gameManager.SetMainPlayer(0);
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI
 	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
-	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
-	dialogueLog->Init(m_pseudo);
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
+	m_dialogueLog = new UIDialogue();
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
 	
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
@@ -79,17 +81,62 @@ void App::OnStart()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool IsValidPort(const std::string& str, int& outPort)
+{
+	if (str.empty())
+		return false;
+
+	for (char c : str)
+	{
+		if (!std::isdigit(static_cast<unsigned char>(c)))
+			return false;
+	}
+	
+	outPort = std::stoi(str);
+	return outPort > 0 && outPort <= 65535;
+}
+
 void App::OnUpdate()
 {
 	// Quit
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
-
-	m_pUIManager->Update();
-	if (m_isPause) return;
+	
+	Log();
+	if (m_isLogin == false)
+		return;
 	
 	// Update
+	m_pUIManager->Update();
 	m_gameManager.Update();
+}
+
+
+void App::Log()
+{
+	if (m_isLogin == false)
+	{
+		m_dialogueLog->Update();
+		if (m_dialogueLog->IsActive() == false)
+		{
+			int port;
+			if (IsValidPort(m_port, port) == false)
+			{
+				m_isLogin = false;
+				m_dialogueLog->Reset();
+				m_pseudo = "Error Port";
+				return;
+			}
+			if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
+			{
+				m_isLogin = true;
+				return;
+			}
+			m_isLogin = false;
+			m_dialogueLog->Reset();
+			m_pseudo = "Wrong Addresse or Port";
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +180,10 @@ void App::OnRender(int pass)
 			std::string info;
 			XMFLOAT2 screenPos;
 			std::vector<Player*> players = m_gameManager.GetPlayers();
+				
+			if (m_isLogin == false)
+				m_dialogueLog->Render();
+				
 			for (Player* player: players)
 			{
 				if (player == m_pPlayer)

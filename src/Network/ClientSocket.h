@@ -24,7 +24,7 @@ public:
 
 	static ClientSocket& GetInstance() { return *s_pClient; }
 
-	void ConnectToServer(const char* serverIp, int serverPort);
+	bool ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo);
 
 	static DWORD WINAPI Listen(LPVOID lpParam);
 
