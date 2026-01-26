@@ -33,6 +33,12 @@ int PlayerController::HandleInput()
         return VK_SPACE;
     }
 
+    if (cpuInput.IsKeyDown('N'))
+    {
+        m_pPlayer->GetLife().TakeDamage(10);
+        return 'N';
+    }
+
 	return -1; // No input
 }
 

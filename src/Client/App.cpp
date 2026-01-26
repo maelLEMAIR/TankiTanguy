@@ -60,7 +60,6 @@ void App::OnStart()
 			floor->pMaterial = &m_pFloorMaterial;
 			floor->transform.pos = XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
 			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
-			m_floors.push_back(floor);
 		}
 	}
 }
@@ -90,7 +89,6 @@ void App::OnExit()
 {
 	//CPU_DELPTR(m_pseudo);
 	CPU_DELPTR(m_pUIManager);
-	m_floors.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

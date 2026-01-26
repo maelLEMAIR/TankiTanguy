@@ -5,6 +5,8 @@
 #include "Utils.hpp"
 #include "GameObject.h"
 #include "Player.h"
+#include "Map.h"
+#include "PlayerController.h"
 
 GameManager* GameManager::s_pInstance = nullptr;
 
@@ -46,16 +48,34 @@ void GameManager::Start()
 
 void GameManager::Update()
 {
-    // float dt = cpuTime.delta;
-    //CollisionCheck();
-    //m_pPlCrt->HandleInput();
-    //for (GameObject* go : m_gameObjects)
-    //    go->Update();
+    float dt = cpuTime.delta;
+    CollisionCheck();
+    m_pPlCrt->HandleInput();
+    for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
+    {
+        GameObject* pGameObject = *it;
+        if (pGameObject->IsNeedToBeDestroyed())
+            it = m_gameObjects.erase(it);
+        else
+        {
+            pGameObject->Update();
+            ++it;
+        }
+    }
 }
 
 void GameManager::ServerSideStart()
 {
-	Player* player1 = CreateObject<Player>();
+    delete m_pPlCrt;
+    m_pPlCrt = new PlayerController();
+
+    // Player
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", false, true);
+    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", false);
+    AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", false);
+
+    m_pMap = new Map();
+    m_pMap->Init(50, 50);
 }
 
 void GameManager::ServerSideUpdate()
