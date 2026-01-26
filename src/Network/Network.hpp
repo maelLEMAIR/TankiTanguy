@@ -388,6 +388,12 @@ struct PlayerNetState
 	uint16_t hp;
 };
 
+struct MissileNetState
+{
+	uint8_t playerID;
+
+};
+
 inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& playerNetState)
 {
 	writer.WriteF32(playerNetState.posX);
@@ -414,6 +420,7 @@ struct MsgSnapshot
 {
 	uint8_t playerId;
 	PlayerNetState state;
+	uint8_t newMissile;
 };
 
 inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg)
