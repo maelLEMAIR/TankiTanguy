@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Gameplay/Player.h"
+#include "Gameplay/PlayerController.h"
 #include "Gameplay/Core/GameManager.h"
 
 Server::Server()
@@ -41,7 +42,8 @@ void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
 	Sleep(16); // ~60 FPS
-	SendServerSnapshotsToClients();
+	if (m_vClientsInfo[0]->isConnected)
+		SendServerSnapshotsToClients();
 }
 
 void Server::Exit()
@@ -300,6 +302,7 @@ void Server::SendServerSnapshotsToClients()
 	playerState.hp = 100;
 
 	MsgSnapshot snapshotMsg;
+	snapshotMsg.playerId = 1;
 	snapshotMsg.state = playerState;
 
 	BufferWriter writer;
@@ -310,8 +313,8 @@ void Server::SendServerSnapshotsToClients()
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
 {
-	//GameManager::Get()->GetMatchState().players[playerIndex].inputs.push_back(buttons);
-	//std::cout << "Received input from Player " << (playerIndex + 1) << ": " << buttons << "\n";
+	GameManager::Get().GetPlayerControllers()[playerIndex]->AddIncomingInputs(buttons);
+	std::cout << "Received input from Player " << (playerIndex + 1) << ": " << buttons << "\n";
 }
 
 void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)

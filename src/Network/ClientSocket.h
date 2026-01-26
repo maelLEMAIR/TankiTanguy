@@ -5,12 +5,16 @@
 
 #include "Network.hpp"
 
+constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
+
 struct ServerInfo
 {
 	uint8_t  playerId;
 	uint8_t  serverTickRate;
 	uint32_t serverTimeMs;
 };
+
+class GameManager;
 
 class ClientSocket
 {
@@ -21,6 +25,8 @@ public:
 	static ClientSocket& GetInstance() { return *s_pClient; }
 
 	void ConnectToServer(const char* serverIp, int serverPort);
+
+	static DWORD WINAPI Listen(LPVOID lpParam);
 
 	void RecvPacket(std::vector<uint8_t> buffer, int length);
 	void SendPacket(const char* data, int length);
@@ -41,9 +47,14 @@ public:
 private:
 	inline static ClientSocket* s_pClient = nullptr;
 
+	bool m_isRunning = false;
+	GameManager* m_gm;
+
 	SOCKET m_socket;
 	ServerInfo m_serverInfo;
 	sockaddr_in m_serverAddr;
+
+	HANDLE m_listenThread = nullptr;
 };
 
 #endif // !CLIENT_SOCKET_H

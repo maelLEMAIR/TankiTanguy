@@ -35,6 +35,63 @@ void ClientSocket::ConnectToServer(const char* ipAddress, int port)
 	SerializeClientHello(writer, hello);
 
 	SendPacket((const char*)writer.data.data(), (int)writer.data.size());
+
+	m_gm = &GameManager::Get();
+
+	m_isRunning = true;
+	m_listenThread = CreateThread(NULL, 0, Listen, this, 0, NULL);
+}
+
+DWORD ClientSocket::Listen(LPVOID lpParam)
+{
+	ClientSocket* pClient = static_cast<ClientSocket*>(lpParam);
+	std::vector<uint8_t> buffer(MAX_UDP_PACKET_SIZE);
+
+	while (pClient->m_isRunning)
+	{
+		socklen_t clientSocketLen = sizeof(sockaddr_in);
+
+		int ret = recvfrom(
+			pClient->m_socket,
+			reinterpret_cast<char*>(buffer.data()),
+			static_cast<int>(buffer.size()),
+			0,
+			reinterpret_cast<sockaddr*>(&pClient->m_serverAddr),
+			&clientSocketLen
+		);
+
+		if (ret > 0)
+		{
+			BufferReader reader{ buffer.data(), static_cast<size_t>(ret), 0 };
+
+			PacketHeader header;
+			if (DeserializePacketHeader(reader, header) == false)
+				continue;	// paquet invalide -> ignore
+
+			pClient->HandleOnPacketType(reader, header);
+		}
+		else if (ret == SOCKET_ERROR)
+		{
+			int err = WSAGetLastError();
+
+			if (!pClient->m_isRunning)
+				break;
+
+			if (err == WSAECONNRESET)
+			{
+				continue; // ignore
+			}
+
+			if (err == WSAENOTSOCK || err == WSAEINVAL)
+			{
+				break;
+			}
+
+			std::cerr << "recvfrom failed, WSA error: " << err << "\n";
+		}
+	}
+
+	return 0;
 }
 
 void ClientSocket::RecvPacket(std::vector<uint8_t> buffer, int length)
@@ -119,12 +176,11 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 	MsgSnapshot decoded;
 	bool msgOk = DeserializeServerSnapshot(reader, decoded);
 
-	GameManager pGM = GameManager::Get();
-	Player* player = pGM.GetPlayers()[1];
+	Player* player = m_gm->GetPlayers()[decoded.playerId];
 
 	player->SetPosition(decoded.state.posX, decoded.state.posY, decoded.state.posZ);
 	player->SetDirection(decoded.state.dirX, decoded.state.dirY, decoded.state.dirZ);
-	//player->Update();
+	player->Update();
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

@@ -2,6 +2,7 @@
 
 #include "InputText.h"
 #include "Gameplay/Core/GameManager.h"
+#include "Network/ClientSocket.h"
 
 class Player;
 class GameManager;
@@ -26,6 +27,9 @@ public:
 private:
 	inline static App* s_pApp = nullptr;
 	GameManager m_gameManager;
+	ClientSocket m_client;
+
+	bool m_isRunning = false;
 
 	float m_width = 50.0f;
 	float m_height = 50.0f;

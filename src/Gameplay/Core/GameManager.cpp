@@ -38,7 +38,7 @@ void GameManager::Start()
     m_pPlCrt = new PlayerController();
 
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
     AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
@@ -51,6 +51,8 @@ void GameManager::Update()
     float dt = cpuTime.delta;
     CollisionCheck();
     m_pPlCrt->HandleInput();
+    m_pPlCrt->SendInputList();
+
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
         GameObject* pGameObject = *it;
@@ -67,10 +69,9 @@ void GameManager::Update()
 void GameManager::ServerSideStart()
 {
     delete m_pPlCrt;
-    m_pPlCrt = new PlayerController();
 
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
     AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
@@ -82,7 +83,10 @@ void GameManager::ServerSideUpdate()
 {
     float dt = cpuTime.delta;
     CollisionCheck();
-    m_pPlCrt->HandleInput();
+    for (PlayerController* plCrt : m_playerControllers)
+    {
+        plCrt->ApplyInput();
+    }
     
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
@@ -149,7 +153,13 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
 {
     Player* player = CreateObject<Player>(_isServer);
     player->Init(_pos, _angle, _pseudo, _color);
-    if (_mainPlayer)
+    if (m_isServer)
+    {
+        PlayerController* plCrt = new PlayerController();
+        plCrt->Init(*player);
+        m_playerControllers.push_back(plCrt);
+    }
+    else if (_mainPlayer)
     {
         if (_isServer == false) player->AttachCamera();
         m_pPlCrt->Init(*player);

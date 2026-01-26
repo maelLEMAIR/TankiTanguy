@@ -5,67 +5,66 @@
 #include "Network/ClientSocket.h"
 #include "Core/GameManager.h"
 
-int PlayerController::HandleInput()
+void PlayerController::HandleInput()
 {
     if (cpuInput.IsKey(VK_UP))
     {
         m_pPlayer->Move(1);
-        return VK_UP;
+        m_pendingInputs.push_back(static_cast<InputCmd>(VK_UP));
     }
     if (cpuInput.IsKey(VK_DOWN))
     {
         m_pPlayer->Move(-1);
-        return VK_DOWN;
+        m_pendingInputs.push_back(static_cast<InputCmd>(VK_DOWN));
     }
     if (cpuInput.IsKey(VK_RIGHT))
     {
         m_pPlayer->Turn(1);
-        return VK_RIGHT;
+        m_pendingInputs.push_back(static_cast<InputCmd>(VK_RIGHT));
     }
     if (cpuInput.IsKey(VK_LEFT))
     {
         m_pPlayer->Turn(-1);
-        return VK_LEFT;
+        m_pendingInputs.push_back(static_cast<InputCmd>(VK_LEFT));
     }
     if (cpuInput.IsKey(VK_SPACE))
     {
         m_pPlayer->Shoot();
-        return VK_SPACE;
+        m_pendingInputs.push_back(static_cast<InputCmd>(VK_SPACE));
     }
 
     if (cpuInput.IsKeyDown('N'))
     {
         m_pPlayer->GetLife().TakeDamage(10);
-        return 'N';
+    }
+}
+
+void PlayerController::ApplyInput()
+{
+    for (const InputCmd& inputCmd : m_incomingInputs)
+    {
+        int input = static_cast<int>(inputCmd.buttons);
+
+        if (input == VK_UP) // UP
+            m_pPlayer->Move(1);
+        if (input == VK_DOWN) // DOWN
+            m_pPlayer->Move(-1);
+        if (input == VK_RIGHT) // RIGHT
+            m_pPlayer->Turn(1);
+        if (input == VK_LEFT) // LEFT
+            m_pPlayer->Turn(-1);
+
+        if (input == VK_SPACE) // SHOOT
+            m_pPlayer->Shoot();
     }
 
-	return -1; // No input
+    m_incomingInputs.clear();
 }
 
-void PlayerController::ApplyInput(int input)
+void PlayerController::SendInputList()
 {
-    if (input == VK_UP) // UP
-        m_pPlayer->Move(1);
-    if (input == VK_DOWN) // DOWN
-        m_pPlayer->Move(-1);
-    if (input == VK_RIGHT) // RIGHT
-        m_pPlayer->Turn(1);
-    if (input == VK_LEFT) // LEFT
-        m_pPlayer->Turn(-1);
-
-    if (input == VK_SPACE) // SHOOT
-        m_pPlayer->Shoot();
-}
-
-void PlayerController::UpdateInputs()
-{
-    InputCmd cmd;
-    cmd.buttons = HandleInput();
-
-    pendingInputs.push_back(cmd);
-
     // envoi toutes les X ms (ex: 50 ms)
-    if (ShouldSend())
+    if (ShouldSend() && m_pendingInputs.empty() == false)
     {
         ClientSocket* clientSocket = &ClientSocket::GetInstance();
 
@@ -74,25 +73,27 @@ void PlayerController::UpdateInputs()
         header.playerId = clientSocket->GetServerInfo().playerId;
 
         MsgInputList msg;
-        msg.inputsList = pendingInputs;
+        msg.inputsList = m_pendingInputs;
 
         BufferWriter writer;
         SerializePacketHeader(writer, header);
         SerializeInputList(writer, msg);
         clientSocket->SendPacket((const char*)writer.data.data(), (int)writer.data.size());
 
-        pendingInputs.clear();
+        m_pendingInputs.clear();
     }
 }
 
 void PlayerController::UpdateWithSnapshot()
 {
-    //GameManager* gm = GameManager::Get();
-    //ClientSocket* clientSocket = &ClientSocket::GetInstance();
-    //PlayerState& playerState = gm->GetMatchState().players[clientSocket->GetServerInfo().playerId - 1];
 
-    //m_pPlayer->GetOwner()->m_pEntity->transform.pos = playerState.player->GetPos();
-    //m_pPlayer->SetAngle(playerState.player->GetAngle());
+}
+
+void PlayerController::AddIncomingInputs(uint16_t input)
+{
+    InputCmd cmd;
+    cmd.buttons = input;
+    m_incomingInputs.push_back(cmd);
 }
 
 bool PlayerController::ShouldSend() const

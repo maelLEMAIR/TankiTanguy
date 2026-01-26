@@ -14,6 +14,7 @@ public:
     void Turn(float _dir);
 
     std::string const& GetTag() { return m_tag; }
+    XMFLOAT3& GetDir();
     XMFLOAT3& GetPos();
     bool IsServer() { return m_isServer; }
     bool IsNeedToBeDestroyed() { return m_needToBeDestroyed; }

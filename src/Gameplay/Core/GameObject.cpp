@@ -34,6 +34,14 @@ void GameObject::Turn(float _dir)
         m_pEntity->transform.AddYPR(_dir * dt);
 }
 
+XMFLOAT3& GameObject::GetDir()
+{
+    if (m_isServer)
+        return m_transform.dir;
+
+    return m_pEntity->transform.pos;
+}
+
 XMFLOAT3& GameObject::GetPos()
 {
     if (m_isServer)

@@ -139,16 +139,14 @@ void Player::Revive(XMFLOAT3 _pos)
 
 void Player::SetPosition(float posX, float posY, float posZ)
 {
-    m_transform.pos.x = posX;
-    m_transform.pos.y = posY;
-    m_transform.pos.z = posZ;
+    XMFLOAT3 newPos = XMFLOAT3(posX, posY, posZ);
+    m_pEntity->transform.pos = newPos;
 }
 
 void Player::SetDirection(float dirX, float dirY, float dirZ)
 {
-    m_transform.dir.x = dirX;
-    m_transform.dir.y = dirY;
-    m_transform.dir.z = dirZ;
+    XMFLOAT3 newDir = XMFLOAT3(dirX, dirY, dirZ);
+    m_pEntity->transform.dir = newDir;
 }
 
 void Player::Dead(float _dt)

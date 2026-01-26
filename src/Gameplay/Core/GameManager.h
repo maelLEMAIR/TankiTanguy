@@ -29,6 +29,7 @@ public:
 
     Player* GetMainPlayer() const { return m_mainPlayer; };
     std::vector<Player*> GetPlayers() { return m_players; };
+    std::vector<PlayerController*> GetPlayerControllers() { return m_playerControllers; };
 
     template <class ObjectClass> ObjectClass* CreateObject(bool _isServer);
     template <class ObjectClass> std::vector<GameObject*> GetAllObjects();
@@ -45,6 +46,7 @@ private:
     
     PlayerController* m_pPlCrt = nullptr;
     Player* m_mainPlayer = nullptr;
+    std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
 };
 

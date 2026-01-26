@@ -14,11 +14,12 @@ public:
 
     void Init(Player& _player) { m_pPlayer = &_player; };
 
-    int HandleInput();
-    void ApplyInput(int input);
+    void HandleInput();
+    void ApplyInput();
 
-    void UpdateInputs();
+    void SendInputList();
     void UpdateWithSnapshot();
+    void AddIncomingInputs(uint16_t input);
 
     bool ShouldSend() const;
 protected:
@@ -26,7 +27,8 @@ protected:
 private:
     Player* m_pPlayer;
 
-    std::vector<InputCmd> pendingInputs;
+    std::vector<InputCmd> m_pendingInputs;
+    std::vector<InputCmd> m_incomingInputs;
 };
 
 #endif // !PLAYER_CONTROLLER_H

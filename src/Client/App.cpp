@@ -32,6 +32,8 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 	
 	m_gameManager.Start();
+	m_client.ConnectToServer("127.0.0.1", 1888);
+	
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI

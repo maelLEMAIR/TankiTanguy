@@ -412,17 +412,20 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 
 struct MsgSnapshot
 {
+	uint8_t playerId;
 	PlayerNetState state;
 };
 
 inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg)
 {
+	writer.WriteU8(msg.playerId);
 	SerializePlayerNetState(writer, msg.state);
 }
 
 inline bool DeserializeServerSnapshot(BufferReader& reader, MsgSnapshot& msg)
 {
-	return DeserializePlayerNetState(reader, msg.state);
+	return reader.ReadU8(msg.playerId) &&
+		DeserializePlayerNetState(reader, msg.state);
 }
 
 struct MsgPing
