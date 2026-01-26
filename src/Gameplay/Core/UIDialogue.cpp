@@ -14,7 +14,7 @@ void UIDialogue::Init(std::string& _answer)
     m_answer = &_answer;
 }
 
-void UIDialogue::AddInputText(cpu_font& _font, XMFLOAT2 _pos, int _anchor, std::string _text)
+void UIDialogue::AddInputText(cpu_font& _font, XMINT2 _pos, int _anchor, std::string _text)
 {
     InputText* newInputText = new InputText();
     newInputText->Init(_font, _pos, _anchor, _text);

@@ -24,9 +24,21 @@ UIManager::~UIManager()
 
 void UIManager::Update()
 {
-    for (UI* ui : m_UIs)
-        if (ui->IsActive())
-            ui->Update();
+    for (auto it = m_UIs.begin(); it != m_UIs.end(); )
+    {
+        UI* pUi = *it;
+        if (pUi->IsNeedToBeDestroyed())
+            it = m_UIs.erase(it);
+        else
+        {
+            if (pUi->IsActive())
+            {
+                pUi->Update();
+            }
+            ++it;
+        }
+    }
+    
 }
 
 void UIManager::Render()

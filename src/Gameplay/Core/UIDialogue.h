@@ -9,7 +9,7 @@ public:
     UIDialogue();
     void Init(std::string& _answer);
     ~UIDialogue() override { m_dialogue.clear(); };
-    void AddInputText(cpu_font& _font, XMFLOAT2 _pos, int _anchor, std::string _text);
+    void AddInputText(cpu_font& _font, XMINT2 _pos, int _anchor, std::string _text);
     void Update() override;
     void Render() override;
 

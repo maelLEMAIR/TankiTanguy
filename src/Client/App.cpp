@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Core/UIButton.h"
 #include "Core/UIDialogue.h"
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
@@ -34,7 +35,7 @@ void App::OnStart()
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI
-	XMFLOAT2 pos = XMFLOAT2(cpuDevice.GetWidth() * 0.5f, 30.0f);
+	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
 	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
 	dialogueLog->Init(m_pseudo);
 	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
@@ -47,7 +48,15 @@ void App::OnStart()
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMFLOAT2(0.0f, cpuDevice.GetHeight() - 24.0f), 24.0f, *m_pPlayer, pathGreen, pathGray);
+	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
+
+	UIButton* startBtn = m_pUIManager->Create<UIButton>();
+	startBtn->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), XMINT2(24, 24), pathGreen, pathGray);
+
+	/*startBtn->SetOnClickCallback([startBtn]() {
+		int i = 0;
+		startBtn->SetToBeDestroyed();
+	});*/
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
