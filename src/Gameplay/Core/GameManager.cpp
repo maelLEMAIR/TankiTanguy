@@ -50,6 +50,12 @@ void GameManager::Update()
 {
     float dt = cpuTime.delta;
     CollisionCheck();
+
+    for (Player* player : m_players)
+    {
+        player->Update();
+    }
+
     m_pPlCrt->HandleInput();
     m_pPlCrt->SendInputList();
 

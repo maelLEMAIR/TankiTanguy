@@ -18,7 +18,6 @@ public:
     void ApplyInput();
 
     void SendInputList();
-    void UpdateWithSnapshot();
     void AddIncomingInputs(uint16_t input);
 
     bool ShouldSend() const;

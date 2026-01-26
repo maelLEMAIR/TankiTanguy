@@ -94,8 +94,6 @@ void Player::Update()
         forward = m_pEntity->transform.dir;
         pos = m_pEntity->transform.pos;
 
-        //TODO
-
         m_pEntity->transform.LookAt(
             m_pEntity->transform.pos.x + forward.x,
             m_pEntity->transform.pos.y,

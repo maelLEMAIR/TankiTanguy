@@ -63,7 +63,6 @@ void PlayerController::ApplyInput()
 
 void PlayerController::SendInputList()
 {
-    // envoi toutes les X ms (ex: 50 ms)
     if (ShouldSend() && m_pendingInputs.empty() == false)
     {
         ClientSocket* clientSocket = &ClientSocket::GetInstance();
@@ -84,11 +83,6 @@ void PlayerController::SendInputList()
     }
 }
 
-void PlayerController::UpdateWithSnapshot()
-{
-
-}
-
 void PlayerController::AddIncomingInputs(uint16_t input)
 {
     InputCmd cmd;
@@ -100,7 +94,7 @@ bool PlayerController::ShouldSend() const
 {
     static DWORD lastSendTime = 0;
     DWORD currentTime = GetTickCount64();
-    if (currentTime - lastSendTime >= 3) // envoi toutes les 3 ms
+    if (currentTime - lastSendTime >= 1) // envoi toutes les 1 ms
     {
         lastSendTime = currentTime;
         return true;

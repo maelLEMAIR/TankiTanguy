@@ -101,7 +101,7 @@ struct PacketHeader
 	uint8_t  packetType;							// PacketType (uint8_t)
 
 	// --- Session routing ---
-	uint8_t  playerId = 0;							// 0=unknown, 1=player1, 2=player2
+	uint8_t  playerId = -1;							// 0=unknown, 1=player1, 2=player2
 
 	// --- Delivery / ordering ---
 	uint16_t sequence = 0;							// Sequence number de CE paquet (network order)
@@ -385,9 +385,6 @@ struct PlayerNetState
 	float dirX;
 	float dirY;
 	float dirZ;
-	float yaw;
-	float pitch;
-	float roll;
 	uint16_t hp;
 };
 
@@ -399,9 +396,6 @@ inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& 
 	writer.WriteF32(playerNetState.dirX);
 	writer.WriteF32(playerNetState.dirY);
 	writer.WriteF32(playerNetState.dirZ);
-	writer.WriteF32(playerNetState.yaw);
-	writer.WriteF32(playerNetState.pitch);
-	writer.WriteF32(playerNetState.roll);
 	writer.WriteU16(playerNetState.hp);
 }
 
@@ -413,9 +407,6 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadF32(playerNetState.dirX) &&
 		reader.ReadF32(playerNetState.dirY) &&
 		reader.ReadF32(playerNetState.dirZ) &&
-		reader.ReadF32(playerNetState.yaw) &&
-		reader.ReadF32(playerNetState.pitch) &&
-		reader.ReadF32(playerNetState.roll) &&
 		reader.ReadU16(playerNetState.hp);
 }
 

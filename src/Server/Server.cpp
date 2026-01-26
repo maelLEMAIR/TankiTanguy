@@ -17,7 +17,8 @@ void Server::MainLoop()
 {
 	while (m_running)
 	{
-		Update();
+		if (m_waitingPlayers == false)
+			Update();
 	}
 }
 
@@ -27,8 +28,8 @@ void Server::Start()
 
 	ClientInfo* client1 = new ClientInfo();
 	ClientInfo* client2 = new ClientInfo();
-	client1->playerId = 1;
-	client2->playerId = 2;
+	client1->playerId = 0;
+	client2->playerId = 1;
 	m_vClientsInfo.push_back(client1);
 	m_vClientsInfo.push_back(client2);
 
@@ -42,8 +43,7 @@ void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
 	Sleep(16); // ~60 FPS
-	if (m_vClientsInfo[0]->isConnected)
-		SendServerSnapshotsToClients();
+	SendServerSnapshotsToClients();	
 }
 
 void Server::Exit()
@@ -152,7 +152,7 @@ DWORD Server::Listen(LPVOID lpParam)
 
 void Server::SendPacket(uint8_t clientID, const char* data, int length)
 {
-	ClientInfo* pClient = m_vClientsInfo[clientID - 1];
+	ClientInfo* pClient = m_vClientsInfo[clientID];
 
 	if (pClient == nullptr || !pClient->isConnected)
 	{
@@ -213,36 +213,36 @@ void Server::HandleClientHello(BufferReader& reader)
 	MsgClientHello decoded;
 	bool msgOk = DeserializeClientHello(reader, decoded);
 
-	int playerID = 0;
+	int playerID = -1;
 	if (m_vClientsInfo[0]->playerName == "default")
 	{
 		SetClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
-		playerID = 1;
-		std::cout << "Player 1 connected: " << decoded.playerName << "\n";
+		playerID = 0;
+		std::cout << "Player 0 connected: " << decoded.playerName << "\n";
 	}
 	else if (m_vClientsInfo[0]->playerName == decoded.playerName)
 	{
 		SetClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
-		playerID = 1;
-		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
+		playerID = 0;
+		std::cout << "Player 0 reconnected: " << decoded.playerName << "\n";
 	}
 	else if (m_vClientsInfo[1]->playerName == "default")
 	{
 		SetClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
-		playerID = 2;
-		std::cout << "Player 2 connected: " << decoded.playerName << "\n";
+		playerID = 1;
+		std::cout << "Player 1 connected: " << decoded.playerName << "\n";
 	}
 	else
 	{
 		SetClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
-		playerID = 2;
-		std::cout << "Player 2 reconnected: " << decoded.playerName << "\n";
+		playerID = 1;
+		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
 	}
 
 	if (m_vClientsInfo[0]->isConnected && m_vClientsInfo[1]->isConnected)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
-		m_toStart = true;
+		m_waitingPlayers = false;
 	}
 
 	PacketHeader header;
@@ -265,7 +265,7 @@ void Server::HandleClientInput(BufferReader& reader, PacketHeader& header)
 	bool msgOk = DeserializeInputList(reader, decoded);
 	if (msgOk == false) return;
 
-	int playerIndex = header.playerId - 1;
+	int playerIndex = header.playerId;
 	
 	for (const InputCmd& cmd : decoded.inputsList)
 	{
@@ -290,25 +290,33 @@ void Server::SendServerSnapshotsToClients()
 	PacketHeader header;
 	header.packetType = PacketType::ServerSnapshot;
 
-	Player* player = m_pGM->GetPlayers()[0];
+	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
+		//Pour chaque client envoie des infos des autres players
+		for (int playerID = 0; playerID < m_pGM->GetPlayers().size(); playerID++)
+		{
+			Player* player = m_pGM->GetPlayers()[playerID];
 
-	PlayerNetState playerState;
-	playerState.posX = player->GetPos().x;
-	playerState.posY = player->GetPos().y;
-	playerState.posZ = player->GetPos().z;
-	playerState.dirX = player->m_transform.dir.x;
-	playerState.dirY = player->m_transform.dir.y;
-	playerState.dirZ = player->m_transform.dir.z;
-	playerState.hp = 100;
+			//TODO
+			PlayerNetState playerState;
+			playerState.posX = player->GetPos().x;
+			playerState.posY = player->GetPos().y;
+			playerState.posZ = player->GetPos().z;
+			playerState.dirX = player->m_transform.dir.x;
+			playerState.dirY = player->m_transform.dir.y;
+			playerState.dirZ = player->m_transform.dir.z;
+			playerState.hp = player->GetLife().GetCurrentLife();
 
-	MsgSnapshot snapshotMsg;
-	snapshotMsg.playerId = 1;
-	snapshotMsg.state = playerState;
+			MsgSnapshot snapshotMsg;
+			snapshotMsg.playerId = playerID;
+			snapshotMsg.state = playerState;
 
-	BufferWriter writer;
-	SerializePacketHeader(writer, header);
-	SerializeServerSnapshot(writer, snapshotMsg);
-	SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
+			BufferWriter writer;
+			SerializePacketHeader(writer, header);
+			SerializeServerSnapshot(writer, snapshotMsg);
+			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
+		}
+	}
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
