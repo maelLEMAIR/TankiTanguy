@@ -38,7 +38,7 @@ void GameManager::Start()
     m_pPlCrt = new PlayerController();
 
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
     AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 

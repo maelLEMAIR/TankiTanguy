@@ -16,12 +16,6 @@ void Server::MainLoop()
 {
 	while (m_running)
 	{
-		if (m_toStart && m_pGM == nullptr)
-		{
-			m_pGM->ServerSideStart();
-			m_toStart = false;
-		}
-
 		Update();
 	}
 }
@@ -291,24 +285,27 @@ void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 
 void Server::SendServerSnapshotsToClients()
 {
-	//PacketHeader header;
-	//header.packetType = PacketType::ServerSnapshot;
+	PacketHeader header;
+	header.packetType = PacketType::ServerSnapshot;
 
-	//Player* player = m_pGM->GetMatchState().players[0].player;
+	Player* player = m_pGM->GetPlayers()[0];
 
-	//PlayerNetState playerState;
-	//playerState.posX = player->GetPos().x;
-	//playerState.posY = player->GetPos().z;
-	//playerState.angle = player->GetAngle();
-	//playerState.hp = 100;
+	PlayerNetState playerState;
+	playerState.posX = player->GetPos().x;
+	playerState.posY = player->GetPos().y;
+	playerState.posZ = player->GetPos().z;
+	playerState.dirX = player->m_transform.dir.x;
+	playerState.dirY = player->m_transform.dir.y;
+	playerState.dirZ = player->m_transform.dir.z;
+	playerState.hp = 100;
 
-	//MsgSnapshot snapshotMsg;
-	//snapshotMsg.state = playerState;
+	MsgSnapshot snapshotMsg;
+	snapshotMsg.state = playerState;
 
-	//BufferWriter writer;
-	//SerializePacketHeader(writer, header);
-	//SerializeServerSnapshot(writer, snapshotMsg);
-	//SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	SerializeServerSnapshot(writer, snapshotMsg);
+	SendPacket(1, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)

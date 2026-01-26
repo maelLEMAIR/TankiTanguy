@@ -114,15 +114,16 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 
 void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 {
-	//std::cout << "Message ServerSnapshot reçu\n";
+	std::cout << "Message ServerSnapshot reçu\n";
 
-	//MsgSnapshot decoded;
-	//bool msgOk = DeserializeServerSnapshot(reader, decoded);
+	MsgSnapshot decoded;
+	bool msgOk = DeserializeServerSnapshot(reader, decoded);
 
-	//GameManager* pGM = GameManager::Get();
-	//Player* player = pGM->GetMatchState().players[1].player;
-	//player->SetPos(XMFLOAT3(decoded.state.posX, 0.0f, decoded.state.posY));
-	//player->SetAngle(decoded.state.angle);
+	GameManager pGM = GameManager::Get();
+	Player* player = pGM.GetPlayers()[1];
+
+	player->SetPosition(decoded.state.posX, decoded.state.posY, decoded.state.posZ);
+	player->SetDirection(decoded.state.dirX, decoded.state.dirY, decoded.state.dirZ);
 	//player->Update();
 }
 

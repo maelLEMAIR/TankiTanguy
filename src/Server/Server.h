@@ -59,8 +59,8 @@ private:
 	HANDLE m_listenThread = nullptr;
 	
 	GameManager* m_pGM = nullptr;
-	bool m_toStart = false;
 	bool m_running = false;
+	bool m_toStart = false;
 
 	std::vector<ClientInfo*> m_vClientsInfo;
 };
