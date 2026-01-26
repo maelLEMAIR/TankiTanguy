@@ -93,6 +93,14 @@ void Player::Update()
     {
         forward = m_pEntity->transform.dir;
         pos = m_pEntity->transform.pos;
+
+        //TODO
+
+        m_pEntity->transform.LookAt(
+            m_pEntity->transform.pos.x + forward.x,
+            m_pEntity->transform.pos.y,
+            m_pEntity->transform.pos.z + forward.z
+        );
         
         m_pHead->transform.pos = pos; 
         m_pHead->transform.pos.y += 0.5f;
@@ -147,6 +155,11 @@ void Player::SetDirection(float dirX, float dirY, float dirZ)
 {
     XMFLOAT3 newDir = XMFLOAT3(dirX, dirY, dirZ);
     m_pEntity->transform.dir = newDir;
+}
+
+void Player::SetRotation(float yaw, float pitch, float roll)
+{
+    m_pEntity->transform.SetYPR(yaw, pitch, roll);
 }
 
 void Player::Dead(float _dt)

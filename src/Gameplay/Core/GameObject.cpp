@@ -1,4 +1,5 @@
 ﻿#include "GameObject.h"
+#include "GameManager.h"
 
 GameObject::GameObject(int isServer)
 {
@@ -11,27 +12,22 @@ GameObject::GameObject(int isServer)
 
 void GameObject::Update()
 {
-    float dt = cpuTime.delta;
-    
 }
 
 void GameObject::Move(float _dir)
 {
-    float dt = cpuTime.delta;
     if (m_isServer)
-        m_transform.Move(_dir * dt * m_speed);
+        m_transform.Move(_dir * GameManager::Get().GetDeltaTime() * m_speed);
     else
-        m_pEntity->transform.Move(_dir * dt* m_speed);
+        m_pEntity->transform.Move(_dir * cpuTime.delta * m_speed);
 }
 
 void GameObject::Turn(float _dir)
 {
-    float dt = cpuTime.delta;
-    m_angle += _dir * dt;
     if (m_isServer)
-        m_transform.AddYPR(_dir * dt);
+        m_transform.AddYPR(_dir * GameManager::Get().GetDeltaTime());
     else
-        m_pEntity->transform.AddYPR(_dir * dt);
+        m_pEntity->transform.AddYPR(_dir * cpuTime.delta);
 }
 
 XMFLOAT3& GameObject::GetDir()

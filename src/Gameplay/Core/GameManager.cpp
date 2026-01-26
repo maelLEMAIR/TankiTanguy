@@ -10,7 +10,7 @@
 
 GameManager* GameManager::s_pInstance = nullptr;
 
-GameManager::GameManager(bool _isServer)
+GameManager::GameManager(bool _isServer) : m_chrono()
 {
     m_isServer = _isServer;
     s_pInstance = this;
@@ -69,6 +69,7 @@ void GameManager::Update()
 void GameManager::ServerSideStart()
 {
     delete m_pPlCrt;
+    m_chrono.Start();
 
     // Player
     AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
@@ -81,7 +82,7 @@ void GameManager::ServerSideStart()
 
 void GameManager::ServerSideUpdate()
 {
-    float dt = cpuTime.delta;
+    dt = m_chrono.Reset();
     CollisionCheck();
     for (PlayerController* plCrt : m_playerControllers)
     {

@@ -385,6 +385,9 @@ struct PlayerNetState
 	float dirX;
 	float dirY;
 	float dirZ;
+	float yaw;
+	float pitch;
+	float roll;
 	uint16_t hp;
 };
 
@@ -396,6 +399,9 @@ inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& 
 	writer.WriteF32(playerNetState.dirX);
 	writer.WriteF32(playerNetState.dirY);
 	writer.WriteF32(playerNetState.dirZ);
+	writer.WriteF32(playerNetState.yaw);
+	writer.WriteF32(playerNetState.pitch);
+	writer.WriteF32(playerNetState.roll);
 	writer.WriteU16(playerNetState.hp);
 }
 
@@ -407,6 +413,9 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadF32(playerNetState.dirX) &&
 		reader.ReadF32(playerNetState.dirY) &&
 		reader.ReadF32(playerNetState.dirZ) &&
+		reader.ReadF32(playerNetState.yaw) &&
+		reader.ReadF32(playerNetState.pitch) &&
+		reader.ReadF32(playerNetState.roll) &&
 		reader.ReadU16(playerNetState.hp);
 }
 

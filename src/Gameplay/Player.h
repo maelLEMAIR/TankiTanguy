@@ -14,7 +14,7 @@ class Player : public GameObject, public SphereCollider
 public:
     Player(bool _isServer);
     ~Player() override;
-    void Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color = XMINT3(255.0f, 255.0f,255.0f));
+    void Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color = XMINT3(255, 255, 255));
     
     void Update() override;
     void Dead(float _dt) override;
@@ -26,6 +26,7 @@ public:
     void SetPseudo(std::string const& _pseudo) { m_pseudo = _pseudo; };
     void SetPosition(float posX, float posY, float posZ);
     void SetDirection(float dirX, float dirY, float dirZ);
+    void SetRotation(float yaw, float pitch, float roll);
 
     bool IsDead() { return m_life.IsDead(); }
     Life& GetLife() { return m_life; }

@@ -180,6 +180,7 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 	player->SetPosition(decoded.state.posX, decoded.state.posY, decoded.state.posZ);
 	player->SetDirection(decoded.state.dirX, decoded.state.dirY, decoded.state.dirZ);
+	//player->SetRotation(decoded.state.yaw, decoded.state.pitch, decoded.state.roll);
 	player->Update();
 }
 

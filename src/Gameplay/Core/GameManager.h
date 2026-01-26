@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "pch.h"
+#include "Chrono.h"
 
 class GameObject;
 class Collider;
@@ -31,6 +32,8 @@ public:
     std::vector<Player*> GetPlayers() { return m_players; };
     std::vector<PlayerController*> GetPlayerControllers() { return m_playerControllers; };
 
+    float GetDeltaTime() { return dt; };
+
     template <class ObjectClass> ObjectClass* CreateObject(bool _isServer);
     template <class ObjectClass> std::vector<GameObject*> GetAllObjects();
     template <class ComponentClass> std::vector<ComponentClass*> GetAllComponents();
@@ -38,7 +41,8 @@ protected:
     
 private:
     static GameManager* s_pInstance;
-    
+    float dt = 0.f;
+
     bool m_isServer = false;
     
     std::vector<GameObject*> m_gameObjects;
@@ -48,6 +52,8 @@ private:
     Player* m_mainPlayer = nullptr;
     std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
+
+    Chrono m_chrono;
 };
 
 #include "GameManager.inl"
