@@ -27,18 +27,12 @@ void UIManager::Update()
     for (auto it = m_UIs.begin(); it != m_UIs.end(); )
     {
         UI* pUi = *it;
-        if (pUi->IsNeedToBeDestroyed())
-            it = m_UIs.erase(it);
-        else
+        if (pUi->IsActive())
         {
-            if (pUi->IsActive())
-            {
-                pUi->Update();
-            }
-            ++it;
+            pUi->Update();
         }
+        ++it;
     }
-    
 }
 
 void UIManager::Render()

@@ -11,8 +11,8 @@ public:
     
     bool IsActive() { return m_isActive; }
     void SetActive(bool _state) { m_isActive = _state; }
-    void SetToBeDestroyed() { m_needToBeDestroyed = true; }
-    bool IsNeedToBeDestroyed() { return m_needToBeDestroyed; }
+
+    virtual void SetVisible(bool _state) = 0;
 
 protected:
     bool m_isActive = true;

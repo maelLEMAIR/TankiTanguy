@@ -9,6 +9,7 @@ public:
     void Init(cpu_font& _font, XMINT2 _pos, float _size, Player& _player, std::string const& _pathGreen, std::string const& _pathGray);
     void Update() override;
     void Render() override;
+    void SetVisible(bool _state) override { };
 
 private:
     std::vector<cpu_sprite*> m_sprites;

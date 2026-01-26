@@ -12,7 +12,7 @@ public:
     void AddInputText(cpu_font& _font, XMINT2 _pos, int _anchor, std::string _text);
     void Update() override;
     void Render() override;
-
+    void SetVisible(bool _state) override { };
 protected:
 
 private:

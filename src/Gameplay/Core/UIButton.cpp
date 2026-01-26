@@ -27,6 +27,9 @@ void UIButton::Init(XMINT2 _pos, XMINT2 _size, std::string const& _path, std::st
 
 void UIButton::Update()
 {
+    if (m_pSprite->visible == false)
+        return;
+    
     XMFLOAT2 ray;
     cpuEngine.GetCursor(ray);
     XMINT2 posCursor = XMINT2(static_cast<int>(ray.x), static_cast<int>(ray.y));

@@ -49,13 +49,13 @@ void App::OnStart()
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
 	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
 
-	/*UIButton* startBtn = m_pUIManager->Create<UIButton>();
+	UIButton* startBtn = m_pUIManager->Create<UIButton>();
 	startBtn->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), XMINT2(24, 24), pathGreen, pathGray);
 
 	startBtn->SetOnClickCallback([startBtn]() {
 		int i = 0;
-		startBtn->SetToBeDestroyed();
-	});*/
+		startBtn->SetVisible(false);
+	});
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
