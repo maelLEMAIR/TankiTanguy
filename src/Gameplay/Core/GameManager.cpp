@@ -90,6 +90,8 @@ void GameManager::ServerSideUpdate()
     {
         plCrt->ApplyInput();
     }
+
+    //m_players[1]->Shoot();
     
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
@@ -156,7 +158,7 @@ void GameManager::CollisionCheck()
 void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
 {
     Player* player = CreateObject<Player>(_isServer);
-    player->Init(_pos, _angle, _pseudo, _color);
+    player->Init(_pos, m_players.size(), _angle, _pseudo, _color);
     if (m_isServer)
     {
         PlayerController* plCrt = new PlayerController();
@@ -178,6 +180,8 @@ Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
     m_missiles.push_back(missile);
+    m_newMissileAdded = true;  
+    m_lastMissileAdded = missile;
     return missile;
 }
 

@@ -3,7 +3,6 @@
 
 Weapon::~Weapon() {} 
 
-
 void Weapon::Shoot()
 {
     if (m_fireDuration >= m_fireDurationMax)

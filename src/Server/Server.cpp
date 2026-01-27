@@ -6,6 +6,7 @@
 Server::Server()
 {
 	s_pInstance = this;
+	m_socket = NULL;
 }
 
 Server::~Server()
@@ -235,7 +236,7 @@ void Server::HandleClientHello(BufferReader& reader)
 		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
 	}
 
-	if (m_vClientsInfo[0]->isConnected && m_vClientsInfo[1]->isConnected)
+	if (m_vClientsInfo[0]->isConnected /*&& m_vClientsInfo[1]->isConnected*/)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		m_waitingPlayers = false;
@@ -288,6 +289,7 @@ void Server::SendServerSnapshotsToClients()
 
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
+		if (m_vClientsInfo[clientID]->isConnected == false) continue;
 		//Pour chaque client envoie des infos des autres players
 		for (int playerID = 0; playerID < m_pGM->GetPlayers().size(); playerID++)
 		{
@@ -298,14 +300,18 @@ void Server::SendServerSnapshotsToClients()
 			playerState.posX = player->GetPos().x;
 			playerState.posY = player->GetPos().y;
 			playerState.posZ = player->GetPos().z;
-			playerState.dirX = player->m_transform.dir.x;
-			playerState.dirY = player->m_transform.dir.y;
-			playerState.dirZ = player->m_transform.dir.z;
 			playerState.hp = player->GetLife().GetCurrentLife();
 
 			MsgSnapshot snapshotMsg;
 			snapshotMsg.playerId = playerID;
-			snapshotMsg.state = playerState;
+			snapshotMsg.playerState = playerState;
+			if (m_pGM->GetNewMissileAdded())
+			{
+				snapshotMsg.newMissile = 1;
+				snapshotMsg.shooterID = m_pGM->GetLastMissileAdded()->GetShooterId();
+
+				m_pGM->SetNewMissileAdded(false);
+			}
 
 			BufferWriter writer;
 			SerializePacketHeader(writer, header);

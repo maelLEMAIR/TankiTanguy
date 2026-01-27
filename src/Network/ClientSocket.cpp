@@ -176,8 +176,16 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 	Player* player = m_gm->GetPlayers()[decoded.playerId];
 
-	player->SetPosition(decoded.state.posX, decoded.state.posY, decoded.state.posZ);
-	player->SetDirection(decoded.state.dirX, decoded.state.dirY, decoded.state.dirZ);
+	player->SetPosition(decoded.playerState.posX, decoded.playerState.posY, decoded.playerState.posZ);
+	player->SetDirection(decoded.playerState.dirX, decoded.playerState.dirY, decoded.playerState.dirZ);
+	
+	if (decoded.newMissile == 1)
+	{
+		if (decoded.shooterID == m_serverInfo.playerId) return;
+
+		Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
+		shooter->Shoot();
+	}
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

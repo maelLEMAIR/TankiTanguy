@@ -15,10 +15,11 @@ Player::~Player()
     }
 }
 
-void Player::Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color)
+void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _pseudo, XMINT3 _color)
 {
     m_tag = "Player";
     m_pseudo = _pseudo;
+    m_id = id;
 
     m_angle = _angle;
     m_speed = 2.5f;

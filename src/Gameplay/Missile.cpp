@@ -107,3 +107,8 @@ void Missile::Dead(float _dt)
    }
     m_needToBeDestroyed = true;
 }
+
+int Missile::GetShooterId()
+{ 
+    return m_pOwnerPlayer->GetID();
+}
