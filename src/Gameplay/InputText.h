@@ -19,8 +19,8 @@ public:
 private:
     std::string m_question;
     std::string m_text;
-    int m_anchor = 0;
     cpu_font* m_font;
+    int m_anchor    = 0;
     bool m_finished = false;
 };
 

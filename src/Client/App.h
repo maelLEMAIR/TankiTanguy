@@ -7,6 +7,7 @@ class Player;
 class GameManager;
 class UIManager;
 class UIDialogue;
+class UIText;
 
 class App
 {
@@ -34,6 +35,8 @@ private:
 	GameManager m_gameManager;
 
 	UIDialogue* m_dialogueLog = nullptr;
+	UIText* m_uiScore = nullptr;
+	
 	ClientSocket m_client;
 	float m_requestTime = 3.0f;
 	float m_requestProgress = 0.0f;

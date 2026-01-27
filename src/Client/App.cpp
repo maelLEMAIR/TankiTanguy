@@ -4,6 +4,7 @@
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
 #include "Core/UIManager.h"
+#include "Core/UIText.hpp"
 
 App::App() : m_gameManager(GameManager(false))
 {
@@ -123,9 +124,12 @@ void App::OnUpdate()
 	if (m_isLogin == false)
 		return;
 
-	// 10.10.137.53
+	// 10.10.137.53 Baptiste
+	// 10.10.137.66 Auxence
+	// 10.10.137.11 Vivien
 	
 	// Update
+	m_uiScore->SetText(m_pPlayer->GetScore());
 	m_pUIManager->Update();
 	m_gameManager.Update();
 }
@@ -137,6 +141,9 @@ void App::SetUI()
 	
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
 	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
+
+	m_uiScore = m_pUIManager->Create<UIText>();
+	m_uiScore->Init(m_font, XMINT2(cpuDevice.GetWidth() - 10, 5), CPU_TEXT_RIGHT, m_pPlayer->GetScore());
 }
 
 void App::Log()
@@ -218,13 +225,15 @@ void App::OnRender(int pass)
 					continue;
 				
 				if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
-				{
 					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
-				}
 			}
+				
 			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
 			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
-			if (m_pseudo != "") cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
+
+			if (m_pseudo != "")
+				cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
+				
 			break;
 		}
 		default:
