@@ -69,7 +69,6 @@ void Server::Exit()
 		CloseHandle(m_listenThread);
 		m_listenThread = nullptr;
 	}
-
 	if (m_pGM)
 	{
 		//m_pGM->ServerSideStop();
@@ -229,11 +228,15 @@ void Server::HandleClientHello(BufferReader& reader)
 		playerID = 1;
 		std::cout << "Player 1 connected: " << decoded.playerName << "\n";
 	}
-	else
+	else if (m_vClientsInfo[1]->playerName == decoded.playerName)
 	{
 		SetClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
 		playerID = 1;
 		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
+	}
+	else
+	{
+		std::cout << "Player try to join..." << decoded.playerName << "\n";
 	}
 
 	if (m_vClientsInfo[0]->isConnected /*&& m_vClientsInfo[1]->isConnected*/)
@@ -295,6 +298,9 @@ void Server::SendServerSnapshotsToClients()
 		{
 			Player* player = m_pGM->GetPlayers()[playerID];
 
+			if (player->IsDead())
+				player->Dead(m_pGM->GetDeltaTime());
+			
 			//TODO
 			PlayerNetState playerState;
 			playerState.posX = player->GetPos().x;

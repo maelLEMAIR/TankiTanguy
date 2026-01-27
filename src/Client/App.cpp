@@ -4,6 +4,7 @@
 #include "Gameplay/Player.h"
 #include "Core/UIHealthBar.hpp"
 #include "Core/UIManager.h"
+#include "Core/UIText.hpp"
 
 App::App() : m_gameManager(GameManager(false))
 {
@@ -32,30 +33,21 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 	
 	m_gameManager.Start();
-	m_client.ConnectToServer("127.0.0.1", 1888);
-	
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI
 	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
-	UIDialogue* dialogueLog = m_pUIManager->Create<UIDialogue>();
-	dialogueLog->Init(m_pseudo);
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ");
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ");
-	dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ");
+	m_dialogueLog = new UIDialogue();
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
+	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
+
+	cpuEngine.GetCamera()->transform.pos = XMFLOAT3(100.0f, 100.0f, 100.0f);
 	
-	std::string pathGreen = "../../res/Gameplay/vert.png";
-	std::string pathGray = "../../res/Gameplay/gris.png";
-
-	m_pPlayer = m_gameManager.GetMainPlayer();
-	m_pPlayer->SetPseudo(m_pseudo);
-	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
-
-	UIButton* startBtn = m_pUIManager->Create<UIButton>();
+	/*UIButton* startBtn = m_pUIManager->Create<UIButton>();
 	startBtn->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), XMINT2(24, 24), pathGreen, pathGray);
-
-	/*startBtn->SetOnClickCallback([startBtn]() {
+	
+	startBtn->SetOnClickCallback([startBtn]() {
 		int i = 0;
 		startBtn->SetToBeDestroyed();
 	});*/
@@ -79,17 +71,107 @@ void App::OnStart()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool IsValidPort(const std::string& str, int& outPort)
+{
+	if (str.empty())
+		return false;
+
+	for (char c : str)
+	{
+		if (!std::isdigit(static_cast<unsigned char>(c)))
+			return false;
+	}
+	
+	outPort = std::stoi(str);
+	return outPort > 0 && outPort <= 65535;
+}
+
 void App::OnUpdate()
 {
 	// Quit
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
+	
+	if (m_isLogin == false)
+		Log();
 
-	m_pUIManager->Update();
-	if (m_isPause) return;
+	if (m_isRequested)
+	{
+		if (m_client.m_isConnected)
+		{
+			m_isRequested = false;
+			m_isLogin = true;
+			m_requestProgress = 0.0f;
+			
+			m_id = m_client.GetServerInfo().playerId;
+			m_gameManager.SetMainPlayer(m_id);
+			m_pPlayer = m_gameManager.GetMainPlayer();
+			m_pPlayer->SetPseudo(m_pseudo);
+			SetUI();
+			return;
+		}
+		if ( m_requestProgress >= m_requestTime )
+		{
+			m_isRequested = false;
+			m_dialogueLog->Reset();
+			m_pseudo = "Connexion Failed ! ";
+			m_requestProgress = 0.0f;
+			return;
+		}
+		m_requestProgress += cpuTime.delta;
+	}
+	
+	if (m_isLogin == false)
+		return;
+
+	// 10.10.137.53 Baptiste
+	// 10.10.137.66 Auxence
+	// 10.10.137.11 Vivien
 	
 	// Update
+	m_uiScore->SetText(m_pPlayer->GetScore());
+	m_pUIManager->Update();
 	m_gameManager.Update();
+}
+
+void App::SetUI()
+{
+	std::string pathGreen = "../../res/Gameplay/vert.png";
+	std::string pathGray = "../../res/Gameplay/gris.png";
+	
+	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
+
+	m_uiScore = m_pUIManager->Create<UIText>();
+	m_uiScore->Init(m_font, XMINT2(cpuDevice.GetWidth() - 10, 5), CPU_TEXT_RIGHT, m_pPlayer->GetScore());
+}
+
+void App::Log()
+{
+	if (m_isRequested == false)
+	{
+		m_dialogueLog->Update();
+		if (m_dialogueLog->IsActive() == false)
+		{
+			int port;
+			if (IsValidPort(m_port, port) == false)
+			{
+				m_isRequested = false;
+				m_dialogueLog->Reset();
+				m_pseudo = "Error Port";
+				return;
+			}
+			
+			if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
+			{
+				m_isRequested = true;
+				return;
+			}
+			m_isRequested = false;
+			m_dialogueLog->Reset();
+			m_pseudo = "Wrong Addresse or Port";
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,19 +215,25 @@ void App::OnRender(int pass)
 			std::string info;
 			XMFLOAT2 screenPos;
 			std::vector<Player*> players = m_gameManager.GetPlayers();
+				
+			if (m_isLogin == false)
+				m_dialogueLog->Render();
+				
 			for (Player* player: players)
 			{
 				if (player == m_pPlayer)
 					continue;
 				
 				if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
-				{
 					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
-				}
 			}
+				
 			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
 			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
-			if (m_pseudo != "") cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
+
+			if (m_pseudo != "")
+				cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
+				
 			break;
 		}
 		default:

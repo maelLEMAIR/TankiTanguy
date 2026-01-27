@@ -1,6 +1,7 @@
 ﻿#include "Missile.h"
 
 #include "Player.h"
+#include "Core/Score.hpp"
 
 Missile::Missile(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT3(1.0f, 1.0f, 1.0f), 1.0f), m_pEmitter(nullptr)
 {
@@ -93,7 +94,10 @@ void Missile::OnCollisionEnter(Collider* pOther)
     
     if (pOther->GetOwner()->GetTag() == "Player")
         if (Player* pPlayer = dynamic_cast<Player*>(pOther))
+        {
             pPlayer->GetLife().TakeDamage(100);
+            m_pOwnerPlayer->GetPlayerScore().AddScore(10);
+        }
         
     Dead();
 }

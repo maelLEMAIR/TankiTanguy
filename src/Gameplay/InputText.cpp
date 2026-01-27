@@ -64,3 +64,9 @@ void InputText::Render()
     );
 }
 
+void InputText::Reset()
+{
+    m_text.clear();
+    m_finished = false;
+}
+

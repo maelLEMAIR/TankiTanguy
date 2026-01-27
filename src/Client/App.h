@@ -1,12 +1,13 @@
 #pragma once
 
-#include "InputText.h"
 #include "Gameplay/Core/GameManager.h"
 #include "Network/ClientSocket.h"
 
 class Player;
 class GameManager;
 class UIManager;
+class UIDialogue;
+class UIText;
 
 class App
 {
@@ -18,17 +19,30 @@ public:
 
 	void OnStart();
 	void OnUpdate();
+	void SetUI();
 	void OnExit();
 	void OnRender(int pass);
+
+	void Log();
+	void SetLog(bool _state) { m_isLogin = _state; }
 	
-	bool m_isPause = false;
+	std::string m_addr;
+	std::string m_port;
 	std::string m_pseudo;
 	
 private:
 	inline static App* s_pApp = nullptr;
 	GameManager m_gameManager;
-	ClientSocket m_client;
 
+	UIDialogue* m_dialogueLog = nullptr;
+	UIText* m_uiScore = nullptr;
+	
+	ClientSocket m_client;
+	float m_requestTime = 3.0f;
+	float m_requestProgress = 0.0f;
+
+	bool m_isLogin = false;
+	bool m_isRequested = false;
 	bool m_isRunning = false;
 
 	float m_width = 50.0f;
@@ -39,6 +53,7 @@ private:
 	cpu_rt* m_rts[1];
 
 	// Player
+	int m_id = -1;
 	Player* m_pPlayer = nullptr;
 	
 	// UI

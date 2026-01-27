@@ -39,9 +39,8 @@ void GameManager::Start()
     m_pPlCrt = new PlayerController();
 
     // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer, true);
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
-    AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
     m_pMap = new Map();
     m_pMap->Init(50, 50);
@@ -75,7 +74,6 @@ void GameManager::ServerSideStart()
     // Player
     AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
     AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
-    AddPlayer(XMFLOAT3(12.5, 0, 12.5), -XM_PIDIV2, XMINT3(0, 255, 0), "vert", m_isServer);
 
     m_pMap = new Map();
     m_pMap->Init(50, 50);
@@ -165,15 +163,17 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
         plCrt->Init(*player);
         m_playerControllers.push_back(plCrt);
     }
-    else if (_mainPlayer)
-    {
-        if (_isServer == false)
-            player->AttachCamera();
-        
-        m_pPlCrt->Init(*player);
-        m_mainPlayer = player;
-    }
     m_players.push_back(player);
+}
+
+void GameManager::SetMainPlayer(int _id)
+{
+    if (_id >= m_players.size())
+        return;
+
+    m_players[_id]->AttachCamera();
+    m_mainPlayer = m_players[_id];
+    m_pPlCrt->Init(*m_mainPlayer);
 }
 
 Missile* GameManager::AddMissile()

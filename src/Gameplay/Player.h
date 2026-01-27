@@ -4,6 +4,7 @@
 #include "GameCamera.hpp"
 #include "Life.hpp"
 #include "Core/GameObject.h"
+#include "Core/Score.hpp"
 #include "Core/SphereCollider.h"
 
 class GameManager;
@@ -32,24 +33,24 @@ public:
     Life& GetLife() { return m_life; }
     std::string& GetPseudo() { return m_pseudo; }
     int GetID() const { return m_id; }
+    Score& GetPlayerScore() { return m_score; }
+    int GetScore() const { return m_score.GetScore(); }
 
 protected:
 
 private:
+    cpu_transform m_transformCanon;
     std::string m_pseudo;
     int m_id = -1;
+    Score m_score;
     Life m_life;
     
-    Weapon* m_pWeapon = nullptr;
+    Weapon* m_pWeapon       = nullptr;
+    GameCamera* m_pCamera   = nullptr;
+    cpu_entity* m_pCanon    = nullptr;
+    cpu_entity* m_pHead     = nullptr;
     
-    GameCamera* m_pCamera = nullptr;
-    
-    cpu_entity* m_pCanon = nullptr;
-    cpu_entity* m_pHead = nullptr;
-    
-    cpu_transform m_transformCanon;
-    
-    float m_deadDuration = 0.0f;
-    float m_deadTime = 3.0f;
+    float m_deadDuration    = 0.0f;
+    float m_deadTime        = 3.0f;
 };
 

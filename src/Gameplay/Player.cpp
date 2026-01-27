@@ -2,7 +2,7 @@
 #include "Weapon.h"
 #include "Core/GameManager.h"
 
-Player::Player(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT3(), 1.0f), m_life(Life(100)) { }
+Player::Player(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT3(), 1.0f), m_score(Score()), m_life(Life(100)) { }
 
 Player::~Player()
 {
@@ -73,7 +73,6 @@ void Player::Update()
     XMFLOAT3 forward;
     XMFLOAT3 pos;
     
-
     if (m_isServer)
     {
         forward = m_transform.dir;
@@ -176,6 +175,3 @@ void Player::Dead(float _dt)
     
     m_deadDuration += _dt;
 }
-
-
-

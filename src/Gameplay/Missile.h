@@ -4,6 +4,7 @@
 #include "Core/SphereCollider.h"
 
 class Player;
+class Score;
 
 class Missile : public GameObject, public SphereCollider
 {
