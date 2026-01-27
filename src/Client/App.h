@@ -23,6 +23,7 @@ public:
 	void OnRender(int pass);
 
 	void Log();
+	void SetLog(bool _state) { m_isLogin = _state; }
 	
 	std::string m_addr;
 	std::string m_port;
@@ -36,6 +37,7 @@ private:
 	ClientSocket m_client;
 
 	bool m_isLogin = false;
+	bool m_isRequested = false;
 	bool m_isRunning = false;
 
 	float m_width = 50.0f;

@@ -32,11 +32,6 @@ void App::OnStart()
 	m_rts[0] = cpuEngine.CreateRT();
 	
 	m_gameManager.Start();
-	
-	/*m_id = &m_client.GetServerInfo().playerId;
-	m_gameManager.SetMainPlayer(*m_id - 1);*/
-
-	m_gameManager.SetMainPlayer(0);
 	cpuEngine.GetParticleData()->Create(1000000);
 
 	// UI
@@ -102,9 +97,16 @@ void App::OnUpdate()
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
 	
+	if (m_isRequested == false)
+		return;
+	
 	Log();
+	
 	if (m_isLogin == false)
 		return;
+	
+	m_id = &m_client.GetServerInfo().playerId;
+	m_gameManager.SetMainPlayer(*m_id - 1);
 	
 	// Update
 	m_pUIManager->Update();
@@ -114,7 +116,7 @@ void App::OnUpdate()
 
 void App::Log()
 {
-	if (m_isLogin == false)
+	if (m_isRequested == false)
 	{
 		m_dialogueLog->Update();
 		if (m_dialogueLog->IsActive() == false)
@@ -122,17 +124,18 @@ void App::Log()
 			int port;
 			if (IsValidPort(m_port, port) == false)
 			{
-				m_isLogin = false;
+				m_isRequested = false;
 				m_dialogueLog->Reset();
 				m_pseudo = "Error Port";
 				return;
 			}
+			
 			if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
 			{
-				m_isLogin = true;
+				m_isRequested = true;
 				return;
 			}
-			m_isLogin = false;
+			m_isRequested = false;
 			m_dialogueLog->Reset();
 			m_pseudo = "Wrong Addresse or Port";
 		}

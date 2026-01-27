@@ -1,5 +1,6 @@
 #include "ClientSocket.h"
 
+#include "Client/App.h"
 #include "Gameplay/Core/GameManager.h"
 #include "Gameplay/Player.h"
 
@@ -20,11 +21,7 @@ ClientSocket::~ClientSocket()
 
 bool ClientSocket::ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo)
 {
-	int res = inet_pton(AF_INET, serverIp, &m_serverAddr.sin_addr.s_addr);
-	if (res != 1)
-	{
-		return false;
-	}
+	inet_pton(AF_INET, serverIp, &m_serverAddr.sin_addr.s_addr);
 	m_serverAddr.sin_family = AF_INET;
 	m_serverAddr.sin_port = htons(serverPort);
 	
@@ -68,11 +65,14 @@ DWORD ClientSocket::Listen(LPVOID lpParam)
 		if (ret > 0)
 		{
 			BufferReader reader{ buffer.data(), static_cast<size_t>(ret), 0 };
-
+			
 			PacketHeader header;
 			if (DeserializePacketHeader(reader, header) == false)
-				continue;	// paquet invalide -> ignore
+				continue;
 
+			if (header.packetType == PacketType::ServerWelcome)
+				App::GetInstance().SetLog(true);
+			
 			pClient->HandleOnPacketType(reader, header);
 		}
 		else if (ret == SOCKET_ERROR)

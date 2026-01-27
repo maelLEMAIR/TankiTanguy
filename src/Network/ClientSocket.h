@@ -15,6 +15,7 @@ struct ServerInfo
 };
 
 class GameManager;
+class App;
 
 class ClientSocket
 {
