@@ -49,7 +49,7 @@ private:
 	cpu_rt* m_rts[1];
 
 	// Player
-	uint8_t* m_id = nullptr;
+	int m_id = -1;
 	Player* m_pPlayer = nullptr;
 	
 	// UI

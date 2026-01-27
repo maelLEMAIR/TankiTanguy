@@ -15,7 +15,6 @@ struct ServerInfo
 };
 
 class GameManager;
-class App;
 
 class ClientSocket
 {
@@ -45,6 +44,8 @@ public:
 	SOCKET GetSocket() const { return m_socket; }
 	ServerInfo& GetServerInfo() { return m_serverInfo; }
 
+	bool m_isConnected = false;
+	
 private:
 	inline static ClientSocket* s_pClient = nullptr;
 

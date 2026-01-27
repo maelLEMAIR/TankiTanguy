@@ -1,6 +1,5 @@
 #include "ClientSocket.h"
 
-#include "Client/App.h"
 #include "Gameplay/Core/GameManager.h"
 #include "Gameplay/Player.h"
 
@@ -71,7 +70,7 @@ DWORD ClientSocket::Listen(LPVOID lpParam)
 				continue;
 
 			if (header.packetType == PacketType::ServerWelcome)
-				App::GetInstance().SetLog(true);
+				s_pClient->m_isConnected = true;
 			
 			pClient->HandleOnPacketType(reader, header);
 		}

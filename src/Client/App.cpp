@@ -97,10 +97,18 @@ void App::OnUpdate()
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
 	
-	Log();
+	if (m_isLogin == false)
+		Log();
 
 	if (m_isRequested)
 	{
+		if (m_client.m_isConnected)
+		{
+			m_isRequested = false;
+			m_isLogin = true;
+			m_requestProgress = 0.0f;
+			return;
+		}
 		if ( m_requestProgress >= m_requestTime )
 		{
 			m_isRequested = false;
@@ -110,14 +118,14 @@ void App::OnUpdate()
 			return;
 		}
 		m_requestProgress += cpuTime.delta;
-			
 	}
+	
 	if (m_isLogin == false)
 		return;
 
 	// 10.10.137.53
-	m_id = &m_client.GetServerInfo().playerId;
-	m_gameManager.SetMainPlayer(*m_id - 1);
+	m_id = m_client.GetServerInfo().playerId;
+	m_gameManager.SetMainPlayer(m_id);
 	
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
