@@ -97,11 +97,21 @@ void App::OnUpdate()
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
 	
-	if (m_isRequested == false)
-		return;
-	
 	Log();
-	
+
+	if (m_isRequested)
+	{
+		if ( m_requestProgress >= m_requestTime )
+		{
+			m_isRequested = false;
+			m_dialogueLog->Reset();
+			m_pseudo = "Connexion Failed ! ";
+			m_requestProgress = 0.0f;
+			return;
+		}
+		m_requestProgress += cpuTime.delta;
+			
+	}
 	if (m_isLogin == false)
 		return;
 	
