@@ -97,14 +97,12 @@ void App::OnUpdate()
 	if ( cpuInput.IsKeyDown(VK_ESCAPE) )
 		cpuEngine.Quit();
 	
-	if (m_isRequested == false)
-		return;
-	
 	Log();
 	
 	if (m_isLogin == false)
 		return;
-	
+
+	// 10.10.137.53
 	m_id = &m_client.GetServerInfo().playerId;
 	m_gameManager.SetMainPlayer(*m_id - 1);
 	
