@@ -34,6 +34,8 @@ private:
 
 	UIDialogue* m_dialogueLog = nullptr;
 	ClientSocket m_client;
+	float m_requestTime = 3.0f;
+	float m_requestProgress = 0.0f;
 
 	bool m_isLogin = false;
 	bool m_isRequested = false;
