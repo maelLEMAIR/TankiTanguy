@@ -41,7 +41,7 @@ protected:
 private:
     cpu_transform m_transformCanon;
     std::string m_pseudo;
-    int m_id = -1;
+    uint8_t m_id = 0;
     Score m_score;
     Life m_life;
     

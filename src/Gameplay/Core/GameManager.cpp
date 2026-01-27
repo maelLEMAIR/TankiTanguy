@@ -89,7 +89,7 @@ void GameManager::ServerSideUpdate()
         plCrt->ApplyInput();
     }
 
-    //m_players[1]->Shoot();
+    m_players[1]->Shoot();
     
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
@@ -180,8 +180,13 @@ Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
     m_missiles.push_back(missile);
-    m_newMissileAdded = true;  
-    m_lastMissileAdded = missile;
+
+    if (m_isServer)
+    {
+        m_newMissileAdded = true;
+        m_lastMissileAdded = missile;
+    }
+
     return missile;
 }
 

@@ -301,11 +301,13 @@ void Server::SendServerSnapshotsToClients()
 			if (player->IsDead())
 				player->Dead(m_pGM->GetDeltaTime());
 			
-			//TODO
 			PlayerNetState playerState;
 			playerState.posX = player->GetPos().x;
 			playerState.posY = player->GetPos().y;
 			playerState.posZ = player->GetPos().z;
+			playerState.dirX = player->GetDir().x;
+			playerState.dirY = player->GetDir().y;
+			playerState.dirZ = player->GetDir().z;
 			playerState.hp = player->GetLife().GetCurrentLife();
 
 			MsgSnapshot snapshotMsg;
