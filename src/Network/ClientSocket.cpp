@@ -182,6 +182,7 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 	player->SetPosition(decoded.state.posX, decoded.state.posY, decoded.state.posZ);
 	player->SetDirection(decoded.state.dirX, decoded.state.dirY, decoded.state.dirZ);
+	player->GetLife() = decoded.state.hp;
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

@@ -72,7 +72,6 @@ void Player::Update()
     XMFLOAT3 forward;
     XMFLOAT3 pos;
     
-
     if (m_isServer)
     {
         forward = m_transform.dir;
