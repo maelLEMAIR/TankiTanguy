@@ -44,8 +44,8 @@ void App::OnStart()
 	std::string pathGreen = "../../res/Gameplay/vert.png";
 	std::string pathGray = "../../res/Gameplay/gris.png";
 
-	m_pPlayer = m_gameManager.GetMainPlayer();
-	m_pPlayer->SetPseudo(m_pseudo);
+	cpuEngine.GetCamera()->transform.pos = XMFLOAT3(100.0f, 100.0f, 100.0f);
+	
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
 	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
 
@@ -107,6 +107,9 @@ void App::OnUpdate()
 	
 	m_id = &m_client.GetServerInfo().playerId;
 	m_gameManager.SetMainPlayer(*m_id - 1);
+	
+	m_pPlayer = m_gameManager.GetMainPlayer();
+	m_pPlayer->SetPseudo(m_pseudo);
 	
 	// Update
 	m_pUIManager->Update();
