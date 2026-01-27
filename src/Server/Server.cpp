@@ -304,9 +304,9 @@ void Server::SendServerSnapshotsToClients()
 			playerState.posX = player->GetPos().x;
 			playerState.posY = player->GetPos().y;
 			playerState.posZ = player->GetPos().z;
-			playerState.dirX = player->m_transform.dir.x;
-			playerState.dirY = player->m_transform.dir.y;
-			playerState.dirZ = player->m_transform.dir.z;
+			playerState.dirX = player->GetDir().x;
+			playerState.dirY = player->GetDir().y;
+			playerState.dirZ = player->GetDir().z;
 			playerState.hp = player->GetLife().GetCurrentLife();
 
 			MsgSnapshot snapshotMsg;
