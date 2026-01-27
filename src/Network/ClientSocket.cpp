@@ -180,7 +180,7 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 
 	player->SetPosition(decoded.playerState.posX, decoded.playerState.posY, decoded.playerState.posZ);
 	player->SetDirection(decoded.playerState.dirX, decoded.playerState.dirY, decoded.playerState.dirZ);
-	player->GetLife() = decoded.state.hp;
+	player->GetLife() = decoded.playerState.hp;
 	
 	if (decoded.newMissile == 1)
 	{
