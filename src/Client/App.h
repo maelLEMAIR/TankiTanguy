@@ -18,6 +18,7 @@ public:
 
 	void OnStart();
 	void OnUpdate();
+	void SetUI();
 	void OnExit();
 	void OnRender(int pass);
 

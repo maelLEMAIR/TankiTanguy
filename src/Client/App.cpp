@@ -40,19 +40,13 @@ void App::OnStart()
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
-	
-	std::string pathGreen = "../../res/Gameplay/vert.png";
-	std::string pathGray = "../../res/Gameplay/gris.png";
 
 	cpuEngine.GetCamera()->transform.pos = XMFLOAT3(100.0f, 100.0f, 100.0f);
 	
-	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
-
-	UIButton* startBtn = m_pUIManager->Create<UIButton>();
+	/*UIButton* startBtn = m_pUIManager->Create<UIButton>();
 	startBtn->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), XMINT2(24, 24), pathGreen, pathGray);
-
-	/*startBtn->SetOnClickCallback([startBtn]() {
+	
+	startBtn->SetOnClickCallback([startBtn]() {
 		int i = 0;
 		startBtn->SetToBeDestroyed();
 	});*/
@@ -107,6 +101,12 @@ void App::OnUpdate()
 			m_isRequested = false;
 			m_isLogin = true;
 			m_requestProgress = 0.0f;
+			
+			m_id = m_client.GetServerInfo().playerId;
+			m_gameManager.SetMainPlayer(m_id);
+			m_pPlayer = m_gameManager.GetMainPlayer();
+			m_pPlayer->SetPseudo(m_pseudo);
+			SetUI();
 			return;
 		}
 		if ( m_requestProgress >= m_requestTime )
@@ -124,17 +124,20 @@ void App::OnUpdate()
 		return;
 
 	// 10.10.137.53
-	m_id = m_client.GetServerInfo().playerId;
-	m_gameManager.SetMainPlayer(m_id);
-	
-	m_pPlayer = m_gameManager.GetMainPlayer();
-	m_pPlayer->SetPseudo(m_pseudo);
 	
 	// Update
 	m_pUIManager->Update();
 	m_gameManager.Update();
 }
 
+void App::SetUI()
+{
+	std::string pathGreen = "../../res/Gameplay/vert.png";
+	std::string pathGray = "../../res/Gameplay/gris.png";
+	
+	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
+	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
+}
 
 void App::Log()
 {

@@ -68,9 +68,6 @@ DWORD ClientSocket::Listen(LPVOID lpParam)
 			PacketHeader header;
 			if (DeserializePacketHeader(reader, header) == false)
 				continue;
-
-			if (header.packetType == PacketType::ServerWelcome)
-				s_pClient->m_isConnected = true;
 			
 			pClient->HandleOnPacketType(reader, header);
 		}
@@ -167,7 +164,8 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 
 	MsgServerWelcome decoded;
 	bool msgOk = DeserializeServerWelcome(reader, decoded);
-
+	m_isConnected = true;
+			
 	m_serverInfo.playerId = decoded.playerId;
 	m_serverInfo.serverTickRate = decoded.serverTickRate;
 	m_serverInfo.serverTimeMs = decoded.serverTimeMs;

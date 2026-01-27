@@ -44,6 +44,7 @@ inline void UIHealthBar::Init(cpu_font& _font, XMINT2 _pos, float _size, Player&
 
 inline void UIHealthBar::Update()
 {
+
     if (m_pPlayer == nullptr)
         return;
     

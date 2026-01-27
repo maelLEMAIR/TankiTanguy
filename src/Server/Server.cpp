@@ -68,7 +68,6 @@ void Server::Exit()
 		CloseHandle(m_listenThread);
 		m_listenThread = nullptr;
 	}
-
 	if (m_pGM)
 	{
 		//m_pGM->ServerSideStop();
