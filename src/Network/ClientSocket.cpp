@@ -184,7 +184,7 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 	
 	if (decoded.newMissile == 1)
 	{
-		if (decoded.shooterID == m_serverInfo.playerId) return;
+		//if (decoded.shooterID == m_serverInfo.playerId) return;
 
 		Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
 		shooter->Shoot();
