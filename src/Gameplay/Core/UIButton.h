@@ -7,7 +7,7 @@ class UIButton : public UI
 {
 public:
     UIButton();
-    ~UIButton() override ;
+    ~UIButton() override;
     void Init(XMINT2 _pos, XMINT2 _size, XMINT3 _color);
     void Init(XMINT2 _pos, XMINT2 _size, std::string const& _path, std::string const& _hover);
     void Update() override ;

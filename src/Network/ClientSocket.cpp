@@ -150,6 +150,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::PlayerName:
 		HandlePlayersName(reader);
 		break;
+	case PacketType::PlayerColor:
+		HandlePlayerColor(reader);
+		break;
 	case PacketType::Ping:
 		HandlePing(reader);
 		break;
@@ -205,10 +208,11 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 
 void ClientSocket::HandlePlayersName(BufferReader& reader)
 {
-	MsgPlayerName decoded;
-	bool msgOk = DeserializePlayerName(reader, decoded);
+	MsgPlayerInfo decoded;
+	bool msgOk = DeserializePlayerInfo(reader, decoded);
 
 	m_gm->GetPlayers()[decoded.playerId]->SetPseudo(decoded.name);
+	m_gm->GetPlayers()[decoded.playerId]->SetColor(decoded.r, decoded.g, decoded.b);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

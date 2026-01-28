@@ -28,7 +28,7 @@ public:
     void SetPosition(float posX, float posY, float posZ);
     void SetDirection(float dirX, float dirY, float dirZ);
     void SetRotation(float yaw, float pitch, float roll);
-    void SetColor(XMINT3 _color);
+    void SetColor(int r, int g, int b);
 
     bool IsDead() { return m_life.IsDead(); }
     Life& GetLife() { return m_life; }

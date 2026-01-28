@@ -28,7 +28,10 @@ void UIManager::Update()
     {
         UI* pUi = *it;
         if (pUi->IsNeedToBeDestroyed())
+        {
             it = m_UIs.erase(it);
+            delete pUi;
+        }
         else
         {
             if (pUi->IsActive())

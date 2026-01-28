@@ -172,9 +172,9 @@ void Player::SetRotation(float yaw, float pitch, float roll)
     m_pEntity->transform.SetYPR(yaw, pitch, roll);
 }
 
-void Player::SetColor(XMINT3 _color)
+void Player::SetColor(int r, int g, int b)
 {
-    m_color = cpu::ToColor(_color.x, _color.y, _color.z);
+    m_color = cpu::ToColor(r, g, b);
     if (!m_isServer)
         m_material.color = m_color;
 }

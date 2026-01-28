@@ -331,13 +331,16 @@ void Server::SendPlayersName()
 		{
 			if (clientID == otherClientID) continue;
 
-			MsgPlayerName msg;
+			MsgPlayerInfo msg;
 			msg.playerId = otherClientID;
 			msg.name = m_vClientsInfo[otherClientID]->playerName;
+			msg.r = m_vClientsInfo[otherClientID]->playerRed;
+			msg.g = m_vClientsInfo[otherClientID]->playerGreen;
+			msg.b = m_vClientsInfo[otherClientID]->playerBlue;
 
 			BufferWriter writer;
 			SerializePacketHeader(writer, header);
-			SerializePlayerName(writer, msg);
+			SerializePlayerInfo(writer, msg);
 			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
 		}
 	}

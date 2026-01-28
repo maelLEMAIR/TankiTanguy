@@ -8,6 +8,7 @@ class GameManager;
 class UIManager;
 class UIDialogue;
 class UIText;
+class UIButton;
 
 class App
 {
@@ -66,6 +67,7 @@ private:
 	
 	// UI
 	UIManager* m_pUIManager;
+	UIButton* m_pStartBtn		= nullptr;
 	std::string m_pathGreen;
 	std::string m_pathGray;
 

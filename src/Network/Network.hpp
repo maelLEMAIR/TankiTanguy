@@ -32,7 +32,8 @@ enum PacketType : uint8_t
 	Ping = 0x07,				// Dans les 2 sens
 	Pong = 0x08,				// Dans les 2 sens
 	NewMissile = 0x09,			// Server -> Clients
-	PlayerName = 0x10			// Server -> Clients
+	PlayerName = 0x10,			// Server -> Clients
+	PlayerColor = 0x11			// Server -> Clients
 };
 
 // ============================
@@ -93,7 +94,7 @@ struct SocketAddress
 };
 
 // ============================
-//  En-tête de packet (taille fixe)
+//  En-tï¿½te de packet (taille fixe)
 // ============================
 struct PacketHeader
 {
@@ -107,8 +108,8 @@ struct PacketHeader
 
 	// --- Delivery / ordering ---
 	uint16_t sequence = 0;							// Sequence number de CE paquet (network order)
-	uint16_t ack;									// Dernier sequence reçu du pair (network order)
-	uint32_t ackBits;								// Ack des 32 paquets précédents (network order)
+	uint16_t ack;									// Dernier sequence reï¿½u du pair (network order)
+	uint32_t ackBits;								// Ack des 32 paquets prï¿½cï¿½dents (network order)
 
 	// --- Timing ---
 	uint32_t timestampMs;							// Timestamp local (network order)
@@ -397,20 +398,26 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadU16(playerNetState.hp);
 }
 
-struct MsgPlayerName
+struct MsgPlayerInfo
 {
 	uint8_t playerId;
 	std::string	name;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 };
 
-inline void SerializePlayerName(BufferWriter& writer, const MsgPlayerName& p)
+inline void SerializePlayerInfo(BufferWriter& writer, const MsgPlayerInfo& p)
 {
 	writer.WriteU8(p.playerId);
 	writer.WriteU8((uint8_t)p.name.size());
 	writer.WriteBytes(p.name.data(), p.name.size());
+	writer.WriteU8(p.r);
+	writer.WriteU8(p.g);
+	writer.WriteU8(p.b);
 }
 
-inline bool DeserializePlayerName(BufferReader& reader, MsgPlayerName& p)
+inline bool DeserializePlayerInfo(BufferReader& reader, MsgPlayerInfo& p)
 {
 	if (reader.ReadU8(p.playerId) == false)			return false;
 	uint8_t nameLen;
@@ -418,10 +425,20 @@ inline bool DeserializePlayerName(BufferReader& reader, MsgPlayerName& p)
 	if (reader.CanRead(nameLen) == false)			return false;
 
 	p.name.resize(nameLen);
-	if (nameLen == 0)
-		return true;
 
-	return reader.ReadBytes(&p.name[0], nameLen);
+	if (reader.ReadBytes(&p.name[0], nameLen) == false)
+		return false;
+
+	if (reader.ReadU8(p.r) == false)
+		return false;
+
+	if (reader.ReadU8(p.g) == false)
+		return false;
+
+	if (reader.ReadU8(p.b) == false)
+		return false;
+
+	return true;
 }
 
 

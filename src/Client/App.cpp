@@ -64,10 +64,10 @@ void App::OnStart()
 	XMFLOAT3 posCam = XMFLOAT3(100.0f, 100.0f, 100.0f);
 	cpuEngine.GetCamera()->transform.pos = posCam;
 	
-	UIButton* startBtn = m_pUIManager->Create<UIButton>();
-	startBtn->Init(XMINT2(cpuDevice.GetWidth() - 75, cpuDevice.GetHeight() - 75), XMINT2(50, 50), m_pathGreen, m_pathGray);
+	m_pStartBtn = m_pUIManager->Create<UIButton>();
+	m_pStartBtn->Init(XMINT2(cpuDevice.GetWidth() - 75, cpuDevice.GetHeight() - 75), XMINT2(50, 50), m_pathGreen, m_pathGray);
 
-	startBtn->SetOnClickCallback([this]() {
+	m_pStartBtn->SetOnClickCallback([this]() {
 		m_currentColor = (m_currentColor + 1) % m_colors.size();
 	});
 
@@ -90,7 +90,9 @@ void App::OnStart()
 }
 
 void App::SetUI()
-{	
+{
+	m_pStartBtn->SetToBeDestroyed();
+	
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
 	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, m_pathGreen, m_pathGray);
 
@@ -181,10 +183,11 @@ void App::OnConnectionSuccess()
 
 	m_pModelPlayer->SetNeedToBeDestroyed();
 	m_id = m_client.GetServerInfo().playerId;
+	XMINT3 color = m_client.GetServerInfo().
 	m_gameManager.SetMainPlayer(m_id);
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
-	m_pPlayer->SetColor(m_colors[m_currentColor]);
+	m_pPlayer->SetColor(TODO, TODO, TODO);
 	SetUI();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +201,7 @@ void App::OnUpdate()
 	
 	m_pUIManager->Update();
 	if (m_pModelPlayer != nullptr)
-		m_pModelPlayer->SetColor(m_colors[m_currentColor]);
+		m_pModelPlayer->SetColor(TODO, TODO, TODO);
 	
 	if (!m_isLogin)
 	{

@@ -10,6 +10,9 @@ struct ClientInfo
 {
 	uint8_t playerId = 0;
 	std::string playerName = "default";
+	uint8_t playerRed;
+	uint8_t playerGreen;
+	uint8_t playerBlue;
 	SocketAddress address;
 	bool isConnected = false;
 };
