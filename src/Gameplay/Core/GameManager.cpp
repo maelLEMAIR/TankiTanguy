@@ -181,6 +181,10 @@ Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
 
+    missile->SetID(m_nextMissileID);
+    m_missiles.push_back(missile);
+    m_nextMissileID++;
+
     if (m_isServer)
     {
         m_newMissileAdded = true;

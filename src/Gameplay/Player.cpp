@@ -67,7 +67,7 @@ void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _p
 
 void Player::Update()
 {
-    float dt = cpuTime.delta;
+    float dt = 0.f;
     GameObject::Update();
     
     XMFLOAT3 forward;
@@ -75,6 +75,7 @@ void Player::Update()
     
     if (m_isServer)
     {
+        dt = GameManager::Get().GetDeltaTime();
         forward = m_transform.dir;
         pos = m_transform.pos;
 
@@ -99,6 +100,7 @@ void Player::Update()
     }
     else
     {
+        dt = cpuTime.delta;
         forward = m_pEntity->transform.dir;
         pos = m_pEntity->transform.pos;
 

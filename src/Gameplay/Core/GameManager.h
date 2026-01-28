@@ -61,8 +61,10 @@ private:
     Player* m_mainPlayer = nullptr;
     std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
+    std::vector<Missile*> m_missiles;
 
     bool m_newMissileAdded = false;
+    uint8_t m_nextMissileID = 0;
     Missile* m_lastMissileAdded = nullptr;
 
     Chrono m_chrono;

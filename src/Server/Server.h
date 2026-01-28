@@ -48,6 +48,7 @@ public:
 	void SendMatchStart();
 	void SendNewMissile();
 	void SendPlayersName();
+	void SendMissilesToDestroy();
 	void SendServerSnapshotsToClients();
 
 	void SetPlayerInput(int playerIndex, uint16_t buttons);

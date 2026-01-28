@@ -32,7 +32,8 @@ enum PacketType : uint8_t
 	Ping = 0x07,				// Dans les 2 sens
 	Pong = 0x08,				// Dans les 2 sens
 	NewMissile = 0x09,			// Server -> Clients
-	PlayerName = 0x10			// Server -> Clients
+	DestroyMissile = 0x10,		// Server -> Clients
+	PlayerName = 0x11			// Server -> Clients
 };
 
 // ============================
@@ -100,15 +101,15 @@ struct PacketHeader
 	// --- ID ---
 	uint16_t protocolMagic = PROTOCOL_MAGIC;		// PROTOCOL_MAGIC (network order)
 	uint8_t  protocolVersion = PROTOCOL_VERSION;	// PROTOCOL_VERSION
-	uint8_t  packetType;							// PacketType (uint8_t)
+	uint8_t  packetType = 0;						// PacketType (uint8_t)
 
 	// --- Session routing ---
 	uint8_t  playerId = -1;							// 0=unknown, 1=player1, 2=player2
 
 	// --- Delivery / ordering ---
 	uint16_t sequence = 0;							// Sequence number de CE paquet (network order)
-	uint16_t ack;									// Dernier sequence reçu du pair (network order)
-	uint32_t ackBits;								// Ack des 32 paquets précédents (network order)
+	uint16_t ack = 0;								// Dernier sequence reçu du pair (network order)
+	uint32_t ackBits = 0;							// Ack des 32 paquets précédents (network order)
 
 	// --- Timing ---
 	uint32_t timestampMs;							// Timestamp local (network order)
@@ -373,6 +374,7 @@ struct PlayerNetState
 	float dirY = 0;
 	float dirZ = 0;
 	uint16_t hp = 0;
+	uint64_t score = 0;
 };
 
 inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& playerNetState)
@@ -384,6 +386,7 @@ inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& 
 	writer.WriteF32(playerNetState.dirY);
 	writer.WriteF32(playerNetState.dirZ);
 	writer.WriteU16(playerNetState.hp);
+	writer.WriteU64(playerNetState.score);
 }
 
 inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& playerNetState)
@@ -394,7 +397,8 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadF32(playerNetState.dirX) &&
 		reader.ReadF32(playerNetState.dirY) &&
 		reader.ReadF32(playerNetState.dirZ) &&
-		reader.ReadU16(playerNetState.hp);
+		reader.ReadU16(playerNetState.hp) &&
+		reader.ReadU64(playerNetState.score);
 }
 
 struct MsgPlayerName
@@ -472,6 +476,41 @@ inline void SerializeNewMissile(BufferWriter& writer, const MsgNewMissile& msg)
 inline bool DeserializeNewMissile(BufferReader& reader, MsgNewMissile& msg)
 {
 	return reader.ReadU8(msg.shooterID);
+}
+
+struct MsgDestroyMissile
+{
+	std::vector<uint16_t> vMissileIDs;
+};
+
+inline void SerializeDestroyMissile(BufferWriter& writer, const MsgDestroyMissile& msg)
+{
+	uint16_t count = static_cast<uint16_t>(msg.vMissileIDs.size());
+	writer.WriteU16(count);
+
+	for (const auto& id : msg.vMissileIDs)
+	{
+		writer.WriteU16(id);
+	}
+}
+
+inline bool DeserializeDestroyMissile(BufferReader& reader, MsgDestroyMissile& msg)
+{
+	uint16_t count;
+	if (reader.ReadU16(count) == false)		return false;
+	
+	msg.vMissileIDs.clear();
+	msg.vMissileIDs.reserve(count);
+
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		uint16_t id;
+		if (reader.ReadU16(id) == false)	return false;
+			
+		msg.vMissileIDs.push_back(id);
+	}
+
+	return true;
 }
 
 #endif 

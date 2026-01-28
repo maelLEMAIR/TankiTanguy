@@ -7,6 +7,7 @@ Server::Server()
 {
 	s_pInstance = this;
 	m_socket = NULL;
+	std::memset(&m_lastClientAddr, 0, sizeof(m_lastClientAddr)); // Initialisation explicite
 }
 
 Server::~Server()
@@ -341,6 +342,14 @@ void Server::SendPlayersName()
 			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
 		}
 	}
+}
+
+void Server::SendMissilesToDestroy()
+{
+	PacketHeader header;
+	header.packetType = PacketType::DestroyMissile;
+
+
 }
 
 void Server::SendServerSnapshotsToClients()
