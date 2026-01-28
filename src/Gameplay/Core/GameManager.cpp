@@ -88,8 +88,6 @@ void GameManager::ServerSideUpdate()
     {
         plCrt->ApplyInput();
     }
-
-    m_players[1]->Shoot();
     
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
