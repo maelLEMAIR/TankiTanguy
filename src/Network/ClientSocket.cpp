@@ -144,6 +144,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 			break;
 		HandleServerSnapshot(reader);
 		break;
+	case PacketType::NewMissile:
+		HandleNewMissile(reader);
+		break;
 	case PacketType::Ping:
 		HandlePing(reader);
 		break;
@@ -192,8 +195,6 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 {
 	MsgNewMissile decoded;
 	bool msgOk = DeserializeNewMissile(reader, decoded);
-
-	if (decoded.shooterID == m_serverInfo.playerId) return;
 
 	Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
 	shooter->Shoot();
