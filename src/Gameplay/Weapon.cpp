@@ -21,6 +21,6 @@ void Weapon::Update()
     if (m_isServer)
         dt = GameManager::Get().GetDeltaTime();
     else
-        float dt = cpuTime.delta;
+        dt = cpuTime.delta;
     m_fireDuration += dt;
 }
