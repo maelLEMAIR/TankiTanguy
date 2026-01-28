@@ -74,6 +74,7 @@ struct cpu_aabb;
 struct cpu_obb;
 struct cpu_triangle;
 struct cpu_ray;
+class cpu_window;
 
 // Types
 using i16								= __int16;
@@ -107,17 +108,23 @@ using ui64								= unsigned __int64;
 #define CPU_B(rgba)						(((rgba)>>16)&0xFF)
 #define CPU_A(rgba)						(((rgba)>>24)&0xFF)
 
+// Constants
+#define CPU_ZERO						1e-20f
+#define CPU_EPSILON						1e-8f
+
 // Float3
-inline XMFLOAT3 CPU_RIGHT				= { 1.0f, 0.0f, 0.0f };
-inline XMFLOAT3 CPU_UP					= { 0.0f, 1.0f, 0.0f };
-inline XMFLOAT3 CPU_DIR					= { 0.0f, 0.0f, 1.0f };
-inline XMFLOAT3 CPU_ZERO				= { 0.0f, 0.0f, 0.0f };
-inline XMFLOAT3 CPU_ONE					= { 1.0f, 1.0f, 1.0f };
+inline XMFLOAT3 CPU_VEC3_RIGHT			= { 1.0f, 0.0f, 0.0f };
+inline XMFLOAT3 CPU_VEC3_UP				= { 0.0f, 1.0f, 0.0f };
+inline XMFLOAT3 CPU_VEC3_DIR			= { 0.0f, 0.0f, 1.0f };
+inline XMFLOAT3 CPU_VEC3_ZERO			= { 0.0f, 0.0f, 0.0f };
+inline XMFLOAT3 CPU_VEC3_ONE			= { 1.0f, 1.0f, 1.0f };
 inline XMFLOAT3 CPU_WHITE				= { 1.0f, 1.0f, 1.0f };
 inline XMFLOAT3 CPU_BLACK				= { 0.0f, 0.0f, 0.0f };
 inline XMFLOAT3 CPU_RED					= { 1.0f, 0.0f, 0.0f };
 inline XMFLOAT3 CPU_BLUE				= { 0.0f, 0.0f, 1.0f };
+inline XMFLOAT3 CPU_GRAY				= { 0.5f, 0.5f, 0.5f };
 inline XMFLOAT3 CPU_GREEN				= { 0.0f, 1.0f, 0.0f };
+inline XMFLOAT3 CPU_MAGENTA				= { 1.0f, 0.0f, 1.0f };
 inline XMFLOAT3 CPU_ORANGE				= { 1.0f, 0.5f, 0.0f };
 
 // Core
@@ -138,5 +145,6 @@ inline XMFLOAT3 CPU_ORANGE				= { 1.0f, 0.5f, 0.0f };
 #include "cpu_obb.h"
 #include "cpu_sphere.h"
 #include "cpu_ray.h"
+#include "cpu_transform.h"
 #include "cpu_mesh.h"
 #include "cpu_window.h"

@@ -34,6 +34,8 @@ void App::OnStart()
 	
 	m_gameManager.Start();
 	cpuEngine.GetParticleData()->Create(1000000);
+	cpuEngine.m_skyColor = cpu::ToColor(0, 167, 230);
+	cpuEngine.m_groundColor = cpu::ToColor(9, 176, 35);
 
 	// UI
 	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
@@ -58,7 +60,7 @@ void App::OnStart()
 	});*/
 	
 	m_pFloorMesh.CreateCube();
-	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
+	m_pFloorMaterial.color = cpu::ToColor(9, 176, 35);
 	for (int i = -(m_width / 2); i < m_width; i++)
 	{
 		for (int j = -(m_height / 2); j < m_height; j++)
