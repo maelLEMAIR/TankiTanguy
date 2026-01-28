@@ -43,8 +43,10 @@ void Server::Start()
 void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
-	Sleep(16);
+	if (m_pGM->GetNewMissileAdded())
+		SendNewMissile();
 	SendServerSnapshotsToClients();	
+	Sleep(16);
 }
 
 void Server::Exit()
@@ -239,7 +241,7 @@ void Server::HandleClientHello(BufferReader& reader)
 		std::cout << "Player try to join..." << decoded.playerName << "\n";
 	}
 
-	if (m_vClientsInfo[0]->isConnected && m_vClientsInfo[1]->isConnected)
+	if (m_vClientsInfo[0]->isConnected /*&& m_vClientsInfo[1]->isConnected*/)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		SendMatchStart();
@@ -299,10 +301,29 @@ void Server::SendMatchStart()
 	}
 }
 
+void Server::SendNewMissile()
+{
+	PacketHeader header;
+	header.packetType = PacketType::NewMissile;
+
+	MsgNewMissile msg;
+	msg.shooterID = m_pGM->GetLastMissileAdded()->GetShooterId();
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	SerializeNewMissile(writer, msg);
+
+	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
+		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
+	}
+	m_pGM->SetNewMissileAdded(false);
+}
+
 void Server::SendServerSnapshotsToClients()
 {
 	PacketHeader header;
 	header.packetType = PacketType::ServerSnapshot;
+	header.sequence = m_snapshotCount;
 
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
@@ -327,11 +348,6 @@ void Server::SendServerSnapshotsToClients()
 			MsgSnapshot snapshotMsg;
 			snapshotMsg.playerId = playerID;
 			snapshotMsg.playerState = playerState;
-			if (m_pGM->GetNewMissileAdded())
-			{
-				snapshotMsg.newMissile = 1;
-				snapshotMsg.shooterID = m_pGM->GetLastMissileAdded()->GetShooterId();
-			}
 
 			BufferWriter writer;
 			SerializePacketHeader(writer, header);
@@ -339,7 +355,7 @@ void Server::SendServerSnapshotsToClients()
 			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
 		}
 	}
-	m_pGM->SetNewMissileAdded(false);
+	m_snapshotCount++;
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)

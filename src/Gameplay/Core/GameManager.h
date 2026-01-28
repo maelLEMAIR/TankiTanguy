@@ -34,7 +34,6 @@ public:
     Player* GetMainPlayer() const { return m_mainPlayer; }
     std::vector<Player*> GetPlayers() { return m_players; }
     std::vector<PlayerController*> GetPlayerControllers() { return m_playerControllers; }
-    std::vector<Missile*> GetMissiles() { return m_missiles; }
     bool GetNewMissileAdded() { return m_newMissileAdded; }
     Missile* GetLastMissileAdded() { return m_lastMissileAdded; }
 
@@ -62,7 +61,6 @@ private:
     Player* m_mainPlayer = nullptr;
     std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
-    std::vector<Missile*> m_missiles;
 
     bool m_newMissileAdded = false;
     Missile* m_lastMissileAdded = nullptr;

@@ -38,6 +38,7 @@ public:
 	void HandleServerWelcome(BufferReader& reader);
 	void HandleMatchStart(BufferReader& reader);
 	void HandleServerSnapshot(BufferReader& reader);
+	void HandleNewMissile(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);
@@ -56,6 +57,8 @@ private:
 	SOCKET m_socket;
 	ServerInfo m_serverInfo;
 	sockaddr_in m_serverAddr;
+
+	uint8_t m_lastSnapshotCount = 0;
 
 	HANDLE m_listenThread = nullptr;
 };

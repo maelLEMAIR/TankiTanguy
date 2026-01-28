@@ -180,7 +180,6 @@ void GameManager::SetMainPlayer(int _id)
 Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
-    m_missiles.push_back(missile);
 
     if (m_isServer)
     {
