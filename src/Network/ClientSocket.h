@@ -39,6 +39,7 @@ public:
 	void HandleMatchStart(BufferReader& reader);
 	void HandleServerSnapshot(BufferReader& reader);
 	void HandleNewMissile(BufferReader& reader);
+	void HandlePlayersName(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);

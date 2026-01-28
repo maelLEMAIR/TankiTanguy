@@ -147,6 +147,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::NewMissile:
 		HandleNewMissile(reader);
 		break;
+	case PacketType::PlayerName:
+		HandlePlayersName(reader);
+		break;
 	case PacketType::Ping:
 		HandlePing(reader);
 		break;
@@ -198,6 +201,14 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 
 	Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
 	shooter->Shoot();
+}
+
+void ClientSocket::HandlePlayersName(BufferReader& reader)
+{
+	MsgPlayerName decoded;
+	bool msgOk = DeserializePlayerName(reader, decoded);
+
+	m_gm->GetPlayers()[decoded.playerId]->SetPseudo(decoded.name);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

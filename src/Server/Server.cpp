@@ -245,6 +245,7 @@ void Server::HandleClientHello(BufferReader& reader)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		SendMatchStart();
+		SendPlayersName();
 		m_waitingPlayers = false;
 	}
 
@@ -317,6 +318,29 @@ void Server::SendNewMissile()
 		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
 	}
 	m_pGM->SetNewMissileAdded(false);
+}
+
+void Server::SendPlayersName()
+{
+	PacketHeader header;
+	header.packetType = PacketType::PlayerName;
+	
+	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
+		for (int otherClientID = 0; otherClientID < m_vClientsInfo.size(); otherClientID++)
+		{
+			if (clientID == otherClientID) continue;
+
+			MsgPlayerName msg;
+			msg.playerId = otherClientID;
+			msg.name = m_vClientsInfo[otherClientID]->playerName;
+
+			BufferWriter writer;
+			SerializePacketHeader(writer, header);
+			SerializePlayerName(writer, msg);
+			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
+		}
+	}
 }
 
 void Server::SendServerSnapshotsToClients()

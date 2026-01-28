@@ -31,7 +31,8 @@ enum PacketType : uint8_t
 	ServerSnapshot = 0x06,		// Server -> Client
 	Ping = 0x07,				// Dans les 2 sens
 	Pong = 0x08,				// Dans les 2 sens
-	NewMissile = 0x09			// Server -> Clients
+	NewMissile = 0x09,			// Server -> Clients
+	PlayerName = 0x10			// Server -> Clients
 };
 
 // ============================
@@ -396,27 +397,33 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadU16(playerNetState.hp);
 }
 
-//struct MissileNetState
-//{
-//	uint32_t id = 0;
-//	uint8_t ownerId = 0;
-//	float posX = 0, posY = 0, posZ = 0;
-//	float velX = 0, velY = 0, velZ = 0;
-//};
-//
-//inline void SerializeMissileNetState(BufferWriter& writer, const MissileNetState& missile)
-//{
-//	writer.WriteU32(missile.id);
-//	writer.WriteF32(missile.posX); writer.WriteF32(missile.posY); writer.WriteF32(missile.posZ);
-//	writer.WriteF32(missile.velX); writer.WriteF32(missile.velY); writer.WriteF32(missile.velZ);
-//}
-//
-//inline bool DeserializeMissileNetState(BufferReader& reader, MissileNetState& missile)
-//{
-//	return reader.ReadU32(missile.id) &&
-//		reader.ReadF32(missile.posX) && reader.ReadF32(missile.posY) && reader.ReadF32(missile.posZ) &&
-//		reader.ReadF32(missile.velX) && reader.ReadF32(missile.velY) && reader.ReadF32(missile.velZ);
-//}
+struct MsgPlayerName
+{
+	uint8_t playerId;
+	std::string	name;
+};
+
+inline void SerializePlayerName(BufferWriter& writer, const MsgPlayerName& p)
+{
+	writer.WriteU8(p.playerId);
+	writer.WriteU8((uint8_t)p.name.size());
+	writer.WriteBytes(p.name.data(), p.name.size());
+}
+
+inline bool DeserializePlayerName(BufferReader& reader, MsgPlayerName& p)
+{
+	if (reader.ReadU8(p.playerId) == false)			return false;
+	uint8_t nameLen;
+	if (reader.ReadU8(nameLen) == false)			return false;
+	if (reader.CanRead(nameLen) == false)			return false;
+
+	p.name.resize(nameLen);
+	if (nameLen == 0)
+		return true;
+
+	return reader.ReadBytes(&p.name[0], nameLen);
+}
+
 
 struct MsgSnapshot
 {
