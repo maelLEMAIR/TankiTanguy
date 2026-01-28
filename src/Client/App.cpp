@@ -41,7 +41,12 @@ void App::OnStart()
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
-
+	
+	m_pErrorText = m_pUIManager->Create<UIText>();
+	m_pErrorText->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2 + 50), CPU_TEXT_LEFT, "");
+	m_pErrorText->Create(10, CPU_RED);
+	m_pErrorText->SetActive(false);
+	
 	cpuEngine.GetCamera()->transform.pos = XMFLOAT3(100.0f, 100.0f, 100.0f);
 	
 	/*UIButton* startBtn = m_pUIManager->Create<UIButton>();
@@ -129,7 +134,7 @@ void App::OnUpdate()
 	// 10.10.137.11 Vivien
 	
 	// Update
-	m_uiScore->SetText(m_pPlayer->GetScore());
+	m_pUiScore->SetText(m_pPlayer->GetScore());
 	m_pUIManager->Update();
 	m_gameManager.Update();
 }
@@ -142,8 +147,13 @@ void App::SetUI()
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
 	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
 
-	m_uiScore = m_pUIManager->Create<UIText>();
-	m_uiScore->Init(m_font, XMINT2(cpuDevice.GetWidth() - 10, 5), CPU_TEXT_RIGHT, m_pPlayer->GetScore());
+	m_pUiScore = m_pUIManager->Create<UIText>();
+	m_pUiScore->Init(XMINT2(cpuDevice.GetWidth() - 10, 5), CPU_TEXT_RIGHT, m_pPlayer->GetScore());
+	m_pUiScore->SetFont(m_font);
+	
+	m_pRespawnText = m_pUIManager->Create<UIText>();
+	m_pRespawnText->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), CPU_TEXT_CENTER, "");
+	m_pRespawnText->Create(12, CPU_GREEN);
 }
 
 void App::Log()
@@ -158,18 +168,19 @@ void App::Log()
 			{
 				m_isRequested = false;
 				m_dialogueLog->Reset();
-				m_pseudo = "Error Port";
+				m_pErrorText->SetText("Error Port");
 				return;
 			}
 			
 			if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
 			{
 				m_isRequested = true;
+				m_pPseudo->SetText(m_pseudo);
 				return;
 			}
 			m_isRequested = false;
 			m_dialogueLog->Reset();
-			m_pseudo = "Wrong Addresse or Port";
+			m_pErrorText->SetText("Wrong Addresse or Port");
 		}
 	}
 }
@@ -193,123 +204,39 @@ void App::OnRender(int pass)
 	// YOUR CODE HERE
 	m_pUIManager->Render();
 	
-	switch ( pass )
+	std::string info;
+	XMFLOAT2 screenPos;
+	std::vector<Player*> players = m_gameManager.GetPlayers();
+		
+	if (m_isLogin == false)
+		m_dialogueLog->Render();
+		
+	for (Player* player: players)
 	{
-		case CPU_PASS_PARTICLE_BEGIN:
-		{
-			// Blur particles
-			//cpuEngine.SetRT(m_rts[0]);
-			//cpuEngine.ClearColor();
-			break;
-		}
-		case CPU_PASS_PARTICLE_END:
-		{
-			// Blur particles
-			//cpuEngine.Blur(10);
-			//cpuEngine.SetMainRT();
-			//cpuEngine.AlphaBlend(m_rts[0]);
-			break;
-		}
-		case CPU_PASS_UI_END:
-		{
-			std::string info;
-			XMFLOAT2 screenPos;
-			std::vector<Player*> players = m_gameManager.GetPlayers();
-				
-			if (m_isLogin == false)
-				m_dialogueLog->Render();
-				
-			for (Player* player: players)
-			{
-				if (player == m_pPlayer)
-					continue;
-				
-				if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
-					cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
-			}
-				
-			cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
-			cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
+		if (player == m_pPlayer)
+			continue;
 
-			if (m_pseudo != "")
-				cpuDevice.DrawText(&m_font, m_pseudo.c_str(), 0, 0, CPU_TEXT_LEFT);
-				
-			break;
-		}
-		default:
-		{
-			break;
-		}
+		if (player->IsDead())
+			continue;
+		
+		if (m_gameManager.WorldToScreen(player->GetPos(), screenPos, cpuEngine.GetCamera()->matViewProj, cpuDevice.GetWidth(), cpuDevice.GetHeight()))
+			cpuDevice.DrawText(&m_font, player->GetPseudo().c_str(), screenPos.x, screenPos.y - 25.0f, CPU_TEXT_CENTER );
 	}
-}
 
-
-
-// =======STATE-MACHINE======= //
-/*
-void StateShipGlobal::OnEnter(Ship& cur, int from)
-{
-}
-
-void StateShipGlobal::OnExecute(Ship& cur)
-{
-	cur.Update();
-}
-
-void StateShipGlobal::OnExit(Ship& cur, int to)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void StateShipIdle::OnEnter(Ship& cur, int from)
-{
-}
-
-void StateShipIdle::OnExecute(Ship& cur)
-{
-	// Blink every 3 seconds
-	if ( cur.GetFSM()->totalTime>3.0f )
+	if (m_pPlayer->IsDead())
 	{
-		cur.GetFSM()->ToState(CPU_ID(StateShipBlink));
-		return;
-	}
-}
-
-void StateShipIdle::OnExit(Ship& cur, int to)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void StateShipBlink::OnEnter(Ship& cur, int from)
-{
-}
-
-void StateShipBlink::OnExecute(Ship& cur)
-{
-	float v = fmod(cur.GetFSM()->totalTime, 0.2f);
-	if ( v<0.1f )
-	{
-		cur.GetEntity()->visible = true;
+		m_pRespawnText->SetActive(true);
+		m_respawnTime -= cpuTime.delta;
+		std::string respawn = "Respawn in..." + std::to_string(static_cast<int>(m_respawnTime));
+		m_pRespawnText->SetText(respawn);
 	}
 	else
-	{
-		cur.GetEntity()->visible = false;
-	}
+		m_respawnTime = 3.0f;
+	
+	cpuDevice.DrawText(&m_font, "TANKYTANGUY", static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 10, CPU_TEXT_CENTER);
+	cpuDevice.DrawText(&m_font, info.c_str(), static_cast<int>((cpuDevice.GetWidth() * 0.5f)), 30, CPU_TEXT_CENTER);
 
-	if ( cur.GetFSM()->totalTime>1.0f )
-	{
-		cur.GetFSM()->ToState(CPU_ID(StateShipIdle));
-		return;
-	}
-}
+	if (m_pseudo != "")
+		m_pPseudo->SetActive(true);
 
-void StateShipBlink::OnExit(Ship& cur, int to)
-{
 }
-*/
