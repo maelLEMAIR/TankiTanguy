@@ -339,4 +339,5 @@ void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const M
 	pInfo->playerName = msg.playerName;
 	pInfo->address = addr;
 	pInfo->isConnected = true;
+	m_pGM->GetPlayers()[pInfo->playerId]->SetPseudo(msg.playerName);
 }
