@@ -55,7 +55,7 @@ void Missile::Init(cpu_transform& _transform, Player& _player)
     }
     
     m_pOwner = this;
-    m_center = m_transform.pos;
+    m_center = _transform.pos;
     m_radius = 0.4f;
 }
 
@@ -110,4 +110,9 @@ void Missile::Dead(float _dt)
        m_pEmitter->dead = true;
    }
     m_needToBeDestroyed = true;
+}
+
+int Missile::GetShooterId()
+{ 
+    return m_pOwnerPlayer->GetID();
 }

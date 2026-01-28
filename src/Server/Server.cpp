@@ -6,6 +6,7 @@
 Server::Server()
 {
 	s_pInstance = this;
+	m_socket = NULL;
 }
 
 Server::~Server()
@@ -291,6 +292,7 @@ void Server::SendServerSnapshotsToClients()
 
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
+		if (m_vClientsInfo[clientID]->isConnected == false) continue;
 		//Pour chaque client envoie des infos des autres players
 		for (int playerID = 0; playerID < m_pGM->GetPlayers().size(); playerID++)
 		{
@@ -299,7 +301,6 @@ void Server::SendServerSnapshotsToClients()
 			if (player->IsDead())
 				player->Dead(m_pGM->GetDeltaTime());
 			
-			//TODO
 			PlayerNetState playerState;
 			playerState.posX = player->GetPos().x;
 			playerState.posY = player->GetPos().y;
@@ -311,7 +312,14 @@ void Server::SendServerSnapshotsToClients()
 
 			MsgSnapshot snapshotMsg;
 			snapshotMsg.playerId = playerID;
-			snapshotMsg.state = playerState;
+			snapshotMsg.playerState = playerState;
+			if (m_pGM->GetNewMissileAdded())
+			{
+				snapshotMsg.newMissile = 1;
+				snapshotMsg.shooterID = m_pGM->GetLastMissileAdded()->GetShooterId();
+
+				m_pGM->SetNewMissileAdded(false);
+			}
 
 			BufferWriter writer;
 			SerializePacketHeader(writer, header);

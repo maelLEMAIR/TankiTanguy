@@ -15,6 +15,7 @@ public:
     void Update() override;
     void OnCollisionEnter(Collider* pOther) override;
     void Dead(float _dt = 0.0f);
+    int GetShooterId();
     
 protected:
     

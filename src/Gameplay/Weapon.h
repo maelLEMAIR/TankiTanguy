@@ -17,7 +17,6 @@ protected:
     
 private:
     cpu_transform* m_pWeaponTransform;
-    std::vector<Missile*> m_pMissiles;
     Player* m_pOwner;
     bool m_isServer;
     float m_fireDuration = 1.5f;

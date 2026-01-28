@@ -379,13 +379,13 @@ inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
 
 struct PlayerNetState
 {
-	float posX;
-	float posY;
-	float posZ;
-	float dirX;
-	float dirY;
-	float dirZ;
-	uint16_t hp;
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+	float dirX = 0;
+	float dirY = 0;
+	float dirZ = 0;
+	uint16_t hp = 0;
 };
 
 inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& playerNetState)
@@ -410,22 +410,50 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadU16(playerNetState.hp);
 }
 
+//struct MissileNetState
+//{
+//	uint32_t id = 0;
+//	uint8_t ownerId = 0;
+//	float posX = 0, posY = 0, posZ = 0;
+//	float velX = 0, velY = 0, velZ = 0;
+//};
+//
+//inline void SerializeMissileNetState(BufferWriter& writer, const MissileNetState& missile)
+//{
+//	writer.WriteU32(missile.id);
+//	writer.WriteF32(missile.posX); writer.WriteF32(missile.posY); writer.WriteF32(missile.posZ);
+//	writer.WriteF32(missile.velX); writer.WriteF32(missile.velY); writer.WriteF32(missile.velZ);
+//}
+//
+//inline bool DeserializeMissileNetState(BufferReader& reader, MissileNetState& missile)
+//{
+//	return reader.ReadU32(missile.id) &&
+//		reader.ReadF32(missile.posX) && reader.ReadF32(missile.posY) && reader.ReadF32(missile.posZ) &&
+//		reader.ReadF32(missile.velX) && reader.ReadF32(missile.velY) && reader.ReadF32(missile.velZ);
+//}
+
 struct MsgSnapshot
 {
-	uint8_t playerId;
-	PlayerNetState state;
+	uint8_t playerId = 0;
+	PlayerNetState playerState;
+	uint8_t newMissile = 0;
+	uint8_t shooterID = 0;
 };
 
 inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg)
 {
 	writer.WriteU8(msg.playerId);
-	SerializePlayerNetState(writer, msg.state);
+	SerializePlayerNetState(writer, msg.playerState);
+	writer.WriteU8(msg.newMissile);
+	writer.WriteU8(msg.shooterID);
 }
 
 inline bool DeserializeServerSnapshot(BufferReader& reader, MsgSnapshot& msg)
 {
 	return reader.ReadU8(msg.playerId) &&
-		DeserializePlayerNetState(reader, msg.state);
+	DeserializePlayerNetState(reader, msg.playerState) &&
+	reader.ReadU8(msg.newMissile) &&
+	reader.ReadU8(msg.shooterID);
 }
 
 struct MsgPing

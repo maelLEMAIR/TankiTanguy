@@ -15,10 +15,11 @@ Player::~Player()
     }
 }
 
-void Player::Init(XMFLOAT3 _pos, float _angle, std::string const& _pseudo, XMINT3 _color)
+void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _pseudo, XMINT3 _color)
 {
     m_tag = "Player";
     m_pseudo = _pseudo;
+    m_id = id;
 
     m_angle = _angle;
     m_speed = 2.5f;
@@ -76,16 +77,24 @@ void Player::Update()
     {
         forward = m_transform.dir;
         pos = m_transform.pos;
-        
-        m_transformCanon.pos.x += forward.x * 1.5f;
-        m_transformCanon.pos.y = pos.y;
-        m_transformCanon.pos.z += forward.z * 1.5f;
 
         m_transform.LookAt(
             m_transform.pos.x + forward.x,
             m_transform.pos.y,
             m_transform.pos.z + forward.z
         );
+        
+        m_transformCanon.pos = pos;
+        m_transformCanon.pos.x += forward.x * 1.5f;
+        m_transformCanon.pos.y += 0.5f;
+        m_transformCanon.pos.z += forward.z * 1.5f;
+
+        m_transformCanon.LookAt(
+            m_transformCanon.pos.x + forward.x,
+            m_transformCanon.pos.y,
+            m_transformCanon.pos.z + forward.z
+        );
+        
         m_center = m_transform.pos;
     }
     else

@@ -50,12 +50,6 @@ void GameManager::Update()
 {
     float dt = cpuTime.delta;
     CollisionCheck();
-
-    for (Player* player : m_players)
-    {
-        player->Update();
-    }
-
     m_pPlCrt->HandleInput();
     m_pPlCrt->SendInputList();
 
@@ -89,6 +83,7 @@ void GameManager::ServerSideUpdate()
 {
     dt = m_chrono.Reset();
     CollisionCheck();
+
     for (PlayerController* plCrt : m_playerControllers)
     {
         plCrt->ApplyInput();
@@ -159,7 +154,7 @@ void GameManager::CollisionCheck()
 void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
 {
     Player* player = CreateObject<Player>(_isServer);
-    player->Init(_pos, _angle, _pseudo, _color);
+    player->Init(_pos, m_players.size(), _angle, _pseudo, _color);
     if (m_isServer)
     {
         PlayerController* plCrt = new PlayerController();
@@ -183,6 +178,13 @@ Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
     m_missiles.push_back(missile);
+
+    if (m_isServer)
+    {
+        m_newMissileAdded = true;
+        m_lastMissileAdded = missile;
+    }
+
     return missile;
 }
 

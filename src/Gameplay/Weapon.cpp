@@ -1,8 +1,7 @@
 ﻿#include "Weapon.h"
 #include "Core/GameManager.h"
 
-Weapon::~Weapon() { m_pMissiles.clear(); } 
-
+Weapon::~Weapon() {} 
 
 void Weapon::Shoot()
 {
@@ -11,26 +10,17 @@ void Weapon::Shoot()
         GameManager& s_pI = GameManager::Get();
         Missile* missile = s_pI.AddMissile();
         missile->Init(*m_pWeaponTransform, *m_pOwner);
-        m_pMissiles.push_back(missile);
+
         m_fireDuration = 0.0f;
     }
 }
 
 void Weapon::Update()
 {
-    float dt = cpuTime.delta;
+    float dt = 0.f;
+    if (m_isServer)
+        dt = GameManager::Get().GetDeltaTime();
+    else
+        dt = cpuTime.delta;
     m_fireDuration += dt;
-
-    // Update Missile
-    for (auto it = m_pMissiles.begin(); it != m_pMissiles.end(); )
-    {
-        Missile* pMissile = *it;
-        if (pMissile->IsNeedToBeDestroyed())
-            it = m_pMissiles.erase(it);
-        else
-        {
-            pMissile->Update();
-            ++it;
-        }
-    }
 }
