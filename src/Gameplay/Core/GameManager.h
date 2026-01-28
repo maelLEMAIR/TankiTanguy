@@ -39,6 +39,7 @@ public:
     Missile* GetLastMissileAdded() { return m_lastMissileAdded; }
 
     void SetNewMissileAdded(bool v) { m_newMissileAdded = v; }
+    void SetMatchStart(bool v) { m_matchStarted = v; }
 
     float GetDeltaTime() { return dt; };
 
@@ -52,6 +53,7 @@ private:
     float dt = 0.f;
 
     bool m_isServer = false;
+    bool m_matchStarted = false;
     
     std::vector<GameObject*> m_gameObjects;
     Map* m_pMap = nullptr;

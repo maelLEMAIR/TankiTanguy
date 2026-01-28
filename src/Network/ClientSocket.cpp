@@ -140,6 +140,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::ServerWelcome:
 		HandleServerWelcome(reader);
 		break;
+	case PacketType::MatchStart:
+		HandleMatchStart(reader);
+		break;
 	case PacketType::ServerSnapshot:
 		HandleServerSnapshot(reader);
 		break;
@@ -169,6 +172,11 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 	m_serverInfo.playerId = decoded.playerId;
 	m_serverInfo.serverTickRate = decoded.serverTickRate;
 	m_serverInfo.serverTimeMs = decoded.serverTimeMs;
+}
+
+void ClientSocket::HandleMatchStart(BufferReader& reader)
+{
+	m_gm->SetMatchStart(true);
 }
 
 void ClientSocket::HandleServerSnapshot(BufferReader& reader)

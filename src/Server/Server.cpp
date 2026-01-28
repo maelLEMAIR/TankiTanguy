@@ -43,7 +43,7 @@ void Server::Start()
 void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
-	Sleep(16); // ~60 FPS
+	Sleep(16);
 	SendServerSnapshotsToClients();	
 }
 
@@ -242,6 +242,7 @@ void Server::HandleClientHello(BufferReader& reader)
 	if (m_vClientsInfo[0]->isConnected && m_vClientsInfo[1]->isConnected)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
+		SendMatchStart();
 		m_waitingPlayers = false;
 	}
 
@@ -283,6 +284,19 @@ void Server::HandlePong(BufferReader& reader, PacketHeader& header)
 
 void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
+}
+
+void Server::SendMatchStart()
+{
+	PacketHeader header;
+	header.packetType = PacketType::MatchStart;
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	
+	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
+		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
+	}
 }
 
 void Server::SendServerSnapshotsToClients()

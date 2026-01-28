@@ -305,21 +305,6 @@ inline bool DeserializeServerWelcome(BufferReader& reader, MsgServerWelcome& mes
 		reader.ReadU32(message.serverTimeMs);
 }
 
-struct MsgMatchStart
-{
-	uint32_t matchDurationMs;
-};
-
-inline void SerializeMatchStart(BufferWriter& writer, const MsgMatchStart& msg)
-{
-	writer.WriteU32(msg.matchDurationMs);
-}
-
-inline bool DeserializeMatchStart(BufferReader& reader, MsgMatchStart& msg)
-{
-	return reader.ReadU32(msg.matchDurationMs);
-}
-
 struct MsgDisconnect
 {
 	uint8_t reasonCode;

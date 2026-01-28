@@ -45,6 +45,7 @@ public:
 	void HandlePong(BufferReader& reader, PacketHeader& header);
 	void HandleDisconnect(BufferReader& reader, PacketHeader& header);
 
+	void SendMatchStart();
 	void SendServerSnapshotsToClients();
 
 	void SetPlayerInput(int playerIndex, uint16_t buttons);

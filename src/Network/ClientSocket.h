@@ -36,6 +36,7 @@ public:
 
 	//Logique de traitement des messages
 	void HandleServerWelcome(BufferReader& reader);
+	void HandleMatchStart(BufferReader& reader);
 	void HandleServerSnapshot(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);

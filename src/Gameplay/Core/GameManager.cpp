@@ -48,10 +48,13 @@ void GameManager::Start()
 
 void GameManager::Update()
 {
-    float dt = cpuTime.delta;
-    CollisionCheck();
-    m_pPlCrt->HandleInput();
-    m_pPlCrt->SendInputList();
+    if (m_matchStarted)
+    {
+        float dt = cpuTime.delta;
+        CollisionCheck();
+        m_pPlCrt->HandleInput();
+        m_pPlCrt->SendInputList();
+    }
 
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
