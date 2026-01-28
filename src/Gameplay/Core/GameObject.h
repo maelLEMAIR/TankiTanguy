@@ -18,6 +18,7 @@ public:
     XMFLOAT3& GetPos();
     bool IsServer() { return m_isServer; }
     bool IsNeedToBeDestroyed() { return m_needToBeDestroyed; }
+    void SetNeedToBeDestroyed() { m_needToBeDestroyed = true; }
     
     cpu_transform m_transform;
     cpu_entity* m_pEntity = nullptr;
@@ -25,6 +26,7 @@ public:
 protected:
     cpu_mesh m_mesh;
     cpu_material m_material;
+    XMFLOAT3 m_color;
     
     bool m_isServer = false;
     bool m_needToBeDestroyed = false;

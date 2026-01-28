@@ -26,7 +26,7 @@ public:
     bool WorldToScreen(XMFLOAT3 const& world, XMFLOAT2& screen, XMFLOAT4X4 const& viewProj, int screenWidth, int screenHeight);
     
     void CollisionCheck();
-    void AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer = false);
+    Player* AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer = false);
     void SetMainPlayer(int _id);
     Missile* AddMissile();
     void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.0f);
