@@ -317,8 +317,6 @@ void Server::SendServerSnapshotsToClients()
 			{
 				snapshotMsg.newMissile = 1;
 				snapshotMsg.shooterID = m_pGM->GetLastMissileAdded()->GetShooterId();
-
-				m_pGM->SetNewMissileAdded(false);
 			}
 
 			BufferWriter writer;
@@ -327,6 +325,7 @@ void Server::SendServerSnapshotsToClients()
 			SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
 		}
 	}
+	m_pGM->SetNewMissileAdded(false);
 }
 
 void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
