@@ -48,10 +48,13 @@ void GameManager::Start()
 
 void GameManager::Update()
 {
-    float dt = cpuTime.delta;
-    CollisionCheck();
-    m_pPlCrt->HandleInput();
-    m_pPlCrt->SendInputList();
+    if (m_matchStarted)
+    {
+        float dt = cpuTime.delta;
+        CollisionCheck();
+        m_pPlCrt->HandleInput();
+        m_pPlCrt->SendInputList();
+    }
 
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
@@ -178,7 +181,6 @@ void GameManager::SetMainPlayer(int _id)
 Missile* GameManager::AddMissile()
 {
     Missile* missile = CreateObject<Missile>(m_isServer);
-    m_missiles.push_back(missile);
 
     if (m_isServer)
     {

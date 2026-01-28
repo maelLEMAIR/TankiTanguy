@@ -45,6 +45,9 @@ public:
 	void HandlePong(BufferReader& reader, PacketHeader& header);
 	void HandleDisconnect(BufferReader& reader, PacketHeader& header);
 
+	void SendMatchStart();
+	void SendNewMissile();
+	void SendPlayersName();
 	void SendServerSnapshotsToClients();
 
 	void SetPlayerInput(int playerIndex, uint16_t buttons);
@@ -61,6 +64,8 @@ private:
 	GameManager* m_pGM = nullptr;
 	bool m_running = false;
 	bool m_waitingPlayers = true;
+
+	uint8_t m_snapshotCount = 0;
 
 	std::vector<ClientInfo*> m_vClientsInfo;
 };

@@ -127,10 +127,6 @@ void ClientSocket::SendPacket(const char* data, int length)
 void ClientSocket::UnpackHeader(BufferReader& reader, PacketHeader& header)
 {
 	bool headerOk = DeserializePacketHeader(reader, header);
-	if (headerOk)
-		std::cout << "Packet Type: " << (int)header.packetType << "\n";
-	else
-		std::cout << "Header invalide re�u\n";
 }
 
 void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header)
@@ -140,8 +136,19 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::ServerWelcome:
 		HandleServerWelcome(reader);
 		break;
+	case PacketType::MatchStart:
+		HandleMatchStart(reader);
+		break;
 	case PacketType::ServerSnapshot:
+		if (header.sequence < m_lastSnapshotCount)
+			break;
 		HandleServerSnapshot(reader);
+		break;
+	case PacketType::NewMissile:
+		HandleNewMissile(reader);
+		break;
+	case PacketType::PlayerName:
+		HandlePlayersName(reader);
 		break;
 	case PacketType::Ping:
 		HandlePing(reader);
@@ -153,7 +160,6 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 		HandleDisconnect(reader);
 		break;
 	default:
-		std::cout << "Packet type inconnu re�u: " << (int)header.packetType << "\n";
 		break;
 	}
 }
@@ -171,6 +177,11 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 	m_serverInfo.serverTimeMs = decoded.serverTimeMs;
 }
 
+void ClientSocket::HandleMatchStart(BufferReader& reader)
+{
+	m_gm->SetMatchStart(true);
+}
+
 void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 {
 	MsgSnapshot decoded;
@@ -181,14 +192,23 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 	player->SetPosition(decoded.playerState.posX, decoded.playerState.posY, decoded.playerState.posZ);
 	player->SetDirection(decoded.playerState.dirX, decoded.playerState.dirY, decoded.playerState.dirZ);
 	player->GetLife() = decoded.playerState.hp;
-	
-	if (decoded.newMissile == 1)
-	{
-		//if (decoded.shooterID == m_serverInfo.playerId) return;
+}
 
-		Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
-		shooter->Shoot();
-	}
+void ClientSocket::HandleNewMissile(BufferReader& reader)
+{
+	MsgNewMissile decoded;
+	bool msgOk = DeserializeNewMissile(reader, decoded);
+
+	Player* shooter = m_gm->GetPlayers()[decoded.shooterID];
+	shooter->Shoot();
+}
+
+void ClientSocket::HandlePlayersName(BufferReader& reader)
+{
+	MsgPlayerName decoded;
+	bool msgOk = DeserializePlayerName(reader, decoded);
+
+	m_gm->GetPlayers()[decoded.playerId]->SetPseudo(decoded.name);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)
