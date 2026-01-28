@@ -19,7 +19,10 @@ public:
 
 	void OnStart();
 	void OnUpdate();
+	void ShowError(const std::string& error);
 	void SetUI();
+	void HandleConnectionRequest();
+	void OnConnectionSuccess();
 	void OnExit();
 	void OnRender(int pass);
 
@@ -41,7 +44,7 @@ private:
 	UIText* m_pPseudo = nullptr;
 	
 	ClientSocket m_client;
-	float m_requestTime = 3.0f;
+	float m_requestTime = 2.0f;
 	float m_requestProgress = 0.0f;
 	float m_respawnTime = 3.0f;
 	
