@@ -98,7 +98,7 @@ void Missile::OnCollisionEnter(Collider* pOther)
     {
         if (Player* pPlayer = dynamic_cast<Player*>(pOther))
         {
-            pPlayer->GetLife().TakeDamage(50);
+            pPlayer->GetLife().TakeDamage(50); 
             if (pPlayer->IsDead())
                 m_pOwnerPlayer->GetPlayerScore().AddScore(10);
         }

@@ -15,27 +15,27 @@ void PlayerController::HandleInput()
 {
     if (cpuInput.IsKey(VK_UP))
     {
-        m_pPlayer->Move(1);
+        //m_pPlayer->Move(1);
         m_pendingInputs.push_back(static_cast<InputCmd>(VK_UP));
     }
     if (cpuInput.IsKey(VK_DOWN))
     {
-        m_pPlayer->Move(-1);
+        //m_pPlayer->Move(-1);
         m_pendingInputs.push_back(static_cast<InputCmd>(VK_DOWN));
     }
     if (cpuInput.IsKey(VK_RIGHT))
     {
-        m_pPlayer->Turn(1);
+        //m_pPlayer->Turn(1);
         m_pendingInputs.push_back(static_cast<InputCmd>(VK_RIGHT));
     }
     if (cpuInput.IsKey(VK_LEFT))
     {
-        m_pPlayer->Turn(-1);
+        //m_pPlayer->Turn(-1);
         m_pendingInputs.push_back(static_cast<InputCmd>(VK_LEFT));
     }
     if (cpuInput.IsKey(VK_SPACE))
     {
-        m_pPlayer->Shoot();
+        //m_pPlayer->Shoot();
         m_pendingInputs.push_back(static_cast<InputCmd>(VK_SPACE));
     }
 
