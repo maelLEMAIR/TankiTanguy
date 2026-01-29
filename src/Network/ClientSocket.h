@@ -41,10 +41,13 @@ public:
 	void HandleServerSnapshot(BufferReader& reader);
 	void HandleNewMissile(BufferReader& reader);
 	void HandleDestroyMissile(BufferReader& reader);
+	void HandlePlayerJoin(BufferReader& reader);
 	void HandlePlayersInfo(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);
+
+	void SendPing();
 
 	SOCKET GetSocket() const { return m_socket; }
 	ServerInfo& GetServerInfo() { return m_serverInfo; }

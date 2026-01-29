@@ -72,7 +72,8 @@ void App::OnStart()
 	});
 
 	XMFLOAT3 posModel	= XMFLOAT3(posCam.x + 3.f, posCam.y, posCam.z + 5.f);
-	m_pModelPlayer		= m_gameManager.AddPlayer(posModel,  -2*XM_PI / 3, m_colors[m_currentColor], "", false);
+	m_pModelPlayer = m_gameManager.CreateObject<Player>(false);
+	m_pModelPlayer->Init(posModel, -1,  -2*XM_PI / 3, "",m_colors[m_currentColor]);
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(9, 176, 35);
@@ -212,6 +213,8 @@ void App::OnUpdate()
 		return;
 	}
 	
+	m_client.SendPing();
+
 	m_pUiScore->SetText(m_pPlayer->GetScore());
 	m_gameManager.Update();
 }

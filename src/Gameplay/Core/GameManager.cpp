@@ -44,23 +44,16 @@ void GameManager::Start()
     delete m_pPlCrt;
     m_pPlCrt = new PlayerController();
 
-    // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
-    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
-
     m_pMap = new Map();
     m_pMap->Init(50, 50);
 }
 
 void GameManager::Update()
 {
-    if (m_matchStarted)
-    {
-        float dt = cpuTime.delta;
-        CollisionCheck();
-        m_pPlCrt->HandleInput();
-        m_pPlCrt->SendInputList();
-    }
+    float dt = cpuTime.delta;
+    CollisionCheck();
+    m_pPlCrt->HandleInput();
+    m_pPlCrt->SendInputList();
 
     CheckMissileToDestroy();
 
@@ -85,10 +78,6 @@ void GameManager::ServerSideStart()
 {
     delete m_pPlCrt;
     m_chrono.Start();
-
-    // Player
-    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
-    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
 
     m_pMap = new Map();
     m_pMap->Init(50, 50);
