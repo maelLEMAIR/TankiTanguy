@@ -6,7 +6,7 @@ class InputText : public UI
 {
 public:
     InputText() = default;
-    ~InputText() override;
+    ~InputText() override = default ;
     
     void Init(cpu_font& _font, XMINT2 _pos, int _anchor, std::string const& _text);
     void Update() override;

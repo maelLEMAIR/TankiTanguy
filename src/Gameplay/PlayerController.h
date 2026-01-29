@@ -10,7 +10,7 @@ class PlayerController
 {
 public:
     PlayerController() = default;
-    ~PlayerController() = default;
+    ~PlayerController();
 
     void Init(Player& _player) { m_pPlayer = &_player; };
 

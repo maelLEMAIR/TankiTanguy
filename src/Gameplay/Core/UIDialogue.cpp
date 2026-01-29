@@ -7,6 +7,14 @@ UIDialogue::UIDialogue()
     m_isActive = true;
 }
 
+UIDialogue::~UIDialogue()
+{
+    for (InputText* inputTxt : m_dialogue)
+        CPU_DELPTR(inputTxt);
+    m_dialogue.clear();
+    m_answers.clear();
+}
+
 void UIDialogue::AddInputText(cpu_font& _font, XMINT2 _pos, int _anchor, std::string _text, std::string& _answer)
 {
     InputText* newInputText = new InputText();

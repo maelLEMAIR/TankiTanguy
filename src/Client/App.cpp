@@ -223,7 +223,9 @@ void App::OnUpdate()
 void App::OnExit()
 {
 	//CPU_DELPTR(m_pseudo);
+	CPU_DELPTR(m_dialogueLog);
 	CPU_DELPTR(m_pUIManager);
+	m_colors.clear();
 	PacketHeader header;
 	header.packetType = PacketType::Disconnect;
 	header.playerId = m_client.GetServerInfo().playerId;

@@ -5,7 +5,7 @@ class GameObject
 {
 public:
     GameObject(int isServer);
-    virtual ~GameObject() { };
+    virtual ~GameObject();
     
     virtual void Update() = 0;
     virtual void Dead(float _dt) = 0;

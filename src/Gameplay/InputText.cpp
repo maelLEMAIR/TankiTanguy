@@ -1,10 +1,5 @@
 ﻿#include "InputText.h"
 
-InputText::~InputText()
-{
-    
-}
-
 void InputText::Init(cpu_font& _font, XMINT2 _pos, int _anchor, std::string const& _question)
 {
     m_pos = _pos;

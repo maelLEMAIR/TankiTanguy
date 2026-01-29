@@ -10,6 +10,12 @@ GameObject::GameObject(int isServer)
     }
 }
 
+GameObject::~GameObject()
+{
+    if (!m_isServer) 
+        cpuEngine.Release(m_pEntity);
+}
+
 void GameObject::Update()
 {
 }

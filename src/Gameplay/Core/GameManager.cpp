@@ -21,10 +21,16 @@ GameManager::~GameManager()
 {
     for (GameObject* go : m_gameObjects)
         CPU_DELPTR(go);
-
     m_gameObjects.clear();
+    m_missiles.clear();
     m_players.clear();
-    delete m_pPlCrt;
+
+    CPU_DELPTR(m_pPlCrt);
+    for (PlayerController* plCrt : m_playerControllers)
+        CPU_DELPTR(plCrt);
+    m_playerControllers.clear();
+
+    CPU_DELPTR(m_pMap);
     s_pInstance = nullptr; 
 }
 

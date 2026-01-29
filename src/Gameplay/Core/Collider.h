@@ -9,7 +9,7 @@ class Collider
 {
 public:
     Collider() = default;
-    virtual ~Collider() = default;
+    virtual ~Collider() { m_collidingEntities.clear(); }
 
     GameObject* GetOwner() { return m_pOwner; }
 

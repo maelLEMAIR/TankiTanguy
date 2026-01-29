@@ -5,6 +5,12 @@
 #include "Network/ClientSocket.h"
 #include "Core/GameManager.h"
 
+PlayerController::~PlayerController()
+{
+    m_pendingInputs.clear();
+    m_incomingInputs.clear();
+}
+
 void PlayerController::HandleInput()
 {
     if (cpuInput.IsKey(VK_UP))

@@ -6,6 +6,7 @@
 class UIHealthBar : public UI
 {
 public:
+    ~UIHealthBar() override;
     void Init(cpu_font& _font, XMINT2 _pos, float _size, Player& _player, std::string const& _pathGreen, std::string const& _pathGray);
     void Update() override;
     void Render() override;
@@ -17,6 +18,15 @@ private:
     cpu_font m_font;
     Player* m_pPlayer = nullptr;
 };
+
+
+inline UIHealthBar::~UIHealthBar()
+{
+    for (cpu_sprite* pSprite : m_sprites)
+        cpuEngine.Release(pSprite);
+
+    m_sprites.clear();
+}
 
 inline void UIHealthBar::Init(cpu_font& _font, XMINT2 _pos, float _size, Player& _player, std::string const& _pathGreen, std::string const& _pathGray)
 {

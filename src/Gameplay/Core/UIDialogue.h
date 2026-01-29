@@ -7,7 +7,7 @@ class UIDialogue : public UI
 {
 public:
     UIDialogue();
-    ~UIDialogue() override { m_dialogue.clear(); };
+    ~UIDialogue() override;
     void AddInputText(cpu_font& _font, XMINT2 _pos, int _anchor, std::string _text, std::string& _answer);
     void Update() override;
     void Render() override;
