@@ -223,24 +223,21 @@ void Server::HandleClientHello(BufferReader& reader)
 	MsgClientHello decoded;
 	bool msgOk = DeserializeClientHello(reader, decoded);
 
-	m_playerCount++;
-	if (m_playerCount > m_vClientsInfo.size())
+	bool createNew = true;
+	for (int clientIndex = 0; clientIndex < m_vClientsInfo.size(); clientIndex++)
 	{
-		AddNewClient(decoded);
-	}
-	else
-	{
-		for (int clientIndex = 0; clientIndex < m_vClientsInfo.size(); clientIndex++)
+		if (m_vClientsInfo[clientIndex]->isConnected)
+			continue;
+		else if (m_vClientsInfo[clientIndex]->playerName == decoded.playerName)
 		{
-			if (m_vClientsInfo[clientIndex]->isConnected)
-				continue;
-			else
-			{
-				SetClientInfo(m_vClientsInfo[clientIndex], (SocketAddress)m_lastClientAddr, decoded);
-				SendWelcomeMsg(clientIndex);
-			}
+			SetClientInfo(m_vClientsInfo[clientIndex], (SocketAddress)m_lastClientAddr, decoded);
+			SendWelcomeMsg(clientIndex);
+			createNew = false;
 		}
 	}
+	if (createNew)
+		AddNewClient(decoded);
+
 	SendPlayersInfo();
 }
 
@@ -272,7 +269,6 @@ void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
 	std::cout << "Player " << (int)header.playerId << " disconnected" << std::endl;
 	m_vClientsInfo[header.playerId]->isConnected = false;
-	m_playerCount--;
 }
 
 void Server::SendMatchStart()
@@ -428,6 +424,7 @@ void Server::SendWelcomeMsg(uint8_t _clientID)
 
 void Server::AddNewClient(MsgClientHello& msg)
 {
+	m_playerCount++;
 	ClientInfo* newClient = new ClientInfo();
 	newClient->playerId = m_vClientsInfo.size();
 	m_vClientsInfo.push_back(newClient);
