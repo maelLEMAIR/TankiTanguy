@@ -31,6 +31,7 @@ void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _p
     if (m_isServer)
     {
         m_transformCanon.pos = _pos;
+        m_transform.SetYPR(_angle, 0, 0);
         m_transformCanon.pos.y += 0.5f;
         m_pWeapon = new Weapon(m_transformCanon, *this, m_isServer);
     }

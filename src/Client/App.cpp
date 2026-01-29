@@ -34,7 +34,7 @@ void App::OnStart()
 	
 	m_gameManager.Start();
 	cpuEngine.GetParticleData()->Create(1000000);
-	cpuEngine.m_skyColor = cpu::ToColor(0, 167, 230);
+	cpuEngine.m_skyColor	= cpu::ToColor(0, 167, 230);
 	cpuEngine.m_groundColor = cpu::ToColor(9, 176, 35);
 
 	// UI
@@ -47,11 +47,11 @@ void App::OnStart()
 					XMINT3(0, 0, 0),
 	};
 	
-	m_pathGreen	= "../../res/Gameplay/vert.png";
-	m_pathGray	= "../../res/Gameplay/gris.png";
+	m_pathGreen		= "../../res/Gameplay/vert.png";
+	m_pathGray		= "../../res/Gameplay/gris.png";
 	
-	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
-	m_dialogueLog = new UIDialogue();
+	XMINT2 pos		= XMINT2(cpuDevice.GetWidth() / 2, 30);
+	m_dialogueLog	= new UIDialogue();
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
@@ -71,8 +71,8 @@ void App::OnStart()
 		m_currentColor = (m_currentColor + 1) % m_colors.size();
 	});
 
-	XMFLOAT3 posModel = XMFLOAT3(posCam.x + 3.f, posCam.y, posCam.z + 5.f);
-	m_pModelPlayer = m_gameManager.AddPlayer(posModel,  -2*XM_PI / 3, m_colors[m_currentColor], "", false);
+	XMFLOAT3 posModel	= XMFLOAT3(posCam.x + 3.f, posCam.y, posCam.z + 5.f);
+	m_pModelPlayer		= m_gameManager.AddPlayer(posModel,  -2*XM_PI / 3, m_colors[m_currentColor], "", false);
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(9, 176, 35);
@@ -81,10 +81,10 @@ void App::OnStart()
 		for (int j = -(m_height / 2); j < m_height; j++)
 		{
 			cpu_entity* floor = cpuEngine.CreateEntity();
-			floor->pMesh = &m_pFloorMesh;
-			floor->pMaterial = &m_pFloorMaterial;
-			floor->transform.pos = XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
-			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
+			floor->pMesh			= &m_pFloorMesh;
+			floor->pMaterial		= &m_pFloorMaterial;
+			floor->transform.pos	= XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
+			floor->transform.sca	= XMFLOAT3(5.0f, 1.0f, 5.0f);
 		}
 	}
 }
@@ -143,7 +143,7 @@ void App::Log()
 		return;
 	}
 	
-	if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
+	if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str(), m_colors[m_currentColor]))
 		m_isRequested = true;
 }
 
@@ -176,18 +176,17 @@ void App::HandleConnectionRequest()
 
 void App::OnConnectionSuccess()
 {
-	m_isRequested = false;
-	m_isLogin = true;
-	m_requestProgress = 0.0f;
+	m_isRequested		= false;
+	m_isLogin			= true;
+	m_requestProgress	= 0.0f;
     m_pErrorText->SetActive(false);
 
 	m_pModelPlayer->SetNeedToBeDestroyed();
 	m_id = m_client.GetServerInfo().playerId;
-	XMINT3 color = m_client.GetServerInfo().
 	m_gameManager.SetMainPlayer(m_id);
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
-	m_pPlayer->SetColor(TODO, TODO, TODO);
+	m_pPlayer->SetColor(m_colors[m_currentColor].x, m_colors[m_currentColor].y, m_colors[m_currentColor].z);
 	SetUI();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +200,10 @@ void App::OnUpdate()
 	
 	m_pUIManager->Update();
 	if (m_pModelPlayer != nullptr)
-		m_pModelPlayer->SetColor(TODO, TODO, TODO);
+		m_pModelPlayer->SetColor(
+			m_colors[m_currentColor].x,
+			m_colors[m_currentColor].y,
+			m_colors[m_currentColor].z);
 	
 	if (!m_isLogin)
 	{

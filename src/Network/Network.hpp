@@ -32,8 +32,7 @@ enum PacketType : uint8_t
 	Ping = 0x07,				// Dans les 2 sens
 	Pong = 0x08,				// Dans les 2 sens
 	NewMissile = 0x09,			// Server -> Clients
-	PlayerName = 0x10,			// Server -> Clients
-	PlayerColor = 0x11			// Server -> Clients
+	PlayerInfo = 0x10,			// Server -> Clients
 };
 
 // ============================
@@ -266,12 +265,18 @@ inline bool DeserializePacketHeader(BufferReader& reader, PacketHeader& header)
 struct MsgClientHello
 {
 	std::string playerName;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 };
 
 inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg)
 {
 	writer.WriteU8((uint8_t)msg.playerName.size());
 	writer.WriteBytes(msg.playerName.data(), msg.playerName.size());
+	writer.WriteU8(msg.r);
+	writer.WriteU8(msg.g);
+	writer.WriteU8(msg.b);
 }
 
 inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
@@ -284,7 +289,16 @@ inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 	if (nameLen == 0)
 		return true;
 
-	return reader.ReadBytes(&msg.playerName[0], nameLen);
+	if (reader.ReadBytes(&msg.playerName[0], nameLen) == false)
+		return false;
+
+	if (reader.ReadU8(msg.r) == false)
+		return false;
+	if (reader.ReadU8(msg.g) == false)
+		return false;
+	if (reader.ReadU8(msg.b) == false)
+		return false;
+	return true;
 }
 
 struct MsgServerWelcome

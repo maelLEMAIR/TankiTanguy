@@ -1,6 +1,7 @@
 #ifndef CLIENT_SOCKET_H
 #define CLIENT_SOCKET_H
 
+#include <DirectXMath.h>
 #include <iostream>
 
 #include "Network.hpp"
@@ -24,7 +25,7 @@ public:
 
 	static ClientSocket& GetInstance() { return *s_pClient; }
 
-	bool ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo);
+	bool ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo, DirectX::XMINT3 const& _color);
 
 	static DWORD WINAPI Listen(LPVOID lpParam);
 
@@ -39,7 +40,7 @@ public:
 	void HandleMatchStart(BufferReader& reader);
 	void HandleServerSnapshot(BufferReader& reader);
 	void HandleNewMissile(BufferReader& reader);
-	void HandlePlayersName(BufferReader& reader);
+	void HandlePlayersInfo(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);

@@ -210,7 +210,7 @@ void Server::HandleClientHello(BufferReader& reader)
 {
 	MsgClientHello decoded;
 	bool msgOk = DeserializeClientHello(reader, decoded);
-
+	
 	int playerID = -1;
 	if (m_vClientsInfo[0]->playerName == "default")
 	{
@@ -245,7 +245,7 @@ void Server::HandleClientHello(BufferReader& reader)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		SendMatchStart();
-		SendPlayersName();
+		SendPlayersInfo();
 		m_waitingPlayers = false;
 	}
 
@@ -320,10 +320,10 @@ void Server::SendNewMissile()
 	m_pGM->SetNewMissileAdded(false);
 }
 
-void Server::SendPlayersName()
+void Server::SendPlayersInfo()
 {
 	PacketHeader header;
-	header.packetType = PacketType::PlayerName;
+	header.packetType = PacketType::PlayerInfo;
 	
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
@@ -393,8 +393,12 @@ void Server::SetPlayerInput(int playerIndex, uint16_t buttons)
 
 void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg)
 {
-	pInfo->playerName = msg.playerName;
-	pInfo->address = addr;
-	pInfo->isConnected = true;
+	pInfo->playerName	= msg.playerName;
+	pInfo->playerRed	= msg.r;
+	pInfo->playerGreen	= msg.g;
+	pInfo->playerBlue	= msg.b;
+	pInfo->address		= addr;
+	pInfo->isConnected	= true;
 	m_pGM->GetPlayers()[pInfo->playerId]->SetPseudo(msg.playerName);
+	m_pGM->GetPlayers()[pInfo->playerId]->SetColor(msg.r, msg.g, msg.b);
 }
