@@ -257,7 +257,7 @@ void Server::HandleClientHello(BufferReader& reader)
 		std::cout << "Player try to join..." << decoded.playerName << "\n";
 	}
 
-	if (m_vClientsInfo[0]->isConnected /*&& m_vClientsInfo[1]->isConnected*/)
+	if (m_vClientsInfo[0]->isConnected && m_vClientsInfo[1]->isConnected)
 	{
 		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		SendMatchStart();
