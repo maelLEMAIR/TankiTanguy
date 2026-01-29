@@ -11,6 +11,9 @@ struct ClientInfo
 {
 	uint8_t playerId = 0;
 	std::string playerName = "default";
+	uint8_t playerRed;
+	uint8_t playerGreen;
+	uint8_t playerBlue;
 	SocketAddress address;
 	bool isConnected = false;
 	float lastHeardTime = 0.f;
@@ -50,8 +53,8 @@ public:
 
 	void SendMatchStart();
 	void SendNewMissile();
-	void SendPlayersName();
 	void SendMissilesToDestroy();
+	void SendPlayersInfo();
 	void SendServerSnapshotsToClients();
 
 	void SetPlayerInput(int playerIndex, uint16_t buttons);

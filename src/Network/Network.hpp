@@ -33,7 +33,7 @@ enum PacketType : uint8_t
 	Pong = 0x08,				// Dans les 2 sens
 	NewMissile = 0x09,			// Server -> Clients
 	DestroyMissile = 0x10,		// Server -> Clients
-	PlayerName = 0x11,			// Server -> Clients
+	PlayerInfo = 0x11,			// Server -> Clients
 	PlayerJoin = 0x12			// Server -> Clients
 };
 
@@ -95,7 +95,7 @@ struct SocketAddress
 };
 
 // ============================
-//  En-tête de packet (taille fixe)
+//  En-tï¿½te de packet (taille fixe)
 // ============================
 struct PacketHeader
 {
@@ -109,8 +109,8 @@ struct PacketHeader
 
 	// --- Delivery / ordering ---
 	uint16_t sequence = 0;							// Sequence number de CE paquet (network order)
-	uint16_t ack = 0;								// Dernier sequence reçu du pair (network order)
-	uint32_t ackBits = 0;							// Ack des 32 paquets précédents (network order)
+	uint16_t ack = 0;								// Dernier sequence reï¿½u du pair (network order)
+	uint32_t ackBits = 0;							// Ack des 32 paquets prï¿½cï¿½dents (network order)
 
 	// --- Timing ---
 	uint32_t timestampMs;							// Timestamp local (network order)
@@ -267,12 +267,18 @@ inline bool DeserializePacketHeader(BufferReader& reader, PacketHeader& header)
 struct MsgClientHello
 {
 	std::string playerName;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 };
 
 inline void SerializeClientHello(BufferWriter& writer, const MsgClientHello& msg)
 {
 	writer.WriteU8((uint8_t)msg.playerName.size());
 	writer.WriteBytes(msg.playerName.data(), msg.playerName.size());
+	writer.WriteU8(msg.r);
+	writer.WriteU8(msg.g);
+	writer.WriteU8(msg.b);
 }
 
 inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
@@ -285,7 +291,16 @@ inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 	if (nameLen == 0)
 		return true;
 
-	return reader.ReadBytes(&msg.playerName[0], nameLen);
+	if (reader.ReadBytes(&msg.playerName[0], nameLen) == false)
+		return false;
+
+	if (reader.ReadU8(msg.r) == false)
+		return false;
+	if (reader.ReadU8(msg.g) == false)
+		return false;
+	if (reader.ReadU8(msg.b) == false)
+		return false;
+	return true;
 }
 
 struct MsgServerWelcome
@@ -387,20 +402,26 @@ inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& play
 		reader.ReadU64(playerNetState.score);
 }
 
-struct MsgPlayerName
+struct MsgPlayerInfo
 {
 	uint8_t playerId;
 	std::string	name;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 };
 
-inline void SerializePlayerName(BufferWriter& writer, const MsgPlayerName& p)
+inline void SerializePlayerInfo(BufferWriter& writer, const MsgPlayerInfo& p)
 {
 	writer.WriteU8(p.playerId);
 	writer.WriteU8((uint8_t)p.name.size());
 	writer.WriteBytes(p.name.data(), p.name.size());
+	writer.WriteU8(p.r);
+	writer.WriteU8(p.g);
+	writer.WriteU8(p.b);
 }
 
-inline bool DeserializePlayerName(BufferReader& reader, MsgPlayerName& p)
+inline bool DeserializePlayerInfo(BufferReader& reader, MsgPlayerInfo& p)
 {
 	if (reader.ReadU8(p.playerId) == false)			return false;
 	uint8_t nameLen;
@@ -408,10 +429,20 @@ inline bool DeserializePlayerName(BufferReader& reader, MsgPlayerName& p)
 	if (reader.CanRead(nameLen) == false)			return false;
 
 	p.name.resize(nameLen);
-	if (nameLen == 0)
-		return true;
 
-	return reader.ReadBytes(&p.name[0], nameLen);
+	if (reader.ReadBytes(&p.name[0], nameLen) == false)
+		return false;
+
+	if (reader.ReadU8(p.r) == false)
+		return false;
+
+	if (reader.ReadU8(p.g) == false)
+		return false;
+
+	if (reader.ReadU8(p.b) == false)
+		return false;
+
+	return true;
 }
 
 

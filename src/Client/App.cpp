@@ -34,10 +34,24 @@ void App::OnStart()
 	
 	m_gameManager.Start();
 	cpuEngine.GetParticleData()->Create(1000000);
+	cpuEngine.m_skyColor	= cpu::ToColor(0, 167, 230);
+	cpuEngine.m_groundColor = cpu::ToColor(9, 176, 35);
 
 	// UI
-	XMINT2 pos = XMINT2(cpuDevice.GetWidth() / 2, 30);
-	m_dialogueLog = new UIDialogue();
+	m_colors = {	XMINT3(171, 75, 75),
+					XMINT3(150, 255, 167),
+					XMINT3(240, 234, 127),
+					XMINT3(152, 176, 235),
+					XMINT3(227, 152, 235),
+					XMINT3(255, 255, 255),
+					XMINT3(0, 0, 0),
+	};
+	
+	m_pathGreen		= "../../res/Gameplay/vert.png";
+	m_pathGray		= "../../res/Gameplay/gris.png";
+	
+	XMINT2 pos		= XMINT2(cpuDevice.GetWidth() / 2, 30);
+	m_dialogueLog	= new UIDialogue();
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter an address: ", m_addr);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a port: ", m_port);
 	m_dialogueLog->AddInputText(m_font, pos, CPU_TEXT_CENTER, "Enter a pseudo: ", m_pseudo);
@@ -46,39 +60,41 @@ void App::OnStart()
 	m_pErrorText->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() - 14), CPU_TEXT_CENTER, "");
 	m_pErrorText->Create(14, CPU_RED);
 	m_pErrorText->SetActive(false);
+
+	XMFLOAT3 posCam = XMFLOAT3(100.0f, 100.0f, 100.0f);
+	cpuEngine.GetCamera()->transform.pos = posCam;
 	
-	cpuEngine.GetCamera()->transform.pos = XMFLOAT3(100.0f, 100.0f, 100.0f);
-	
-	/*UIButton* startBtn = m_pUIManager->Create<UIButton>();
-	startBtn->Init(XMINT2(cpuDevice.GetWidth() / 2, cpuDevice.GetHeight() / 2), XMINT2(24, 24), pathGreen, pathGray);
-	
-	startBtn->SetOnClickCallback([startBtn]() {
-		int i = 0;
-		startBtn->SetToBeDestroyed();
-	});*/
+	m_pStartBtn = m_pUIManager->Create<UIButton>();
+	m_pStartBtn->Init(XMINT2(cpuDevice.GetWidth() - 75, cpuDevice.GetHeight() - 75), XMINT2(50, 50), m_pathGreen, m_pathGray);
+
+	m_pStartBtn->SetOnClickCallback([this]() {
+		m_currentColor = (m_currentColor + 1) % m_colors.size();
+	});
+
+	XMFLOAT3 posModel	= XMFLOAT3(posCam.x + 3.f, posCam.y, posCam.z + 5.f);
+	m_pModelPlayer		= m_gameManager.AddPlayer(posModel,  -2*XM_PI / 3, m_colors[m_currentColor], "", false);
 	
 	m_pFloorMesh.CreateCube();
-	m_pFloorMaterial.color = cpu::ToColor(14, 74, 16);
+	m_pFloorMaterial.color = cpu::ToColor(9, 176, 35);
 	for (int i = -(m_width / 2); i < m_width; i++)
 	{
 		for (int j = -(m_height / 2); j < m_height; j++)
 		{
 			cpu_entity* floor = cpuEngine.CreateEntity();
-			floor->pMesh = &m_pFloorMesh;
-			floor->pMaterial = &m_pFloorMaterial;
-			floor->transform.pos = XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
-			floor->transform.sca = XMFLOAT3(5.0f, 1.0f, 5.0f);
+			floor->pMesh			= &m_pFloorMesh;
+			floor->pMaterial		= &m_pFloorMaterial;
+			floor->transform.pos	= XMFLOAT3(static_cast<float>(j) * 5, -1.0f, static_cast<float>(i) * 5);
+			floor->transform.sca	= XMFLOAT3(5.0f, 1.0f, 5.0f);
 		}
 	}
 }
 
 void App::SetUI()
 {
-	std::string pathGreen	= "../../res/Gameplay/vert.png";
-	std::string pathGray	= "../../res/Gameplay/gris.png";
+	m_pStartBtn->SetToBeDestroyed();
 	
 	UIHealthBar* uiBar = m_pUIManager->Create<UIHealthBar>();
-	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, pathGreen, pathGray);
+	uiBar->Init(m_font, XMINT2(0.0f, cpuDevice.GetHeight() - 24), 24.0f, *m_pPlayer, m_pathGreen, m_pathGray);
 
 	m_pUiScore = m_pUIManager->Create<UIText>();
 	m_pUiScore->Init(XMINT2(cpuDevice.GetWidth() - 10, 5), CPU_TEXT_RIGHT, m_pPlayer->GetScore());
@@ -127,7 +143,7 @@ void App::Log()
 		return;
 	}
 	
-	if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str()))
+	if (m_client.ConnectToServer(m_addr.c_str(), std::stoi(m_port), m_pseudo.c_str(), m_colors[m_currentColor]))
 		m_isRequested = true;
 }
 
@@ -160,15 +176,17 @@ void App::HandleConnectionRequest()
 
 void App::OnConnectionSuccess()
 {
-	m_isRequested = false;
-	m_isLogin = true;
-	m_requestProgress = 0.0f;
+	m_isRequested		= false;
+	m_isLogin			= true;
+	m_requestProgress	= 0.0f;
     m_pErrorText->SetActive(false);
-	
+
+	m_pModelPlayer->SetNeedToBeDestroyed();
 	m_id = m_client.GetServerInfo().playerId;
 	m_gameManager.SetMainPlayer(m_id);
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
+	m_pPlayer->SetColor(m_colors[m_currentColor].x, m_colors[m_currentColor].y, m_colors[m_currentColor].z);
 	SetUI();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +197,14 @@ void App::OnUpdate()
 {
 	if (cpuInput.IsKeyDown(VK_ESCAPE))
 		cpuEngine.Quit();
-    
+	
+	m_pUIManager->Update();
+	if (m_pModelPlayer != nullptr)
+		m_pModelPlayer->SetColor(
+			m_colors[m_currentColor].x,
+			m_colors[m_currentColor].y,
+			m_colors[m_currentColor].z);
+	
 	if (!m_isLogin)
 	{
 		Log();
@@ -188,7 +213,6 @@ void App::OnUpdate()
 	}
 	
 	m_pUiScore->SetText(m_pPlayer->GetScore());
-	m_pUIManager->Update();
 	m_gameManager.Update();
 }
 
@@ -255,7 +279,11 @@ void App::OnRender(int pass)
 					m_pRespawnText->SetText(respawn);
 				}
 				else
-					m_respawnTime = 3.0f;
+				{
+					m_respawnTime = 4.0f;
+					m_pRespawnText->SetActive(false);
+				}
+				
 			}
 
 			if (!m_isLogin)

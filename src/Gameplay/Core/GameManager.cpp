@@ -164,7 +164,7 @@ void GameManager::CollisionCheck()
     }
 }
 
-void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
+Player* GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
 {
     Player* player = CreateObject<Player>(_isServer);
     player->Init(_pos, m_players.size(), _angle, _pseudo, _color);
@@ -175,6 +175,7 @@ void GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::str
         m_playerControllers.push_back(plCrt);
     }
     m_players.push_back(player);
+    return player;
 }
 
 void GameManager::SetMainPlayer(int _id)

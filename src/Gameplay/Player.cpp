@@ -28,10 +28,10 @@ void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _p
 
     m_pOwner = this;
     
-    XMFLOAT3 forward = m_transform.dir;
     if (m_isServer)
     {
         m_transformCanon.pos = _pos;
+        m_transform.SetYPR(_angle, 0, 0);
         m_transformCanon.pos.y += 0.5f;
         m_pWeapon = new Weapon(m_transformCanon, *this, m_isServer);
     }
@@ -45,22 +45,27 @@ void Player::Init(XMFLOAT3 _pos, uint8_t id, float _angle, std::string const& _p
         m_pEntity->transform.pos = _pos;
         m_pEntity->transform.sca = XMFLOAT3(1.0f, 1.0f, 2.0f);
         m_pEntity->transform.SetYPR(_angle, 0.0f, 0.0f);
+
+        XMFLOAT3 forward = m_pEntity->transform.dir;
         
         m_pHead = cpuEngine.CreateEntity();
         m_pHead->pMesh = &m_mesh;
         m_pHead->pMaterial = &m_material;
         m_pHead->transform.pos = _pos;
         m_pHead->transform.pos.y += 0.5f;
+        m_pHead->transform.SetYPR(_angle, 0.0f, 0.0f);
         m_pHead->transform.sca = XMFLOAT3(0.75f, 0.5f, 0.75f);
     
         m_pCanon = cpuEngine.CreateEntity();
         m_pCanon->pMesh = &m_mesh;
         m_pCanon->pMaterial = &m_material;
         m_pCanon->transform.pos = _pos;
+        m_pCanon->transform.SetYPR(_angle, 0.0f, 0.0f);
         m_pCanon->transform.pos.x += forward.x * 1.5f;
         m_pCanon->transform.pos.z += forward.z * 1.5f;
         m_pCanon->transform.pos.y += 0.5f;
         m_pCanon->transform.sca = XMFLOAT3(0.25f, 0.25f, 3.0f);
+        
         m_pWeapon = new Weapon(m_pCanon->transform, *this, m_isServer);
     }
 }
@@ -168,6 +173,13 @@ void Player::SetDirection(float dirX, float dirY, float dirZ)
 void Player::SetRotation(float yaw, float pitch, float roll)
 {
     m_pEntity->transform.SetYPR(yaw, pitch, roll);
+}
+
+void Player::SetColor(int r, int g, int b)
+{
+    m_color = cpu::ToColor(r, g, b);
+    if (!m_isServer)
+        m_material.color = m_color;
 }
 
 void Player::Dead(float _dt)

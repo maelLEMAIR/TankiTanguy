@@ -8,6 +8,7 @@ class GameManager;
 class UIManager;
 class UIDialogue;
 class UIText;
+class UIButton;
 
 class App
 {
@@ -34,26 +35,26 @@ public:
 	std::string m_pseudo;
 	
 private:
-	inline static App* s_pApp = nullptr;
+	inline static App* s_pApp	= nullptr;
 	GameManager m_gameManager;
 
-	UIDialogue* m_dialogueLog = nullptr;
-	UIText* m_pUiScore = nullptr;
-	UIText* m_pRespawnText = nullptr;
-	UIText* m_pErrorText = nullptr;
-	UIText* m_pPseudo = nullptr;
-	
+	UIDialogue* m_dialogueLog	= nullptr;
+	UIText* m_pUiScore			= nullptr;
+	UIText* m_pRespawnText		= nullptr;
+	UIText* m_pErrorText		= nullptr;
+	UIText* m_pPseudo			= nullptr;
 	ClientSocket m_client;
-	float m_requestTime = 2.0f;
-	float m_requestProgress = 0.0f;
-	float m_respawnTime = 3.0f;
 	
-	bool m_isLogin = false;
-	bool m_isRequested = false;
-	bool m_isRunning = false;
+	float m_requestTime			= 2.0f;
+	float m_requestProgress		= 0.0f;
+	float m_respawnTime			= 4.0f;
+	
+	bool m_isLogin				= false;
+	bool m_isRequested			= false;
+	bool m_isRunning			= false;
 
-	float m_width = 50.0f;
-	float m_height = 50.0f;
+	float m_width				= 50.0f;
+	float m_height				= 50.0f;
 	
 	// Resources
 	cpu_font m_font;
@@ -61,10 +62,17 @@ private:
 
 	// Player
 	int m_id = -1;
-	Player* m_pPlayer = nullptr;
+	Player* m_pPlayer			= nullptr;
+	Player* m_pModelPlayer		= nullptr;
 	
 	// UI
 	UIManager* m_pUIManager;
+	UIButton* m_pStartBtn		= nullptr;
+	std::string m_pathGreen;
+	std::string m_pathGray;
+
+	int m_currentColor = 0;
+	std::vector<XMINT3> m_colors;
 
 	// Map
 	cpu_mesh m_pFloorMesh;

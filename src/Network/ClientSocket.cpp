@@ -18,7 +18,7 @@ ClientSocket::~ClientSocket()
 {
 }
 
-bool ClientSocket::ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo)
+bool ClientSocket::ConnectToServer(const char* serverIp, int serverPort, const char* _pseudo, XMINT3 const& _color)
 {
 	inet_pton(AF_INET, serverIp, &m_serverAddr.sin_addr.s_addr);
 	m_serverAddr.sin_family = AF_INET;
@@ -29,6 +29,9 @@ bool ClientSocket::ConnectToServer(const char* serverIp, int serverPort, const c
 
 	MsgClientHello hello;
 	hello.playerName = _pseudo;
+	hello.r = _color.x;
+	hello.g = _color.y;
+	hello.b = _color.z;
 
 	BufferWriter writer;
 	SerializePacketHeader(writer, header);
@@ -150,8 +153,8 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::DestroyMissile:
 		HandleDestroyMissile(reader);
 		break;
-	case PacketType::PlayerName:
-		HandlePlayersName(reader);
+	case PacketType::PlayerInfo:
+		HandlePlayersInfo(reader);
 		break;
 	case PacketType::Ping:
 		HandlePing(reader);
@@ -214,12 +217,13 @@ void ClientSocket::HandleDestroyMissile(BufferReader& reader)
 	m_gm->SetToDestroyMissilesID(decoded.vMissileIDs);
 }
 
-void ClientSocket::HandlePlayersName(BufferReader& reader)
+void ClientSocket::HandlePlayersInfo(BufferReader& reader)
 {
-	MsgPlayerName decoded;
-	bool msgOk = DeserializePlayerName(reader, decoded);
+	MsgPlayerInfo decoded;
+	bool msgOk = DeserializePlayerInfo(reader, decoded);
 
 	m_gm->GetPlayers()[decoded.playerId]->SetPseudo(decoded.name);
+	m_gm->GetPlayers()[decoded.playerId]->SetColor(decoded.r, decoded.g, decoded.b);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)
