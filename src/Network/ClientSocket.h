@@ -47,6 +47,8 @@ public:
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);
 
+	void SendPing();
+
 	SOCKET GetSocket() const { return m_socket; }
 	ServerInfo& GetServerInfo() { return m_serverInfo; }
 

@@ -213,6 +213,8 @@ void App::OnUpdate()
 		return;
 	}
 	
+	m_client.SendPing();
+
 	m_pUiScore->SetText(m_pPlayer->GetScore());
 	m_gameManager.Update();
 }

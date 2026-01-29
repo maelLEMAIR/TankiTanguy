@@ -257,3 +257,13 @@ void ClientSocket::HandleDisconnect(BufferReader& reader)
 {
 	std::cout << "Message Disconnect re�u\n";
 }
+
+void ClientSocket::SendPing()
+{
+	PacketHeader header;
+	header.packetType = PacketType::Ping;
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+
+	SendPacket((const char*)writer.data.data(), (int)writer.data.size());
+}
