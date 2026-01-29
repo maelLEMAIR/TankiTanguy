@@ -5,6 +5,7 @@
 #include <iostream>
 
 constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
+constexpr float TIMEOUT = 5.f;
 
 struct ClientInfo
 {
@@ -12,6 +13,7 @@ struct ClientInfo
 	std::string playerName = "default";
 	SocketAddress address;
 	bool isConnected = false;
+	float lastHeardTime = 0.f;
 };
 
 class GameManager;
@@ -34,6 +36,7 @@ public:
 
 	static DWORD WINAPI Listen(LPVOID lpParam);
 	void SendPacket(uint8_t clientID, const char* data, int length);
+	void CheckClientsConnected();
 
 	void UnpackHeader(BufferReader& reader, PacketHeader& header);
 	void HandleOnPacketType(BufferReader& reader, PacketHeader& header);

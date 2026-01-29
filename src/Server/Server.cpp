@@ -44,6 +44,7 @@ void Server::Start()
 void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
+	CheckClientsConnected();
 	SendNewMissile();
 	SendMissilesToDestroy();
 	SendServerSnapshotsToClients();	
@@ -122,7 +123,8 @@ DWORD Server::Listen(LPVOID lpParam)
 			PacketHeader header;
 			if (DeserializePacketHeader(reader, header) == false) 
 				continue;
-
+			if (header.packetType != PacketType::ClientHello)
+				pServer->m_vClientsInfo[header.playerId]->lastHeardTime = 0.f;
 			pServer->HandleOnPacketType(reader, header);
 		}
 		else if (ret == SOCKET_ERROR)
@@ -153,7 +155,7 @@ void Server::SendPacket(uint8_t clientID, const char* data, int length)
 {
 	ClientInfo* pClient = m_vClientsInfo[clientID];
 
-	if (pClient == nullptr || !pClient->isConnected)
+	if (pClient == nullptr || pClient->isConnected == false)
 	{
 		std::cerr << "Attempted to send packet to invalid or disconnected client ID: " << (int)clientID << "\n";
 		return;
@@ -170,6 +172,19 @@ void Server::SendPacket(uint8_t clientID, const char* data, int length)
 
 	if (sentBytes == SOCKET_ERROR)
 		std::cerr << "sendto failed with error: " << WSAGetLastError() << "\n";
+}
+
+void Server::CheckClientsConnected()
+{
+	for (ClientInfo* client : m_vClientsInfo)
+	{
+		if (client->isConnected)
+		{
+			client->lastHeardTime += m_pGM->GetDeltaTime();
+			if (client->lastHeardTime >= TIMEOUT)
+				client->isConnected = false;
+		}
+	}
 }
 
 void Server::UnpackHeader(BufferReader& reader, PacketHeader& header)
@@ -280,14 +295,18 @@ void Server::HandleClientInput(BufferReader& reader, PacketHeader& header)
 
 void Server::HandlePing(BufferReader& reader, PacketHeader& header)
 {
+
 }
 
 void Server::HandlePong(BufferReader& reader, PacketHeader& header)
 {
+
 }
 
 void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
+	std::cout << "Player " << (int)header.playerId << " disconnected" << std::endl;
+	m_vClientsInfo[header.playerId]->isConnected = false;
 }
 
 void Server::SendMatchStart()

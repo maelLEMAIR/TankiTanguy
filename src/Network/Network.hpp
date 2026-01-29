@@ -33,7 +33,8 @@ enum PacketType : uint8_t
 	Pong = 0x08,				// Dans les 2 sens
 	NewMissile = 0x09,			// Server -> Clients
 	DestroyMissile = 0x10,		// Server -> Clients
-	PlayerName = 0x11			// Server -> Clients
+	PlayerName = 0x11,			// Server -> Clients
+	PlayerJoin = 0x12			// Server -> Clients
 };
 
 // ============================
@@ -306,21 +307,6 @@ inline bool DeserializeServerWelcome(BufferReader& reader, MsgServerWelcome& mes
 	return reader.ReadU8(message.playerId) &&
 		reader.ReadU8(message.serverTickRate) &&
 		reader.ReadU32(message.serverTimeMs);
-}
-
-struct MsgDisconnect
-{
-	uint8_t reasonCode;
-};
-
-inline void SerializeDisconnect(BufferWriter& writer, const MsgDisconnect& msg)
-{
-	writer.WriteU8(msg.reasonCode);
-}
-
-inline bool DeserializeDisconnect(BufferReader& reader, MsgDisconnect& msg)
-{
-	return reader.ReadU8(msg.reasonCode);
 }
 
 struct InputCmd
