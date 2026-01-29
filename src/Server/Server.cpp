@@ -215,15 +215,14 @@ void Server::HandleClientHello(BufferReader& reader)
 			playerId = i;
 		}
 	}
+	
 	if (cltInfo)
 	{
 		SetClientInfo(cltInfo, (SocketAddress)m_lastClientAddr, decoded);
 		std::cout << "Player " << playerId << " reconnected: " << decoded.playerName << "\n";
 	}
 	else
-	{
 		AddClient(playerId, decoded);
-	}
 
 	if (m_idCount >= 2)
 	{
@@ -260,7 +259,7 @@ void Server::SendNewPlayer()
 	
 	for (int i = 0; i < m_vClientsInfo.size(); i++)
 	{
-		welcomeMsg.playerId			=  i;
+		welcomeMsg.playerId	= i;
 		
 		BufferWriter writer;
 		SerializePacketHeader(writer, header);

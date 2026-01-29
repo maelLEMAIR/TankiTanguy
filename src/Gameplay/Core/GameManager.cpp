@@ -44,7 +44,7 @@ void GameManager::Start()
 
 void GameManager::Update()
 {
-    if (m_matchStarted == false)
+    if (m_matchStarted)
     {
         float dt = cpuTime.delta;
         CollisionCheck();

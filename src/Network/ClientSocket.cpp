@@ -180,6 +180,7 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 	m_serverInfo.serverTickRate = decoded.serverTickRate;
 	m_serverInfo.serverTimeMs	= decoded.serverTimeMs;
 
+	
 	for (int i = 0; i < m_serverInfo.playerCount; i++)
 		m_gm->AddPlayer(XMFLOAT3(), i, 0, XMINT3(255, 255, 255), "", false);
 }
@@ -217,9 +218,7 @@ void ClientSocket::HandlePlayerSpawn(BufferReader& reader)
 	MsgPlayerInfo decoded;
 	bool msgOk = DeserializePlayerInfo(reader, decoded);
 	
-	Player* player = m_gm->GetPlayers()[decoded.playerId];
-	player->SetPseudo(decoded.name);
-	player->SetColor(decoded.r, decoded.g, decoded.b);
+	m_gm->AddPlayer(XMFLOAT3(), decoded.playerId, 0, XMINT3(decoded.r, decoded.g, decoded.b), decoded.name, false);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)
