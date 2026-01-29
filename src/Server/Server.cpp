@@ -18,16 +18,22 @@ void Server::MainLoop()
 {
 	while (m_running)
 	{
-		/*if (m_waitingPlayers == false)
-			Update();*/
-		Update();
+		if (m_waitingPlayers == false)
+			Update();
 	}
 }
 
 void Server::Start()
 {
 	InitializeSocket();
-	
+
+	ClientInfo* client1 = new ClientInfo();
+	ClientInfo* client2 = new ClientInfo();
+	client1->playerId = 0;
+	client2->playerId = 1;
+	m_vClientsInfo.push_back(client1);
+	m_vClientsInfo.push_back(client2);
+
 	m_running = true;
 	m_pGM = new GameManager(true);
 	m_pGM->ServerSideStart();
@@ -204,29 +210,40 @@ void Server::HandleClientHello(BufferReader& reader)
 {
 	MsgClientHello decoded;
 	bool msgOk = DeserializeClientHello(reader, decoded);
-
-	int playerId = -1; 
-	ClientInfo* cltInfo = nullptr;
-	for (int i = 0; i < m_vClientsInfo.size(); i++)
-	{
-		if (m_vClientsInfo[i]->playerName == decoded.playerName)
-		{
-			cltInfo = m_vClientsInfo[i];
-			playerId = i;
-		}
-	}
 	
-	if (cltInfo)
+	int playerID = -1;
+	if (m_vClientsInfo[0]->playerName == "default")
 	{
-		SetClientInfo(cltInfo, (SocketAddress)m_lastClientAddr, decoded);
-		std::cout << "Player " << playerId << " reconnected: " << decoded.playerName << "\n";
+		SetClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
+		playerID = 0;
+		std::cout << "Player 0 connected: " << decoded.playerName << "\n";
+	}
+	else if (m_vClientsInfo[0]->playerName == decoded.playerName)
+	{
+		SetClientInfo(m_vClientsInfo[0], (SocketAddress)m_lastClientAddr, decoded);
+		playerID = 0;
+		std::cout << "Player 0 reconnected: " << decoded.playerName << "\n";
+	}
+	else if (m_vClientsInfo[1]->playerName == "default")
+	{
+		SetClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
+		playerID = 1;
+		std::cout << "Player 1 connected: " << decoded.playerName << "\n";
+	}
+	else if (m_vClientsInfo[1]->playerName == decoded.playerName)
+	{
+		SetClientInfo(m_vClientsInfo[1], (SocketAddress)m_lastClientAddr, decoded);
+		playerID = 1;
+		std::cout << "Player 1 reconnected: " << decoded.playerName << "\n";
 	}
 	else
-		AddClient(playerId, decoded);
-
-	if (m_idCount >= 2)
 	{
-		std::cout << "2 players connected! Starting match...\n" << std::endl;
+		std::cout << "Player try to join..." << decoded.playerName << "\n";
+	}
+
+	if (m_vClientsInfo[0]->isConnected /*&& m_vClientsInfo[1]->isConnected*/)
+	{
+		std::cout << "Both players connected! Starting match...\n" << std::endl;
 		SendMatchStart();
 		SendPlayersInfo();
 		m_waitingPlayers = false;
@@ -234,12 +251,11 @@ void Server::HandleClientHello(BufferReader& reader)
 
 	PacketHeader header;
 	header.packetType = PacketType::ServerWelcome;
-	
+
 	MsgServerWelcome welcomeMsg;
-	welcomeMsg.playerId			= playerId;
-	welcomeMsg.playerCount		= m_idCount;
-	welcomeMsg.serverTickRate	= 60;
-	welcomeMsg.serverTimeMs		= 0;
+	welcomeMsg.playerId = playerID;
+	welcomeMsg.serverTickRate = 60;
+	welcomeMsg.serverTimeMs = 0;
 
 	BufferWriter writer;
 	SerializePacketHeader(writer, header);
@@ -247,55 +263,18 @@ void Server::HandleClientHello(BufferReader& reader)
 	SendPacket(welcomeMsg.playerId, (const char*)writer.data.data(), (int)writer.data.size());
 }
 
-void Server::SendNewPlayer()
-{
-	PacketHeader header;
-	header.packetType = PacketType::PlayerSpawn;
-
-	MsgServerWelcome welcomeMsg;
-	welcomeMsg.playerCount		= m_idCount;
-	welcomeMsg.serverTickRate	= 60;
-	welcomeMsg.serverTimeMs		= 0;
-	
-	for (int i = 0; i < m_vClientsInfo.size(); i++)
-	{
-		welcomeMsg.playerId	= i;
-		
-		BufferWriter writer;
-		SerializePacketHeader(writer, header);
-		SerializeServerWelcome(writer, welcomeMsg);
-		SendPacket(i, (const char*)writer.data.data(), (int)writer.data.size());
-	}
-}
-
-void Server::AddClient(int& _playerId, MsgClientHello& _decoded)
-{
-	_playerId = m_idCount;
-	
-	ClientInfo* newClient = new ClientInfo();
-	newClient->playerId = _playerId;
-
-	Player* player = m_pGM->AddPlayer(XMFLOAT3(), _playerId, 0, XMINT3(255, 255, 255), "", true);
-	m_pGM->RespawnPlayer(player);
-	
-	SetClientInfo(newClient, (SocketAddress)m_lastClientAddr, _decoded);
-	std::cout << "Player " << _playerId << " connected: " << _decoded.playerName << "\n";
-	
-	m_vClientsInfo.push_back(newClient);
-	m_idCount++;
-}
-
 void Server::HandleClientInput(BufferReader& reader, PacketHeader& header)
 {
 	MsgInputList decoded;
 	bool msgOk = DeserializeInputList(reader, decoded);
-	if (msgOk == false)
-		return;
+	if (msgOk == false) return;
 
 	int playerIndex = header.playerId;
 	
 	for (const InputCmd& cmd : decoded.inputsList)
+	{
 		SetPlayerInput(playerIndex, cmd.buttons);
+	}
 }
 
 void Server::HandlePing(BufferReader& reader, PacketHeader& header)
@@ -308,7 +287,6 @@ void Server::HandlePong(BufferReader& reader, PacketHeader& header)
 
 void Server::HandleDisconnect(BufferReader& reader, PacketHeader& header)
 {
-	
 }
 
 void Server::SendMatchStart()
@@ -319,8 +297,9 @@ void Server::SendMatchStart()
 	SerializePacketHeader(writer, header);
 	
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
 		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
-	
+	}
 }
 
 void Server::SendNewMissile()
@@ -335,29 +314,29 @@ void Server::SendNewMissile()
 	SerializeNewMissile(writer, msg);
 
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
 		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
-	
+	}
 	m_pGM->SetNewMissileAdded(false);
 }
 
 void Server::SendPlayersInfo()
 {
 	PacketHeader header;
-	header.packetType = PacketType::PlayerSpawn;
+	header.packetType = PacketType::PlayerInfo;
 	
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
 		for (int otherClientID = 0; otherClientID < m_vClientsInfo.size(); otherClientID++)
 		{
-			if (clientID == otherClientID)
-				continue;
+			if (clientID == otherClientID) continue;
 
 			MsgPlayerInfo msg;
-			msg.playerId	= otherClientID;
-			msg.name		= m_vClientsInfo[otherClientID]->playerName;
-			msg.r			= m_vClientsInfo[otherClientID]->playerRed;
-			msg.g			= m_vClientsInfo[otherClientID]->playerGreen;
-			msg.b			= m_vClientsInfo[otherClientID]->playerBlue;
+			msg.playerId = otherClientID;
+			msg.name = m_vClientsInfo[otherClientID]->playerName;
+			msg.r = m_vClientsInfo[otherClientID]->playerRed;
+			msg.g = m_vClientsInfo[otherClientID]->playerGreen;
+			msg.b = m_vClientsInfo[otherClientID]->playerBlue;
 
 			BufferWriter writer;
 			SerializePacketHeader(writer, header);
@@ -370,14 +349,12 @@ void Server::SendPlayersInfo()
 void Server::SendServerSnapshotsToClients()
 {
 	PacketHeader header;
-	header.packetType	= PacketType::ServerSnapshot;
-	header.sequence		= m_snapshotCount;
+	header.packetType = PacketType::ServerSnapshot;
+	header.sequence = m_snapshotCount;
 
 	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
 	{
-		if (m_vClientsInfo[clientID]->isConnected == false)
-			continue;
-		
+		if (m_vClientsInfo[clientID]->isConnected == false) continue;
 		//Pour chaque client envoie des infos des autres players
 		for (int playerID = 0; playerID < m_pGM->GetPlayers().size(); playerID++)
 		{
@@ -422,7 +399,6 @@ void Server::SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const M
 	pInfo->playerBlue	= msg.b;
 	pInfo->address		= addr;
 	pInfo->isConnected	= true;
-	
 	m_pGM->GetPlayers()[pInfo->playerId]->SetPseudo(msg.playerName);
 	m_pGM->GetPlayers()[pInfo->playerId]->SetColor(msg.r, msg.g, msg.b);
 }

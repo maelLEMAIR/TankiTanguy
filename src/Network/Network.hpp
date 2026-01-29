@@ -21,18 +21,18 @@ constexpr uint8_t  PROTOCOL_VERSION = 1;    // Change si tu casses la compat
 enum PacketType : uint8_t
 {
 	// Connection
-	ClientHello		= 0x01,		// Client -> Server
-	ServerWelcome	= 0x02,		// Server -> Client
-	MatchStart		= 0x03,		// Server -> Clients
-	Disconnect		= 0x04,		// Dans les 2 sens
+	ClientHello = 0x01,			// Client -> Server
+	ServerWelcome = 0x02,		// Server -> Client
+	MatchStart = 0x03,			// Server -> Clients
+	Disconnect = 0x04,			// Dans les 2 sens
 
 	// Jeu
-	PlayerSpawn		= 0x05,
-	ClientInput		= 0x06,		// Client -> Server
-	ServerSnapshot	= 0x07,		// Server -> Client
-	Ping			= 0x08,		// Dans les 2 sens
-	Pong			= 0x09,		// Dans les 2 sens
-	NewMissile		= 0x10,		// Server -> Clients
+	ClientInput = 0x05,			// Client -> Server
+	ServerSnapshot = 0x06,		// Server -> Client
+	Ping = 0x07,				// Dans les 2 sens
+	Pong = 0x08,				// Dans les 2 sens
+	NewMissile = 0x09,			// Server -> Clients
+	PlayerInfo = 0x10,			// Server -> Clients
 };
 
 // ============================
@@ -304,7 +304,6 @@ inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 struct MsgServerWelcome
 {
 	uint8_t  playerId;
-	uint8_t	 playerCount;
 	uint8_t  serverTickRate;
 	uint32_t serverTimeMs;
 };
@@ -312,17 +311,15 @@ struct MsgServerWelcome
 inline void SerializeServerWelcome(BufferWriter& writer, const MsgServerWelcome& message)
 {
 	writer.WriteU8(message.playerId);
-	writer.WriteU8(message.playerCount);
 	writer.WriteU8(message.serverTickRate);
 	writer.WriteU32(message.serverTimeMs);
 }
 
 inline bool DeserializeServerWelcome(BufferReader& reader, MsgServerWelcome& message)
 {
-	return	reader.ReadU8(message.playerId) &&
-			reader.ReadU8(message.playerCount) &&
-			reader.ReadU8(message.serverTickRate) &&
-			reader.ReadU32(message.serverTimeMs);
+	return reader.ReadU8(message.playerId) &&
+		reader.ReadU8(message.serverTickRate) &&
+		reader.ReadU32(message.serverTimeMs);
 }
 
 struct MsgDisconnect
@@ -356,8 +353,9 @@ inline void SerializeInputList(BufferWriter& writer, const MsgInputList& msg)
 	writer.WriteU16(count);
 
 	for (const auto& input : msg.inputsList)
+	{
 		writer.WriteU16(input.buttons);
-	
+	}
 }
 
 inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
@@ -383,12 +381,12 @@ inline bool DeserializeInputList(BufferReader& reader, MsgInputList& msg)
 
 struct PlayerNetState
 {
-	float posX	= 0;
-	float posY	= 0;
-	float posZ	= 0;
-	float dirX	= 0;
-	float dirY	= 0;
-	float dirZ	= 0;
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+	float dirX = 0;
+	float dirY = 0;
+	float dirZ = 0;
 	uint16_t hp = 0;
 };
 
@@ -405,13 +403,13 @@ inline void SerializePlayerNetState(BufferWriter& writer, const PlayerNetState& 
 
 inline bool DeserializePlayerNetState(BufferReader& reader, PlayerNetState& playerNetState)
 {
-	return	reader.ReadF32(playerNetState.posX) &&
-			reader.ReadF32(playerNetState.posY) &&
-			reader.ReadF32(playerNetState.posZ) &&
-			reader.ReadF32(playerNetState.dirX) &&
-			reader.ReadF32(playerNetState.dirY) &&
-			reader.ReadF32(playerNetState.dirZ) &&
-			reader.ReadU16(playerNetState.hp);
+	return reader.ReadF32(playerNetState.posX) &&
+		reader.ReadF32(playerNetState.posY) &&
+		reader.ReadF32(playerNetState.posZ) &&
+		reader.ReadF32(playerNetState.dirX) &&
+		reader.ReadF32(playerNetState.dirY) &&
+		reader.ReadF32(playerNetState.dirZ) &&
+		reader.ReadU16(playerNetState.hp);
 }
 
 struct MsgPlayerInfo
@@ -435,23 +433,22 @@ inline void SerializePlayerInfo(BufferWriter& writer, const MsgPlayerInfo& p)
 
 inline bool DeserializePlayerInfo(BufferReader& reader, MsgPlayerInfo& p)
 {
-	if (reader.ReadU8(p.playerId) == false)
-		return false;
-	
+	if (reader.ReadU8(p.playerId) == false)			return false;
 	uint8_t nameLen;
-	if (reader.ReadU8(nameLen) == false)
-		return false;
-	if (reader.CanRead(nameLen) == false)
-		return false;
+	if (reader.ReadU8(nameLen) == false)			return false;
+	if (reader.CanRead(nameLen) == false)			return false;
 
 	p.name.resize(nameLen);
+
 	if (reader.ReadBytes(&p.name[0], nameLen) == false)
 		return false;
-	
+
 	if (reader.ReadU8(p.r) == false)
 		return false;
+
 	if (reader.ReadU8(p.g) == false)
 		return false;
+
 	if (reader.ReadU8(p.b) == false)
 		return false;
 
@@ -474,8 +471,8 @@ inline void SerializeServerSnapshot(BufferWriter& writer, const MsgSnapshot& msg
 
 inline bool DeserializeServerSnapshot(BufferReader& reader, MsgSnapshot& msg)
 {
-	return	reader.ReadU8(msg.playerId) &&
-			DeserializePlayerNetState(reader, msg.playerState);
+	return reader.ReadU8(msg.playerId) &&
+		DeserializePlayerNetState(reader, msg.playerState);
 }
 
 struct MsgPing

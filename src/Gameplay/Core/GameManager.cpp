@@ -38,6 +38,10 @@ void GameManager::Start()
     delete m_pPlCrt;
     m_pPlCrt = new PlayerController();
 
+    // Player
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
+    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
+
     m_pMap = new Map();
     m_pMap->Init(50, 50);
 }
@@ -69,6 +73,10 @@ void GameManager::ServerSideStart()
 {
     delete m_pPlCrt;
     m_chrono.Start();
+
+    // Player
+    AddPlayer(XMFLOAT3(0, 0, 0), 0.0f, XMINT3(255, 0, 0), "rouge", m_isServer);
+    AddPlayer(XMFLOAT3(0, 0, 25), XM_PI, XMINT3(0, 0, 255), "bleu", m_isServer);
 
     m_pMap = new Map();
     m_pMap->Init(50, 50);
@@ -146,10 +154,10 @@ void GameManager::CollisionCheck()
     }
 }
 
-Player* GameManager::AddPlayer(XMFLOAT3 _pos, uint8_t _id, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
+Player* GameManager::AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer)
 {
     Player* player = CreateObject<Player>(_isServer);
-    player->Init(_pos, _id, _angle, _pseudo, _color);
+    player->Init(_pos, m_players.size(), _angle, _pseudo, _color);
     if (m_isServer)
     {
         PlayerController* plCrt = new PlayerController();
@@ -166,7 +174,6 @@ void GameManager::SetMainPlayer(int _id)
         return;
 
     m_players[_id]->AttachCamera();
-    m_players[_id]->SetId(_id);
     m_mainPlayer = m_players[_id];
     m_pPlCrt->Init(*m_mainPlayer);
 }

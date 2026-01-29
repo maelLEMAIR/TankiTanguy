@@ -43,8 +43,6 @@ public:
 
 	//Logique de traitement des messages
 	void HandleClientHello(BufferReader& reader);
-	void SendNewPlayer();
-	void AddClient(int& _playerId, MsgClientHello& _decoded);
 	void HandleClientInput(BufferReader& reader, PacketHeader& header);
 	void HandlePing(BufferReader& reader, PacketHeader& header);
 	void HandlePong(BufferReader& reader, PacketHeader& header);
@@ -72,7 +70,6 @@ private:
 
 	uint8_t m_snapshotCount = 0;
 
-	uint8_t m_idCount = 0;
 	std::vector<ClientInfo*> m_vClientsInfo;
 };
 
