@@ -210,6 +210,7 @@ void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 	player->SetPosition(decoded.playerState.posX, decoded.playerState.posY, decoded.playerState.posZ);
 	player->SetDirection(decoded.playerState.dirX, decoded.playerState.dirY, decoded.playerState.dirZ);
 	player->GetLife() = decoded.playerState.hp;
+	player->GetPlayerScore().SetScore(decoded.playerState.score);
 }
 
 void ClientSocket::HandleNewMissile(BufferReader& reader)

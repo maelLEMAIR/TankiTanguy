@@ -391,6 +391,7 @@ void Server::SendServerSnapshotsToClients()
 			playerState.dirY = player->GetDir().y;
 			playerState.dirZ = player->GetDir().z;
 			playerState.hp = player->GetLife().GetCurrentLife();
+			playerState.score = player->GetScore();
 
 			MsgSnapshot snapshotMsg;
 			snapshotMsg.playerId = playerID;
