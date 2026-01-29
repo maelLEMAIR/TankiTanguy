@@ -260,8 +260,12 @@ void ClientSocket::HandleDisconnect(BufferReader& reader)
 
 void ClientSocket::SendPing()
 {
+	if (m_isConnected == false)
+		return;
+
 	PacketHeader header;
 	header.packetType = PacketType::Ping;
+	header.playerId = m_serverInfo.playerId;
 	BufferWriter writer;
 	SerializePacketHeader(writer, header);
 

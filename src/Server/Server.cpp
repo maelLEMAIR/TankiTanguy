@@ -175,7 +175,10 @@ void Server::CheckClientsConnected()
 		{
 			client->lastHeardTime += m_pGM->GetDeltaTime();
 			if (client->lastHeardTime >= TIMEOUT)
+			{
 				client->isConnected = false;
+				std::cout << "client deco" << std::endl;
+			}
 		}
 	}
 }
