@@ -72,7 +72,8 @@ void App::OnStart()
 	});
 
 	XMFLOAT3 posModel	= XMFLOAT3(posCam.x + 3.f, posCam.y, posCam.z + 5.f);
-	m_pModelPlayer		= m_gameManager.AddPlayer(posModel,  -2*XM_PI / 3, m_colors[m_currentColor], "", false);
+	m_pModelPlayer		= m_gameManager.CreateObject<Player>(false);
+	m_pModelPlayer->Init(posModel, -1, -2*XM_PI / 3, "", m_colors[m_currentColor]);
 	
 	m_pFloorMesh.CreateCube();
 	m_pFloorMaterial.color = cpu::ToColor(9, 176, 35);
@@ -182,8 +183,10 @@ void App::OnConnectionSuccess()
     m_pErrorText->SetActive(false);
 
 	m_pModelPlayer->SetNeedToBeDestroyed();
+	
 	m_id = m_client.GetServerInfo().playerId;
 	m_gameManager.SetMainPlayer(m_id);
+	
 	m_pPlayer = m_gameManager.GetMainPlayer();
 	m_pPlayer->SetPseudo(m_pseudo);
 	m_pPlayer->SetColor(m_colors[m_currentColor].x, m_colors[m_currentColor].y, m_colors[m_currentColor].z);

@@ -139,6 +139,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::ServerWelcome:
 		HandleServerWelcome(reader);
 		break;
+	case PacketType::PlayerSpawn:
+		HandlePlayerSpawn(reader);
+		break;
 	case PacketType::MatchStart:
 		HandleMatchStart(reader);
 		break;
@@ -149,9 +152,6 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 		break;
 	case PacketType::NewMissile:
 		HandleNewMissile(reader);
-		break;
-	case PacketType::PlayerInfo:
-		HandlePlayersInfo(reader);
 		break;
 	case PacketType::Ping:
 		HandlePing(reader);
@@ -174,10 +174,14 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 	MsgServerWelcome decoded;
 	bool msgOk = DeserializeServerWelcome(reader, decoded);
 	m_isConnected = true;
-			
-	m_serverInfo.playerId = decoded.playerId;
+
+	m_serverInfo.playerId		= decoded.playerId;
+	m_serverInfo.playerCount	= decoded.playerCount;
 	m_serverInfo.serverTickRate = decoded.serverTickRate;
-	m_serverInfo.serverTimeMs = decoded.serverTimeMs;
+	m_serverInfo.serverTimeMs	= decoded.serverTimeMs;
+
+	for (int i = 0; i < m_serverInfo.playerCount; i++)
+		m_gm->AddPlayer(XMFLOAT3(), i, 0, XMINT3(255, 255, 255), "", false);
 }
 
 void ClientSocket::HandleMatchStart(BufferReader& reader)
@@ -206,13 +210,16 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 	shooter->Shoot();
 }
 
-void ClientSocket::HandlePlayersInfo(BufferReader& reader)
+void ClientSocket::HandlePlayerSpawn(BufferReader& reader)
 {
+	std::cout << "Message PlayerSpawn receive !" << '\n';
+	
 	MsgPlayerInfo decoded;
 	bool msgOk = DeserializePlayerInfo(reader, decoded);
-
-	m_gm->GetPlayers()[decoded.playerId]->SetPseudo(decoded.name);
-	m_gm->GetPlayers()[decoded.playerId]->SetColor(decoded.r, decoded.g, decoded.b);
+	
+	Player* player = m_gm->GetPlayers()[decoded.playerId];
+	player->SetPseudo(decoded.name);
+	player->SetColor(decoded.r, decoded.g, decoded.b);
 }
 
 void ClientSocket::HandlePing(BufferReader& reader)

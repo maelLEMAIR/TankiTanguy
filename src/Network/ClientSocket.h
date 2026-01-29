@@ -11,6 +11,7 @@ constexpr size_t MAX_UDP_PACKET_SIZE = 1500;
 struct ServerInfo
 {
 	uint8_t  playerId;
+	uint8_t  playerCount;
 	uint8_t  serverTickRate;
 	uint32_t serverTimeMs;
 };
@@ -37,10 +38,10 @@ public:
 
 	//Logique de traitement des messages
 	void HandleServerWelcome(BufferReader& reader);
+	void HandlePlayerSpawn(BufferReader& reader);
 	void HandleMatchStart(BufferReader& reader);
 	void HandleServerSnapshot(BufferReader& reader);
 	void HandleNewMissile(BufferReader& reader);
-	void HandlePlayersInfo(BufferReader& reader);
 	void HandlePing(BufferReader& reader);
 	void HandlePong(BufferReader& reader);
 	void HandleDisconnect(BufferReader& reader);

@@ -20,7 +20,8 @@ public:
     void Update() override;
     void Dead(float _dt) override;
     
-    void Shoot() { m_pWeapon->Shoot(); };
+    void Shoot() { m_pWeapon->Shoot(); }
+    void SetId(uint8_t i) { m_id = i;};
     void AttachCamera();
     void Revive(XMFLOAT3 _pos);
 
@@ -33,7 +34,7 @@ public:
     bool IsDead() { return m_life.IsDead(); }
     Life& GetLife() { return m_life; }
     std::string& GetPseudo() { return m_pseudo; }
-    int GetID() const { return m_id; }
+    uint8_t GetID() const { return m_id; }
     Score& GetPlayerScore() { return m_score; }
     int GetScore() const { return m_score.GetScore(); }
 
@@ -42,7 +43,7 @@ protected:
 private:
     cpu_transform m_transformCanon;
     std::string m_pseudo;
-    uint8_t m_id = 0;
+    uint8_t m_id = -1;
     Score m_score;
     Life m_life;
     
