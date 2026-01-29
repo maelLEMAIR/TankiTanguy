@@ -56,11 +56,17 @@ void GameManager::Update()
         m_pPlCrt->SendInputList();
     }
 
+    CheckMissileToDestroy();
+
     for (auto it = m_gameObjects.begin(); it != m_gameObjects.end(); )
     {
         GameObject* pGameObject = *it;
         if (pGameObject->IsNeedToBeDestroyed())
+        {
             it = m_gameObjects.erase(it);
+            delete pGameObject;
+        }
+            
         else
         {
             pGameObject->Update();
@@ -96,7 +102,11 @@ void GameManager::ServerSideUpdate()
     {
         GameObject* pGameObject = *it;
         if (pGameObject->IsNeedToBeDestroyed())
+        {
             it = m_gameObjects.erase(it);
+            delete pGameObject;
+        }
+            
         else
         {
             pGameObject->Update();
@@ -194,15 +204,31 @@ Missile* GameManager::AddMissile()
     return missile;
 }
 
-void GameManager::RemoveMissile(uint8_t _id)
+void GameManager::CheckMissileToDestroy()
 {
-    for (int i = 0; i < m_missiles.size(); i++)
+    for (auto it = m_missiles.begin(); it != m_missiles.end(); )
     {
-        if (m_missiles[0]->GetID() == _id)
+        Missile* m = *it;
+        bool mustDestroy = m->IsNeedToBeDestroyed();
+
+        if (mustDestroy == false)
         {
-            m_missiles.erase(m_missiles.begin() + i);
+            for (uint16_t id : m_toDestroyMissilesID)
+            {
+                if (m->GetID() == id)
+                {
+                    m->Dead();
+                    mustDestroy = true;
+                    break;
+                }
+            }
         }
+        if (mustDestroy)
+            it = m_missiles.erase(it);
+        else
+            ++it;
     }
+    m_toDestroyMissilesID.clear();
 }
 
 void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers)

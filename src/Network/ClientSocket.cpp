@@ -147,6 +147,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::NewMissile:
 		HandleNewMissile(reader);
 		break;
+	case PacketType::DestroyMissile:
+		HandleDestroyMissile(reader);
+		break;
 	case PacketType::PlayerName:
 		HandlePlayersName(reader);
 		break;
@@ -205,10 +208,10 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 
 void ClientSocket::HandleDestroyMissile(BufferReader& reader)
 {
-	MsgNewMissile decoded;
-	bool msgOk = DeserializeNewMissile(reader, decoded);
+	MsgDestroyMissile decoded;
+	bool msgOk = DeserializeDestroyMissile(reader, decoded);
 
-	for 
+	m_gm->SetToDestroyMissilesID(decoded.vMissileIDs);
 }
 
 void ClientSocket::HandlePlayersName(BufferReader& reader)

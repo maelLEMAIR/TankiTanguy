@@ -29,7 +29,7 @@ public:
     void AddPlayer(XMFLOAT3 _pos, float _angle, XMINT3 _color, std::string _pseudo, bool _isServer, bool _mainPlayer = false);
     void SetMainPlayer(int _id);
     Missile* AddMissile();
-    void RemoveMissile(uint8_t _id);
+    void CheckMissileToDestroy();
     void RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers = 30.0f);
 
     Player* GetMainPlayer() const { return m_mainPlayer; }
@@ -37,7 +37,10 @@ public:
     std::vector<PlayerController*> GetPlayerControllers() { return m_playerControllers; }
     bool GetNewMissileAdded() { return m_newMissileAdded; }
     Missile* GetLastMissileAdded() { return m_lastMissileAdded; }
+    std::vector<Missile*> GetMissiles() { return m_missiles; }
+    std::vector<uint16_t>& GetToDestroyMissilesID() { return m_toDestroyMissilesID; }
 
+    void SetToDestroyMissilesID(std::vector<uint16_t> v) { m_toDestroyMissilesID = v; }
     void SetNewMissileAdded(bool v) { m_newMissileAdded = v; }
     void SetMatchStart(bool v) { m_matchStarted = v; }
 
@@ -63,6 +66,7 @@ private:
     std::vector<PlayerController*> m_playerControllers;
     std::vector<Player*> m_players;
     std::vector<Missile*> m_missiles;
+    std::vector<uint16_t> m_toDestroyMissilesID;
 
     bool m_newMissileAdded = false;
     uint8_t m_nextMissileID = 0;

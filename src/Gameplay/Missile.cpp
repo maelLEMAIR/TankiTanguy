@@ -35,6 +35,7 @@ Missile::~Missile()
 
 void Missile::Init(cpu_transform& _transform, Player& _player)
 {
+    m_tag = "Missile";
     m_pOwnerPlayer = &_player;
     m_speed = 10.0f;
     m_firstPos = _transform.pos;
@@ -105,13 +106,16 @@ void Missile::OnCollisionEnter(Collider* pOther)
 
 void Missile::Dead(float _dt)
 {
-   if (m_isServer == false)
-   {
-       m_pEntity->dead = true;
-       m_pEmitter->dead = true;
-   }
-   m_needToBeDestroyed = true;
-   GameManager::Get().RemoveMissile(m_id);
+    if (m_isServer == false)
+    {
+        m_pEntity->dead = true;
+        m_pEmitter->dead = true;
+    }
+    else
+    {
+        GameManager::Get().GetToDestroyMissilesID().push_back(m_id);
+    }
+    m_needToBeDestroyed = true;
 }
 
 void Missile::SetID(uint8_t _id)

@@ -44,8 +44,8 @@ void Server::Start()
 void Server::Update()
 {
 	m_pGM->ServerSideUpdate();
-	if (m_pGM->GetNewMissileAdded())
-		SendNewMissile();
+	SendNewMissile();
+	SendMissilesToDestroy();
 	SendServerSnapshotsToClients();	
 	Sleep(16);
 }
@@ -305,6 +305,9 @@ void Server::SendMatchStart()
 
 void Server::SendNewMissile()
 {
+	if (m_pGM->GetNewMissileAdded() == false)
+		return;
+
 	PacketHeader header;
 	header.packetType = PacketType::NewMissile;
 
@@ -346,10 +349,25 @@ void Server::SendPlayersName()
 
 void Server::SendMissilesToDestroy()
 {
+	if (m_pGM->GetToDestroyMissilesID().empty())
+		return;
+
 	PacketHeader header;
 	header.packetType = PacketType::DestroyMissile;
 
+	MsgDestroyMissile msg;
+	msg.vMissileIDs = m_pGM->GetToDestroyMissilesID();
 
+	m_pGM->GetToDestroyMissilesID().clear();
+
+	BufferWriter writer;
+	SerializePacketHeader(writer, header);
+	SerializeDestroyMissile(writer, msg);
+
+	for (int clientID = 0; clientID < m_vClientsInfo.size(); clientID++)
+	{
+		SendPacket(clientID, (const char*)writer.data.data(), (int)writer.data.size());
+	}
 }
 
 void Server::SendServerSnapshotsToClients()
