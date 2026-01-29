@@ -156,6 +156,9 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 	case PacketType::PlayerInfo:
 		HandlePlayersInfo(reader);
 		break;
+	case PacketType::PlayerJoin:
+		HandlePlayerJoin(reader);
+		break;
 	case PacketType::Ping:
 		HandlePing(reader);
 		break;
@@ -172,8 +175,6 @@ void ClientSocket::HandleOnPacketType(BufferReader& reader, PacketHeader& header
 
 void ClientSocket::HandleServerWelcome(BufferReader& reader)
 {
-	std::cout << "Message ServerWelcome re�u\n";
-
 	MsgServerWelcome decoded;
 	bool msgOk = DeserializeServerWelcome(reader, decoded);
 	m_isConnected = true;
@@ -181,6 +182,14 @@ void ClientSocket::HandleServerWelcome(BufferReader& reader)
 	m_serverInfo.playerId = decoded.playerId;
 	m_serverInfo.serverTickRate = decoded.serverTickRate;
 	m_serverInfo.serverTimeMs = decoded.serverTimeMs;
+
+	for (int i = 0; i < decoded.playerCount; i++)
+	{
+		if (i == decoded.playerId)
+			m_gm->AddPlayer(XMFLOAT3(), 0.f, XMINT3(), "base", false, true);
+		else
+			m_gm->AddPlayer(XMFLOAT3(), 0.f, XMINT3(), "base", false);
+	}
 }
 
 void ClientSocket::HandleMatchStart(BufferReader& reader)
@@ -190,6 +199,9 @@ void ClientSocket::HandleMatchStart(BufferReader& reader)
 
 void ClientSocket::HandleServerSnapshot(BufferReader& reader)
 {
+	if (m_isConnected == false)
+		return;
+
 	MsgSnapshot decoded;
 	bool msgOk = DeserializeServerSnapshot(reader, decoded);
 
@@ -215,6 +227,11 @@ void ClientSocket::HandleDestroyMissile(BufferReader& reader)
 	bool msgOk = DeserializeDestroyMissile(reader, decoded);
 
 	m_gm->SetToDestroyMissilesID(decoded.vMissileIDs);
+}
+
+void ClientSocket::HandlePlayerJoin(BufferReader& reader)
+{
+	m_gm->AddPlayer(XMFLOAT3(), 0.f, XMINT3(), "base", false);
 }
 
 void ClientSocket::HandlePlayersInfo(BufferReader& reader)

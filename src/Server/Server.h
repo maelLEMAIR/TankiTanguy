@@ -54,8 +54,12 @@ public:
 	void SendMatchStart();
 	void SendNewMissile();
 	void SendMissilesToDestroy();
+	void SendNewPlayer();
 	void SendPlayersInfo();
 	void SendServerSnapshotsToClients();
+	void SendWelcomeMsg(uint8_t _clientID);
+
+	void AddNewClient(MsgClientHello& msg);
 
 	void SetPlayerInput(int playerIndex, uint16_t buttons);
 	void SetClientInfo(ClientInfo* pInfo, const SocketAddress& addr, const MsgClientHello& msg);
@@ -70,9 +74,9 @@ private:
 	
 	GameManager* m_pGM = nullptr;
 	bool m_running = false;
-	bool m_waitingPlayers = true;
 
 	uint8_t m_snapshotCount = 0;
+	uint8_t m_playerCount = 0;
 
 	std::vector<ClientInfo*> m_vClientsInfo;
 };

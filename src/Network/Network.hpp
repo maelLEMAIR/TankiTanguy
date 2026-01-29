@@ -306,6 +306,7 @@ inline bool DeserializeClientHello(BufferReader& reader, MsgClientHello& msg)
 struct MsgServerWelcome
 {
 	uint8_t  playerId;
+	uint8_t	 playerCount;
 	uint8_t  serverTickRate;
 	uint32_t serverTimeMs;
 };
@@ -313,6 +314,7 @@ struct MsgServerWelcome
 inline void SerializeServerWelcome(BufferWriter& writer, const MsgServerWelcome& message)
 {
 	writer.WriteU8(message.playerId);
+	writer.WriteU8(message.playerCount);
 	writer.WriteU8(message.serverTickRate);
 	writer.WriteU32(message.serverTimeMs);
 }
@@ -320,6 +322,7 @@ inline void SerializeServerWelcome(BufferWriter& writer, const MsgServerWelcome&
 inline bool DeserializeServerWelcome(BufferReader& reader, MsgServerWelcome& message)
 {
 	return reader.ReadU8(message.playerId) &&
+		reader.ReadU8(message.playerCount) &&
 		reader.ReadU8(message.serverTickRate) &&
 		reader.ReadU32(message.serverTimeMs);
 }
