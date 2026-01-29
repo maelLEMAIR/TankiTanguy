@@ -203,6 +203,14 @@ void ClientSocket::HandleNewMissile(BufferReader& reader)
 	shooter->Shoot();
 }
 
+void ClientSocket::HandleDestroyMissile(BufferReader& reader)
+{
+	MsgNewMissile decoded;
+	bool msgOk = DeserializeNewMissile(reader, decoded);
+
+	for 
+}
+
 void ClientSocket::HandlePlayersName(BufferReader& reader)
 {
 	MsgPlayerName decoded;

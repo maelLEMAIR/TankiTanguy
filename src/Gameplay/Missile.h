@@ -18,7 +18,7 @@ public:
     void SetID(uint8_t _id);
     
     uint8_t GetID();
-    int GetShooterId();
+    int GetShooterId(); 
     
 protected:
     

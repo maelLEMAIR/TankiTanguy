@@ -194,6 +194,17 @@ Missile* GameManager::AddMissile()
     return missile;
 }
 
+void GameManager::RemoveMissile(uint8_t _id)
+{
+    for (int i = 0; i < m_missiles.size(); i++)
+    {
+        if (m_missiles[0]->GetID() == _id)
+        {
+            m_missiles.erase(m_missiles.begin() + i);
+        }
+    }
+}
+
 void GameManager::RespawnPlayer(Player* _player, float _minDistanceBetweenPlayers)
 {
     static std::random_device rd;

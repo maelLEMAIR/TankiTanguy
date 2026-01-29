@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Core/Score.hpp"
+#include "Core/GameManager.h"
 
 Missile::Missile(bool _isServer) : GameObject(_isServer), SphereCollider(XMFLOAT3(1.0f, 1.0f, 1.0f), 1.0f), m_pEmitter(nullptr)
 {
@@ -109,7 +110,8 @@ void Missile::Dead(float _dt)
        m_pEntity->dead = true;
        m_pEmitter->dead = true;
    }
-    m_needToBeDestroyed = true;
+   m_needToBeDestroyed = true;
+   GameManager::Get().RemoveMissile(m_id);
 }
 
 void Missile::SetID(uint8_t _id)
